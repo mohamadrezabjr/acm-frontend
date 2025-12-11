@@ -35,12 +35,11 @@ export function Header() {
             >
               درباره ما
             </button>
-            <button
-              onClick={() => scrollToSection("events")}
-              className="text-foreground/80 hover:text-foreground transition-colors"
-            >
-              رویدادها
-            </button>
+            
+            <Link href="/events" className="text-foreground/80 hover:text-foreground transition-colors">
+              رویداد ها
+            </Link>
+            
             <Link href="/courses" className="text-foreground/80 hover:text-foreground transition-colors">
               دوره‌ها
             </Link>
@@ -56,9 +55,18 @@ export function Header() {
             >
               تماس با ما
             </button>
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-              عضویت
-            </Button>
+            <div className="flex items-center gap-2">
+              <Link href="/auth/login">
+                <Button variant="outline" size="sm">
+                  ورود
+                </Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  ثبت‌نام
+                </Button>
+              </Link>
+            </div>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -101,9 +109,18 @@ export function Header() {
             >
               تماس با ما
             </button>
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
-              عضویت
-            </Button>
+            <div className="flex flex-col gap-2 mt-2">
+              <Link href="/auth/login" onClick={() => setIsMenuOpen(false)}>
+                <Button variant="outline" size="sm" className="w-full bg-transparent">
+                  ورود
+                </Button>
+              </Link>
+              <Link href="/auth/register" onClick={() => setIsMenuOpen(false)}>
+                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
+                  ثبت‌نام
+                </Button>
+              </Link>
+            </div>
           </nav>
         )}
       </div>
