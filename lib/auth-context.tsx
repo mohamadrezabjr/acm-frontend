@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation"
 
 interface User {
   id: string
-  firstName: string
-  lastName: string
-  mobile: string
+  firstName?: string
+  lastName?: string
+  phone: string
   email?: string
   studentId?: string
 }
@@ -23,7 +23,7 @@ interface AuthContextType {
 interface RegisterData {
   firstName: string
   lastName: string
-  mobile: string
+  phone: string
   email?: string
   studentId?: string
   password: string
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      const response = await fetch(`${API_BASE_URL}/auth/me/`, {
         credentials: "include", // برای ارسال کوکی
       })
 
@@ -66,9 +66,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (identifier: string, password: string, isStudentId: boolean) => {
     try {
-      const loginData = isStudentId ? { student_id: identifier, password } : { mobile: identifier, password }
+      const loginData = isStudentId ? { student_id: identifier, password } : { phone: identifier, password }
 
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (data: RegisterData) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      const response = await fetch(`${API_BASE_URL}/auth/register/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({
           first_name: data.firstName,
           last_name: data.lastName,
-          mobile: data.mobile,
+          phone: data.phone,
           email: data.email,
           student_id: data.studentId,
           password: data.password,
@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // بعد از ثبت‌نام موفق، خودکار لاگین می‌کنیم
-      await login(data.mobile, data.password, false)
+      await login(data.phone, data.password, false)
     } catch (error) {
       console.error("Register error:", error)
       throw error
