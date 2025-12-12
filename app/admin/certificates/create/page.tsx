@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -10,8 +9,11 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight, Download } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/hooks/useAuth"
+import { Loader2 } from "lucide-react"
 
 export default function CreateCertificatePage() {
+  const { user, loading, isCreator } = useAuth()
   const router = useRouter()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [certificateData, setCertificateData] = useState({
@@ -22,11 +24,10 @@ export default function CreateCertificatePage() {
   })
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isAdminLoggedIn")
-    if (!isLoggedIn) {
-      router.push("/admin/login")
+    if (!loading && (!user || !isCreator())) {
+      router.push("/auth/login")
     }
-  }, [router])
+  }, [loading, user, router])
 
   useEffect(() => {
     drawCertificate()
@@ -140,6 +141,18 @@ export default function CreateCertificatePage() {
 
     alert("مدرک با موفقیت ایجاد شد! (داده‌ها در console لاگ شده‌اند)")
     handleDownload()
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!user || !isCreator()) {
+    return null
   }
 
   return (

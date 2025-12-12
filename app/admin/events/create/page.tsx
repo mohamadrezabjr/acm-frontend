@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -11,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, X, Upload, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { Loader2 } from "lucide-react"
+import { useAuth } from "@/hooks/useAuth"
 
 interface Speaker {
   id: string
@@ -20,6 +21,7 @@ interface Speaker {
 }
 
 export default function CreateEventPage() {
+  const { user, loading, isCreator } = useAuth()
   const router = useRouter()
   const [speakers, setSpeakers] = useState<Speaker[]>([])
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -39,11 +41,22 @@ export default function CreateEventPage() {
   })
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isAdminLoggedIn")
-    if (!isLoggedIn) {
-      router.push("/admin/login")
+    if (!loading && (!user || !isCreator())) {
+      router.push("/auth/login")
     }
-  }, [router])
+  }, [loading, user, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!user || !isCreator()) {
+    return null
+  }
 
   const addSpeaker = () => {
     setSpeakers([

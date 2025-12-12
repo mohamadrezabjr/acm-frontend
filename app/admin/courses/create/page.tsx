@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, X, Upload, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/hooks/useAuth"
+import { Loader2 } from "lucide-react"
 
 interface Instructor {
   id: string
@@ -19,6 +21,7 @@ interface Instructor {
 }
 
 export default function CreateCoursePage() {
+  const { user, loading, isCreator } = useAuth()
   const router = useRouter()
   const [instructors, setInstructors] = useState<Instructor[]>([])
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -37,11 +40,10 @@ export default function CreateCoursePage() {
   })
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isAdminLoggedIn")
-    if (!isLoggedIn) {
-      router.push("/admin/login")
+    if (!loading && (!user || !isCreator())) {
+      router.push("/auth/login")
     }
-  }, [router])
+  }, [loading, user, router])
 
   const addInstructor = () => {
     setInstructors([
@@ -104,6 +106,18 @@ export default function CreateCoursePage() {
 
     alert("دوره با موفقیت ایجاد شد! (داده‌ها در console لاگ شده‌اند)")
     router.push("/admin/dashboard")
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!user || !isCreator()) {
+    return null
   }
 
   return (

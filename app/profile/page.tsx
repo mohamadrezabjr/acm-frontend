@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
@@ -12,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, MapPin, User, Settings, BookOpen, CalendarDays, Edit, Save, X, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { fetchUserEvents, fetchUserCourses, updateUserProfile, type Event } from "@/lib/api-client"
+import { fetchUserEvents, updateUserProfile, uploadProfileImage, type Event } from "@/lib/api-client"
 
 export default function ProfilePage() {
   const { user, loading, isCreator } = useAuth()
@@ -23,6 +25,7 @@ export default function ProfilePage() {
   const [loadingData, setLoadingData] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   const [editForm, setEditForm] = useState({
     firstName: "",
@@ -53,9 +56,7 @@ export default function ProfilePage() {
     setLoadingData(true)
     try {
       const [events, courses] = await Promise.all([fetchUserEvents(), null])
-      console.log(fetchUserEvents())
       setUserEvents(events)
-      // setUserCourses(courses)
     } catch (error) {
       console.error("Failed to load user data:", error)
     } finally {
@@ -82,6 +83,22 @@ export default function ProfilePage() {
     }
   }
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingImage(true)
+    try {
+      await uploadProfileImage(file)
+      window.location.reload()
+    } catch (error) {
+      console.error("Failed to upload image:", error)
+      alert("خطا در آپلود تصویر")
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
   if (loading) {
     return (
       <>
@@ -100,9 +117,14 @@ export default function ProfilePage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen pt-24 pb-12 px-4">
+      <main className="min-h-screen pt-24 pb-12 px-4" dir="rtl">
         <div className="container mx-auto max-w-5xl">
-          <h1 className="text-3xl font-bold mb-8">پروفایل کاربری</h1>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              پروفایل کاربری
+            </h1>
+            <p className="text-muted-foreground mt-2">مدیریت اطلاعات و فعالیت‌های خود</p>
+          </div>
 
           <Tabs defaultValue="info" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
@@ -128,7 +150,7 @@ export default function ProfilePage() {
 
             {/* User Info Tab */}
             <TabsContent value="info">
-              <Card>
+              <Card className="border-2 shadow-lg">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle>اطلاعات کاربری</CardTitle>
@@ -153,71 +175,110 @@ export default function ProfilePage() {
                   )}
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="w-10 h-10 text-primary" />
+                  <div className="flex items-center gap-6">
+                    <div className="relative">
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg ring-4 ring-primary/20">
+                        {user.profileImage ? (
+                          <img
+                            src={user.profileImage || "/placeholder.svg"}
+                            alt={user.firstName}
+                            className="w-full h-full rounded-full object-cover"
+                          />
+                        ) : (
+                          <User className="w-12 h-12 text-white" />
+                        )}
+                      </div>
+                      {isEditing && (
+                        <label
+                          htmlFor="profileImage"
+                          className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 shadow-lg"
+                        >
+                          {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit className="w-4 h-4" />}
+                          <input
+                            id="profileImage"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            disabled={uploadingImage}
+                          />
+                        </label>
+                      )}
                     </div>
-                    <div>
-                      <h2 className="text-xl font-semibold">
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-bold">
                         {user.firstName} {user.lastName}
                       </h2>
-                      <Badge variant="secondary">
-                        {user.role === "admin" ? "مدیر" : user.role === "creator" ? "ایجادکننده" : "کاربر"}
-                      </Badge>
+                      {user.position && <p className="text-primary font-medium mt-1">{user.position}</p>}
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant="secondary" className="text-sm">
+                          {user.role === "admin" ? "مدیر" : user.role === "creator" ? "ایجادکننده" : "کاربر"}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-6 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label>نام</Label>
+                      <Label className="text-sm font-semibold text-muted-foreground">نام</Label>
                       {isEditing ? (
                         <Input
                           value={editForm.firstName}
                           onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                          className="border-2 focus:border-primary"
                         />
                       ) : (
-                        <p className="text-muted-foreground">{user.firstName || "-"}</p>
+                        <p className="text-lg font-medium">{user.firstName || "-"}</p>
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label>نام خانوادگی</Label>
+                      <Label className="text-sm font-semibold text-muted-foreground">نام خانوادگی</Label>
                       {isEditing ? (
                         <Input
                           value={editForm.lastName}
                           onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                          className="border-2 focus:border-primary"
                         />
                       ) : (
-                        <p className="text-muted-foreground">{user.lastName || "-"}</p>
+                        <p className="text-lg font-medium">{user.lastName || "-"}</p>
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label>شماره موبایل</Label>
-                      <p className="text-muted-foreground">{user.phone}</p>
+                      <Label className="text-sm font-semibold text-muted-foreground">شماره موبایل</Label>
+                      <p className="text-lg font-medium">{user.phone}</p>
                     </div>
                     <div className="space-y-2">
-                      <Label>ایمیل</Label>
+                      <Label className="text-sm font-semibold text-muted-foreground">ایمیل</Label>
                       {isEditing ? (
                         <Input
                           type="email"
                           value={editForm.email}
                           onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                          className="border-2 focus:border-primary"
                         />
                       ) : (
-                        <p className="text-muted-foreground">{user.email || "-"}</p>
+                        <p className="text-lg font-medium">{user.email || "-"}</p>
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label>شماره دانشجویی</Label>
+                      <Label className="text-sm font-semibold text-muted-foreground">شماره دانشجویی</Label>
                       {isEditing ? (
                         <Input
                           value={editForm.studentId}
                           onChange={(e) => setEditForm({ ...editForm, studentId: e.target.value })}
                           maxLength={10}
+                          className="border-2 focus:border-primary"
                         />
                       ) : (
-                        <p className="text-muted-foreground">{user.studentId || "-"}</p>
+                        <p className="text-lg font-medium">{user.studentId || "-"}</p>
                       )}
                     </div>
+                    {user.position && (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold text-muted-foreground">سمت</Label>
+                        <p className="text-lg font-medium">{user.position}</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -225,7 +286,7 @@ export default function ProfilePage() {
 
             {/* Events Tab */}
             <TabsContent value="events">
-              <Card>
+              <Card className="border-2 shadow-lg">
                 <CardHeader>
                   <CardTitle>رویدادهای ثبت‌نام شده</CardTitle>
                   <CardDescription>لیست رویدادهایی که در آنها ثبت‌نام کرده‌اید</CardDescription>
@@ -291,7 +352,7 @@ export default function ProfilePage() {
 
             {/* Courses Tab */}
             <TabsContent value="courses">
-              <Card>
+              <Card className="border-2 shadow-lg">
                 <CardHeader>
                   <CardTitle>دوره‌های ثبت‌نام شده</CardTitle>
                   <CardDescription>لیست دوره‌هایی که در آنها ثبت‌نام کرده‌اید</CardDescription>
@@ -344,7 +405,7 @@ export default function ProfilePage() {
             {/* Admin Tab */}
             {isCreator() && (
               <TabsContent value="admin">
-                <Card>
+                <Card className="border-2 shadow-lg">
                   <CardHeader>
                     <CardTitle>پنل مدیریت</CardTitle>
                     <CardDescription>دسترسی به بخش‌های مدیریتی سایت</CardDescription>

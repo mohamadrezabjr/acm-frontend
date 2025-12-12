@@ -12,7 +12,7 @@ export interface Speaker {
 export interface Event {
   slug: string
   title: string
-  description : string
+  description: string
   tags: string[]
   start_date: string
   end_date: string
@@ -124,6 +124,30 @@ export async function updateUserProfile(data: {
   })
   if (!response.ok) {
     throw new Error("Failed to update profile")
+  }
+  return response.json()
+}
+
+export async function uploadProfileImage(file: File): Promise<any> {
+  const token = getCookie("access_token")
+
+  const formData = new FormData()
+  formData.append("profile_image", file)
+
+  const headers: HeadersInit = {}
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`
+  }
+
+  const response = await fetch(`${API_BASE_URL}/auth/me/profile-image/`, {
+    method: "POST",
+    headers,
+    credentials: "include",
+    body: formData,
+  })
+
+  if (!response.ok) {
+    throw new Error("Failed to upload profile image")
   }
   return response.json()
 }
