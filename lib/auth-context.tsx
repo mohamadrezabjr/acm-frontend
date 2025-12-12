@@ -3,6 +3,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
+type UserRole = "user" | "creator" | "admin"
+
 interface User {
   id: string
   firstName?: string
@@ -10,6 +12,7 @@ interface User {
   phone: string
   email?: string
   studentId?: string
+  role: UserRole
 }
 
 interface AuthContextType {
@@ -18,6 +21,8 @@ interface AuthContextType {
   login: (identifier: string, password: string, isStudentId: boolean) => Promise<void>
   register: (data: RegisterData) => Promise<void>
   logout: () => void
+  isAdmin: () => boolean
+  isCreator: () => boolean
 }
 
 interface RegisterData {
@@ -31,7 +36,6 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// API Base URL - تغییر بدهید به آدرس Django backend خودتان
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -39,7 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  // بررسی وضعیت لاگین در بارگذاری اولیه
   useEffect(() => {
     checkAuth()
   }, [])
@@ -47,12 +50,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAuth = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/me/`, {
-        credentials: "include", // برای ارسال کوکی
+        credentials: "include",
       })
 
       if (response.ok) {
         const userData = await response.json()
-        setUser(userData)
+        setUser({
+          id: userData.id,
+          firstName: userData.first_name,
+          lastName: userData.last_name,
+          phone: userData.phone || userData.mobile,
+          email: userData.email,
+          studentId: userData.student_id,
+          role: userData.role || "user",
+        })
       } else {
         setUser(null)
       }
@@ -73,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // برای ذخیره کوکی
+        credentials: "include",
         body: JSON.stringify(loginData),
       })
 
@@ -84,7 +95,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json()
 
-      // ذخیره توکن‌ها در کوکی (سمت کلاینت برای backup)
       document.cookie = `access_token=${data.access}; path=/; max-age=86400; samesite=strict; ${
         process.env.NODE_ENV === "production" ? "secure;" : ""
       }`
@@ -92,7 +102,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         process.env.NODE_ENV === "production" ? "secure;" : ""
       }`
 
-      // دریافت اطلاعات کاربر
       await checkAuth()
       router.push("/")
     } catch (error) {
@@ -123,7 +132,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(error.message || "خطا در ثبت‌نام")
       }
 
-      // بعد از ثبت‌نام موفق، خودکار لاگین می‌کنیم
       await login(data.phone, data.password, false)
     } catch (error) {
       console.error("Register error:", error)
@@ -132,7 +140,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
-    // حذف کوکی‌ها
     document.cookie = "access_token=; path=/; max-age=0"
     document.cookie = "refresh_token=; path=/; max-age=0"
 
@@ -140,7 +147,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/")
   }
 
-  return <AuthContext.Provider value={{ user, loading, login, register, logout }}>{children}</AuthContext.Provider>
+  const isAdmin = () => user?.role === "admin"
+  const isCreator = () => user?.role === "creator" || user?.role === "admin"
+
+  return (
+    <AuthContext.Provider value={{ user, loading, login, register, logout, isAdmin, isCreator }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {

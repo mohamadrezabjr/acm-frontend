@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Menu, X, User, LogOut } from "lucide-react"
+import { Menu, X, User, LogOut, Settings } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import {
@@ -16,7 +16,7 @@ import {
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { user, loading, logout } = useAuth()
+  const { user, loading, logout, isAdmin, isCreator } = useAuth()
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id)
@@ -69,7 +69,6 @@ export function Header() {
             {!loading && (
               <>
                 {user ? (
-                  // Show user profile dropdown when logged in
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm" className="gap-2 bg-transparent">
@@ -80,14 +79,20 @@ export function Header() {
                     <DropdownMenuContent align="end" className="w-56">
                       <DropdownMenuLabel>حساب کاربری</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem disabled>
-                        <div className="flex flex-col gap-1">
-                          <span className="font-medium">
-                            {user.firstName} {user.lastName}
-                          </span>
-                          <span className="text-xs text-muted-foreground">{user.mobile}</span>
-                        </div>
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile" className="cursor-pointer">
+                          <User className="ml-2 h-4 w-4" />
+                          پروفایل
+                        </Link>
                       </DropdownMenuItem>
+                      {isCreator() && (
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin/dashboard" className="cursor-pointer">
+                            <Settings className="ml-2 h-4 w-4" />
+                            پنل مدیریت
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer">
                         <LogOut className="ml-2 h-4 w-4" />
@@ -96,7 +101,6 @@ export function Header() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  // Show login/register buttons when not logged in
                   <div className="flex items-center gap-2">
                     <Link href="/auth/login">
                       <Button variant="outline" size="sm">
@@ -164,8 +168,22 @@ export function Header() {
                       <p className="font-medium">
                         {user.firstName} {user.lastName}
                       </p>
-                      <p className="text-sm text-muted-foreground">{user.mobile}</p>
+                      <p className="text-sm text-muted-foreground">{user.phone}</p>
                     </div>
+                    <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" size="sm" className="w-full bg-transparent">
+                        <User className="ml-2 h-4 w-4" />
+                        پروفایل
+                      </Button>
+                    </Link>
+                    {isCreator() && (
+                      <Link href="/admin/dashboard" onClick={() => setIsMenuOpen(false)}>
+                        <Button variant="outline" size="sm" className="w-full bg-transparent">
+                          <Settings className="ml-2 h-4 w-4" />
+                          پنل مدیریت
+                        </Button>
+                      </Link>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"

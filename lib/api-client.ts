@@ -1,9 +1,32 @@
-// کلاینت API برای ارسال درخواست‌ها با توکن
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
 
-// دریافت توکن از کوکی
+// Event types matching Django API response
+export interface Speaker {
+  user: string | null
+  name: string
+  position: string
+  bio: string
+}
+
+export interface Event {
+  slug: string
+  title: string
+  tags: string[]
+  start_date: string
+  end_date: string
+  registration_start_at: string
+  registration_deadline: string
+  capacity: number
+  registered: number
+  location: string
+  price: number
+  organizer: string
+  image: string
+  speakers: Speaker[]
+}
+
 function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null
   const value = `; ${document.cookie}`
   const parts = value.split(`; ${name}=`)
   if (parts.length === 2) return parts.pop()?.split(";").shift() || null
@@ -29,11 +52,10 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   })
 
   if (response.status === 401) {
-    // توکن منقضی شده - تلاش برای refresh
     const refreshToken = getCookie("refresh_token")
     if (refreshToken) {
       try {
-        const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -42,10 +64,8 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
         if (refreshResponse.ok) {
           const data = await refreshResponse.json()
-          // ذخیره توکن جدید
           document.cookie = `access_token=${data.access}; path=/; max-age=86400; samesite=strict`
 
-          // تلاش مجدد درخواست اصلی
           headers["Authorization"] = `Bearer ${data.access}`
           return fetch(`${API_BASE_URL}${endpoint}`, {
             ...options,
@@ -55,11 +75,58 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
         }
       } catch (error) {
         console.error("Token refresh failed:", error)
-        // ریدایرکت به صفحه لاگین
         window.location.href = "/auth/login"
       }
     }
   }
 
   return response
+}
+
+export async function fetchEvents(): Promise<Event[]> {
+  const response = await apiRequest("/events/")
+  if (!response.ok) {
+    throw new Error("Failed to fetch events")
+  }
+  return response.json()
+}
+
+export async function fetchEventBySlug(slug: string): Promise<Event> {
+  const response = await apiRequest(`/events/${slug}/`)
+  if (!response.ok) {
+    throw new Error("Failed to fetch event")
+  }
+  return response.json()
+}
+
+export async function fetchUserEvents(): Promise<Event[]> {
+  const response = await apiRequest("/auth/me/events/")
+  if (!response.ok) {
+    throw new Error("Failed to fetch user events")
+  }
+  return response.json()
+}
+
+export async function fetchUserCourses(): Promise<any[]> {
+  const response = await apiRequest("/auth/me/courses/")
+  if (!response.ok) {
+    throw new Error("Failed to fetch user courses")
+  }
+  return response.json()
+}
+
+export async function updateUserProfile(data: {
+  first_name?: string
+  last_name?: string
+  email?: string
+  student_id?: string
+}): Promise<any> {
+  const response = await apiRequest("/auth/me/", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  })
+  if (!response.ok) {
+    throw new Error("Failed to update profile")
+  }
+  return response.json()
 }

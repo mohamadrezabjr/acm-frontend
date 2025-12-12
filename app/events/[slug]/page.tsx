@@ -1,24 +1,67 @@
-import { notFound } from "next/navigation"
+"use client"
+
+import { useEffect, useState, use } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, MapPin, Clock, Users, ArrowLeft, User } from "lucide-react"
+import { Calendar, MapPin, Clock, Users, ArrowLeft, User, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { getEventById, getAllEventIds } from "@/lib/events-data"
 import { Header } from "@/components/header"
+import { fetchEventBySlug, type Event } from "@/lib/api-client"
 
-export function generateStaticParams() {
-  return getAllEventIds().map((id) => ({
-    id: id,
-  }))
-}
+export default function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params)
+  const router = useRouter()
 
-export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const event = getEventById(id)
+  const [event, setEvent] = useState<Event | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  if (!event) {
-    notFound()
+  useEffect(() => {
+    loadEvent()
+  }, [slug])
+
+  const loadEvent = async () => {
+    try {
+      setLoading(true)
+      const data = await fetchEventBySlug(slug)
+      setEvent(data)
+    } catch (err) {
+      console.error("Failed to fetch event:", err)
+      setError("رویداد یافت نشد")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })
+  }
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen pt-24 flex items-center justify-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        </main>
+      </>
+    )
+  }
+
+  if (error || !event) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen pt-24 flex flex-col items-center justify-center">
+          <p className="text-xl text-destructive mb-4">{error || "رویداد یافت نشد"}</p>
+          <Link href="/events">
+            <Button>بازگشت به رویدادها</Button>
+          </Link>
+        </main>
+      </>
+    )
   }
 
   const availableSeats = event.capacity - event.registered
@@ -30,7 +73,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
       <main className="min-h-screen pt-24">
         {/* Hero Section */}
         <div className="relative h-[400px] overflow-hidden">
-          <img src={event.image || "/placeholder.svg"} alt={event.name} className="w-full h-full object-cover" />
+          <img src={event.image || "/placeholder.svg"} alt={event.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="absolute bottom-0 right-0 left-0 p-8">
             <div className="container mx-auto max-w-4xl">
@@ -47,7 +90,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                   </Badge>
                 ))}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-primary">{event.name}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-primary">{event.title}</h1>
             </div>
           </div>
         </div>
@@ -56,16 +99,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           <div className="grid md:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="md:col-span-2 space-y-8">
-              {/* Description */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>درباره رویداد</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg leading-relaxed text-muted-foreground">{event.description}</p>
-                </CardContent>
-              </Card>
-
+              {/* Speakers */}
               {event.speakers && event.speakers.length > 0 && (
                 <Card>
                   <CardHeader>
@@ -81,7 +115,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                           <div>
                             <h3 className="font-semibold text-lg">{speaker.name}</h3>
                             <p className="text-sm text-primary mb-1">{speaker.position}</p>
-                            <p className="text-sm text-muted-foreground">{speaker.description}</p>
+                            <p className="text-sm text-muted-foreground">{speaker.bio}</p>
                           </div>
                         </div>
                       ))}
@@ -94,7 +128,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Registration Card */}
-              <Card className="sticky top-4">
+              <Card className="sticky top-24">
                 <CardHeader>
                   <CardTitle>ثبت‌نام</CardTitle>
                 </CardHeader>
@@ -104,7 +138,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                       <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-muted-foreground">تاریخ شروع</div>
-                        <div className="font-medium">{new Date(event.startDate).toLocaleDateString("fa-IR")}</div>
+                        <div className="font-medium">{new Date(event.start_date).toLocaleDateString("fa-IR")}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">تاریخ پایان</div>
+                        <div className="font-medium">{new Date(event.end_date).toLocaleDateString("fa-IR")}</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -112,7 +153,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                       <div>
                         <div className="text-sm text-muted-foreground">مهلت ثبت‌نام</div>
                         <div className="font-medium">
-                          {new Date(event.registrationDeadline).toLocaleDateString("fa-IR")}
+                          {new Date(event.registration_deadline).toLocaleDateString("fa-IR")}
                         </div>
                       </div>
                     </div>
@@ -120,7 +161,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                       <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-muted-foreground">ساعت</div>
-                        <div className="font-medium">{event.time}</div>
+                        <div className="font-medium">{formatTime(event.start_date)}</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">

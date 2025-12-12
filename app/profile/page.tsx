@@ -1,0 +1,390 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth-context"
+import { Header } from "@/components/header"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Calendar, MapPin, User, Settings, BookOpen, CalendarDays, Edit, Save, X, Loader2 } from "lucide-react"
+import Link from "next/link"
+import { fetchUserEvents, fetchUserCourses, updateUserProfile, type Event } from "@/lib/api-client"
+
+export default function ProfilePage() {
+  const { user, loading, isCreator } = useAuth()
+  const router = useRouter()
+
+  const [userEvents, setUserEvents] = useState<Event[]>([])
+  const [userCourses, setUserCourses] = useState<any[]>([])
+  const [loadingData, setLoadingData] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const [editForm, setEditForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    studentId: "",
+  })
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/auth/login")
+    }
+  }, [loading, user, router])
+
+  useEffect(() => {
+    if (user) {
+      setEditForm({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        studentId: user.studentId || "",
+      })
+      loadUserData()
+    }
+  }, [user])
+
+  const loadUserData = async () => {
+    setLoadingData(true)
+    try {
+      const [events, courses] = await Promise.all([fetchUserEvents(), fetchUserCourses()])
+      setUserEvents(events)
+      setUserCourses(courses)
+    } catch (error) {
+      console.error("Failed to load user data:", error)
+    } finally {
+      setLoadingData(false)
+    }
+  }
+
+  const handleSaveProfile = async () => {
+    setSaving(true)
+    try {
+      await updateUserProfile({
+        first_name: editForm.firstName,
+        last_name: editForm.lastName,
+        email: editForm.email || undefined,
+        student_id: editForm.studentId || undefined,
+      })
+      setIsEditing(false)
+      window.location.reload()
+    } catch (error) {
+      console.error("Failed to update profile:", error)
+      alert("خطا در به‌روزرسانی پروفایل")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen pt-24 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </main>
+      </>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
+
+  return (
+    <>
+      <Header />
+      <main className="min-h-screen pt-24 pb-12 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <h1 className="text-3xl font-bold mb-8">پروفایل کاربری</h1>
+
+          <Tabs defaultValue="info" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+              <TabsTrigger value="info" className="gap-2">
+                <User className="w-4 h-4" />
+                <span className="hidden sm:inline">اطلاعات</span>
+              </TabsTrigger>
+              <TabsTrigger value="events" className="gap-2">
+                <CalendarDays className="w-4 h-4" />
+                <span className="hidden sm:inline">رویدادها</span>
+              </TabsTrigger>
+              <TabsTrigger value="courses" className="gap-2">
+                <BookOpen className="w-4 h-4" />
+                <span className="hidden sm:inline">دوره‌ها</span>
+              </TabsTrigger>
+              {isCreator() && (
+                <TabsTrigger value="admin" className="gap-2">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">مدیریت</span>
+                </TabsTrigger>
+              )}
+            </TabsList>
+
+            {/* User Info Tab */}
+            <TabsContent value="info">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>اطلاعات کاربری</CardTitle>
+                    <CardDescription>مشاهده و ویرایش اطلاعات حساب کاربری</CardDescription>
+                  </div>
+                  {!isEditing ? (
+                    <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                      <Edit className="w-4 h-4 ml-2" />
+                      ویرایش
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={saving}>
+                        <X className="w-4 h-4 ml-2" />
+                        انصراف
+                      </Button>
+                      <Button size="sm" onClick={handleSaveProfile} disabled={saving}>
+                        {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
+                        ذخیره
+                      </Button>
+                    </div>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-10 h-10 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold">
+                        {user.firstName} {user.lastName}
+                      </h2>
+                      <Badge variant="secondary">
+                        {user.role === "admin" ? "مدیر" : user.role === "creator" ? "ایجادکننده" : "کاربر"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>نام</Label>
+                      {isEditing ? (
+                        <Input
+                          value={editForm.firstName}
+                          onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{user.firstName || "-"}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>نام خانوادگی</Label>
+                      {isEditing ? (
+                        <Input
+                          value={editForm.lastName}
+                          onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{user.lastName || "-"}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>شماره موبایل</Label>
+                      <p className="text-muted-foreground">{user.phone}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>ایمیل</Label>
+                      {isEditing ? (
+                        <Input
+                          type="email"
+                          value={editForm.email}
+                          onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{user.email || "-"}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>شماره دانشجویی</Label>
+                      {isEditing ? (
+                        <Input
+                          value={editForm.studentId}
+                          onChange={(e) => setEditForm({ ...editForm, studentId: e.target.value })}
+                          maxLength={10}
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{user.studentId || "-"}</p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Events Tab */}
+            <TabsContent value="events">
+              <Card>
+                <CardHeader>
+                  <CardTitle>رویدادهای ثبت‌نام شده</CardTitle>
+                  <CardDescription>لیست رویدادهایی که در آنها ثبت‌نام کرده‌اید</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loadingData ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    </div>
+                  ) : userEvents.length === 0 ? (
+                    <div className="text-center py-8">
+                      <CalendarDays className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">هنوز در هیچ رویدادی ثبت‌نام نکرده‌اید</p>
+                      <Link href="/events">
+                        <Button className="mt-4">مشاهده رویدادها</Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {userEvents.map((event) => (
+                        <Card key={event.slug} className="overflow-hidden">
+                          <div className="flex flex-col md:flex-row">
+                            <div className="w-full md:w-48 h-32 overflow-hidden">
+                              <img
+                                src={event.image || "/placeholder.svg"}
+                                alt={event.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <CardContent className="flex-1 p-4">
+                              <h3 className="font-semibold text-lg mb-2">{event.title}</h3>
+                              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-4 h-4" />
+                                  {new Date(event.start_date).toLocaleDateString("fa-IR")}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="w-4 h-4" />
+                                  {event.location}
+                                </div>
+                              </div>
+                              <div className="flex gap-2 mt-3">
+                                {event.tags.slice(0, 2).map((tag) => (
+                                  <Badge key={tag} variant="secondary">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                              <Link href={`/events/${event.slug}`}>
+                                <Button variant="outline" size="sm" className="mt-4 bg-transparent">
+                                  مشاهده جزئیات
+                                </Button>
+                              </Link>
+                            </CardContent>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Courses Tab */}
+            <TabsContent value="courses">
+              <Card>
+                <CardHeader>
+                  <CardTitle>دوره‌های ثبت‌نام شده</CardTitle>
+                  <CardDescription>لیست دوره‌هایی که در آنها ثبت‌نام کرده‌اید</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loadingData ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    </div>
+                  ) : userCourses.length === 0 ? (
+                    <div className="text-center py-8">
+                      <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">هنوز در هیچ دوره‌ای ثبت‌نام نکرده‌اید</p>
+                      <Link href="/courses">
+                        <Button className="mt-4">مشاهده دوره‌ها</Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {userCourses.map((course) => (
+                        <Card key={course.id} className="overflow-hidden">
+                          <div className="flex flex-col md:flex-row">
+                            <div className="w-full md:w-48 h-32 overflow-hidden">
+                              <img
+                                src={course.image || "/placeholder.svg"}
+                                alt={course.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <CardContent className="flex-1 p-4">
+                              <h3 className="font-semibold text-lg mb-2">{course.name}</h3>
+                              <p className="text-sm text-muted-foreground mb-2">
+                                استاد: {course.instructors?.join("، ")}
+                              </p>
+                              <Link href={`/courses/${course.id}`}>
+                                <Button variant="outline" size="sm" className="mt-2 bg-transparent">
+                                  مشاهده جزئیات
+                                </Button>
+                              </Link>
+                            </CardContent>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Admin Tab */}
+            {isCreator() && (
+              <TabsContent value="admin">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>پنل مدیریت</CardTitle>
+                    <CardDescription>دسترسی به بخش‌های مدیریتی سایت</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      <Link href="/admin/dashboard">
+                        <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                          <CardContent className="p-6 flex flex-col items-center text-center">
+                            <Settings className="w-10 h-10 text-primary mb-4" />
+                            <h3 className="font-semibold">داشبورد</h3>
+                            <p className="text-sm text-muted-foreground">مشاهده آمار کلی</p>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                      <Link href="/admin/events/create">
+                        <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                          <CardContent className="p-6 flex flex-col items-center text-center">
+                            <CalendarDays className="w-10 h-10 text-primary mb-4" />
+                            <h3 className="font-semibold">ایجاد رویداد</h3>
+                            <p className="text-sm text-muted-foreground">افزودن رویداد جدید</p>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                      <Link href="/admin/courses/create">
+                        <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                          <CardContent className="p-6 flex flex-col items-center text-center">
+                            <BookOpen className="w-10 h-10 text-primary mb-4" />
+                            <h3 className="font-semibold">ایجاد دوره</h3>
+                            <p className="text-sm text-muted-foreground">افزودن دوره جدید</p>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
+          </Tabs>
+        </div>
+      </main>
+    </>
+  )
+}
