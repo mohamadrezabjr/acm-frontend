@@ -13,6 +13,7 @@ interface User {
   email?: string
   studentId?: string
   role: UserRole
+  bio? : string
 }
 
 interface AuthContextType {
@@ -63,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: userData.email,
           studentId: userData.student_id,
           role: userData.role || "user",
+          bio : userData.bio || "",
         })
       } else {
         setUser(null)
