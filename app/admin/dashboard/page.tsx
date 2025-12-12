@@ -6,20 +6,31 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Award, LogOut, Plus, BookOpen } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/lib/auth-context"
 
 export default function AdminDashboard() {
   const router = useRouter()
+  const { user, logout } = useAuth()
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isAdminLoggedIn")
-    if (!isLoggedIn) {
-      router.push("/admin/login")
+    if (!user) {
+      router.push("/auth/login")
+    } else if (user.role !== "admin" && user.role !== "creator") {
+      router.push("/")
     }
-  }, [router])
+  }, [user, router])
 
   const handleLogout = () => {
-    localStorage.removeItem("isAdminLoggedIn")
-    router.push("/admin/login")
+    logout()
+    router.push("/")
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div>در حال بارگذاری...</div>
+      </div>
+    )
   }
 
   return (
@@ -27,10 +38,16 @@ export default function AdminDashboard() {
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">پنل مدیریت ACM</h1>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="ml-2 h-4 w-4" />
-            خروج
-          </Button>
+          <div className="flex items-center gap-4">
+            <div className="text-sm">
+              <span className="text-muted-foreground">خوش آمدید، </span>
+              <span className="font-semibold">{user.name}</span>
+            </div>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="ml-2 h-4 w-4" />
+              خروج
+            </Button>
+          </div>
         </div>
       </header>
 
