@@ -99,6 +99,16 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
           <div className="grid md:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="md:col-span-2 space-y-8">
+            {/* Description */}
+            {event.description && event.description.length >0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>درباره رویداد</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-lg leading-relaxed text-muted-foreground" style={{ whiteSpace: "pre-line" }}>{event.description}</p>
+                </CardContent>
+              </Card>)}
               {/* Speakers */}
               {event.speakers && event.speakers.length > 0 && (
                 <Card>

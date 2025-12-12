@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
+import { apiRequest } from "./api-client"
 
 type UserRole = "user" | "creator" | "admin"
 
@@ -50,9 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/me/`, {
-        credentials: "include",
-      })
+      const response = await apiRequest("/auth/me/", {
+      method: "GET",})
 
       if (response.ok) {
         const userData = await response.json()

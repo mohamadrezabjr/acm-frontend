@@ -1,4 +1,5 @@
 import { Github, Linkedin, Twitter, Instagram } from "lucide-react"
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -7,11 +8,21 @@ export function Footer() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">ACM</span>
+              <div className="w-38 h-10 rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-xl">
+                  <Image
+                    src="/logo.png"
+                    alt="لوگو"
+                    width={180}
+                    height={100}
+                    className="inline-block mr-2"
+                  />
+                </span>
               </div>
-              <span className="font-semibold">انجمن دانشگاهی</span>
+
             </div>
+            <p className="text-sm text-muted-foreground">انجمن علمی ACM دانشگاه خوارزمی</p>
+            <br></br>
             <p className="text-sm text-muted-foreground">پیشبرد علوم کامپیوتر به عنوان یک علم و حرفه</p>
           </div>
 

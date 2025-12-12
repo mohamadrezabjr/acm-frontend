@@ -52,9 +52,10 @@ export default function ProfilePage() {
   const loadUserData = async () => {
     setLoadingData(true)
     try {
-      const [events, courses] = await Promise.all([fetchUserEvents(), fetchUserCourses()])
+      const [events, courses] = await Promise.all([fetchUserEvents(), null])
+      console.log(fetchUserEvents())
       setUserEvents(events)
-      setUserCourses(courses)
+      // setUserCourses(courses)
     } catch (error) {
       console.error("Failed to load user data:", error)
     } finally {

@@ -13,6 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import Image from "next/image";
+
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -31,10 +33,19 @@ export function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">ACM</span>
+            <div className="w-50 h-10 rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xl">
+              <Image
+                src="/logo.png"
+                alt="لوگو"
+                width={120}
+                height={100}
+                className="inline-block mr-2"
+              />
+
+              </span>
             </div>
-            <span className="font-semibold text-lg">انجمن دانشگاهی</span>
+            {/* <span className="font-semibold text-lg">انجمن ACM</span> */}
           </Link>
 
           {/* Desktop Navigation */}

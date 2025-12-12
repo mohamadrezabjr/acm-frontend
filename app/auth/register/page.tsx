@@ -63,7 +63,7 @@ export default function RegisterPage() {
         await register({
           firstName: formData.firstName,
           lastName: formData.lastName,
-          mobile: formData.mobile,
+          phone: formData.mobile,
           email: formData.email || undefined,
           studentId: formData.studentId || undefined,
           password: formData.password,

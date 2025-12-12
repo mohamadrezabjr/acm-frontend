@@ -11,6 +11,7 @@ export interface Speaker {
 export interface Event {
   slug: string
   title: string
+  description : string
   tags: string[]
   start_date: string
   end_date: string
@@ -41,17 +42,13 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     ...options.headers,
   }
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`
-  }
-
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers,
     credentials: "include",
   })
 
-  if (response.status === 401) {
+  if (response.status === 403) {
     const refreshToken = getCookie("refresh_token")
     if (refreshToken) {
       try {
@@ -66,7 +63,6 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
           const data = await refreshResponse.json()
           document.cookie = `access_token=${data.access}; path=/; max-age=86400; samesite=strict`
 
-          headers["Authorization"] = `Bearer ${data.access}`
           return fetch(`${API_BASE_URL}${endpoint}`, {
             ...options,
             headers,
@@ -100,7 +96,7 @@ export async function fetchEventBySlug(slug: string): Promise<Event> {
 }
 
 export async function fetchUserEvents(): Promise<Event[]> {
-  const response = await apiRequest("/auth/me/events/")
+  const response = await apiRequest("/profile/events/")
   if (!response.ok) {
     throw new Error("Failed to fetch user events")
   }
