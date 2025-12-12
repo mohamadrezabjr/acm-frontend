@@ -8,24 +8,44 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Header } from "@/components/header"
+import { useAuth } from "@/lib/auth-context"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [mobileData, setMobileData] = useState({ mobile: "", password: "" })
   const [studentData, setStudentData] = useState({ studentId: "", password: "" })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const { login } = useAuth()
 
-  const handleMobileLogin = (e: React.FormEvent) => {
+  const handleMobileLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Login with mobile:", mobileData)
-    // Send to backend
+    setLoading(true)
+    setError("")
+
+    try {
+      await login(mobileData.mobile, mobileData.password, false)
+    } catch (err: any) {
+      setError(err.message || "خطا در ورود. لطفاً دوباره تلاش کنید.")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleStudentLogin = (e: React.FormEvent) => {
+  const handleStudentLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Login with student ID:", studentData)
-    // Send to backend
+    setLoading(true)
+    setError("")
+
+    try {
+      await login(studentData.studentId, studentData.password, true)
+    } catch (err: any) {
+      setError(err.message || "خطا در ورود. لطفاً دوباره تلاش کنید.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -38,6 +58,12 @@ export default function LoginPage() {
             <CardDescription>برای ورود به حساب کاربری خود اطلاعات را وارد کنید</CardDescription>
           </CardHeader>
           <CardContent>
+            {error && (
+              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                <p className="text-sm text-destructive text-center">{error}</p>
+              </div>
+            )}
+
             <Tabs defaultValue="mobile" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="mobile">شماره موبایل</TabsTrigger>
@@ -57,6 +83,7 @@ export default function LoginPage() {
                       required
                       pattern="09[0-9]{9}"
                       title="شماره موبایل باید با 09 شروع شود و 11 رقم باشد"
+                      disabled={loading}
                     />
                   </div>
                   <div className="space-y-2">
@@ -68,18 +95,27 @@ export default function LoginPage() {
                         value={mobileData.password}
                         onChange={(e) => setMobileData({ ...mobileData, password: e.target.value })}
                         required
+                        disabled={loading}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        disabled={loading}
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full">
-                    ورود
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                        در حال ورود...
+                      </>
+                    ) : (
+                      "ورود"
+                    )}
                   </Button>
                 </form>
               </TabsContent>
@@ -97,6 +133,7 @@ export default function LoginPage() {
                       required
                       pattern="[0-9]{10}"
                       title="شماره دانشجویی باید 10 رقم باشد"
+                      disabled={loading}
                     />
                   </div>
                   <div className="space-y-2">
@@ -108,18 +145,27 @@ export default function LoginPage() {
                         value={studentData.password}
                         onChange={(e) => setStudentData({ ...studentData, password: e.target.value })}
                         required
+                        disabled={loading}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        disabled={loading}
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full">
-                    ورود
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                        در حال ورود...
+                      </>
+                    ) : (
+                      "ورود"
+                    )}
                   </Button>
                 </form>
               </TabsContent>

@@ -1,0 +1,152 @@
+"use client"
+
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import { useRouter } from "next/navigation"
+
+interface User {
+  id: string
+  firstName: string
+  lastName: string
+  mobile: string
+  email?: string
+  studentId?: string
+}
+
+interface AuthContextType {
+  user: User | null
+  loading: boolean
+  login: (identifier: string, password: string, isStudentId: boolean) => Promise<void>
+  register: (data: RegisterData) => Promise<void>
+  logout: () => void
+}
+
+interface RegisterData {
+  firstName: string
+  lastName: string
+  mobile: string
+  email?: string
+  studentId?: string
+  password: string
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+// API Base URL - تغییر بدهید به آدرس Django backend خودتان
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+
+  // بررسی وضعیت لاگین در بارگذاری اولیه
+  useEffect(() => {
+    checkAuth()
+  }, [])
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        credentials: "include", // برای ارسال کوکی
+      })
+
+      if (response.ok) {
+        const userData = await response.json()
+        setUser(userData)
+      } else {
+        setUser(null)
+      }
+    } catch (error) {
+      console.error("Auth check failed:", error)
+      setUser(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const login = async (identifier: string, password: string, isStudentId: boolean) => {
+    try {
+      const loginData = isStudentId ? { student_id: identifier, password } : { mobile: identifier, password }
+
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // برای ذخیره کوکی
+        body: JSON.stringify(loginData),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || "خطا در ورود")
+      }
+
+      const data = await response.json()
+
+      // ذخیره توکن‌ها در کوکی (سمت کلاینت برای backup)
+      document.cookie = `access_token=${data.access}; path=/; max-age=86400; samesite=strict; ${
+        process.env.NODE_ENV === "production" ? "secure;" : ""
+      }`
+      document.cookie = `refresh_token=${data.refresh}; path=/; max-age=604800; samesite=strict; ${
+        process.env.NODE_ENV === "production" ? "secure;" : ""
+      }`
+
+      // دریافت اطلاعات کاربر
+      await checkAuth()
+      router.push("/")
+    } catch (error) {
+      console.error("Login error:", error)
+      throw error
+    }
+  }
+
+  const register = async (data: RegisterData) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          first_name: data.firstName,
+          last_name: data.lastName,
+          mobile: data.mobile,
+          email: data.email,
+          student_id: data.studentId,
+          password: data.password,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || "خطا در ثبت‌نام")
+      }
+
+      // بعد از ثبت‌نام موفق، خودکار لاگین می‌کنیم
+      await login(data.mobile, data.password, false)
+    } catch (error) {
+      console.error("Register error:", error)
+      throw error
+    }
+  }
+
+  const logout = () => {
+    // حذف کوکی‌ها
+    document.cookie = "access_token=; path=/; max-age=0"
+    document.cookie = "refresh_token=; path=/; max-age=0"
+
+    setUser(null)
+    router.push("/")
+  }
+
+  return <AuthContext.Provider value={{ user, loading, login, register, logout }}>{children}</AuthContext.Provider>
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider")
+  }
+  return context
+}
