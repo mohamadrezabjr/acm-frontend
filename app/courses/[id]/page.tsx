@@ -47,7 +47,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                   </Badge>
                 ))}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{course.name}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-primaryryer-foregroundroundar-primary-4uctiveer-foregroundtuctiveer-foregroundforegroundround bg-primary bg-primary bg-primary-foreground bg-muted-foreground bg-card-foreground bg-card">{course.name}</h1>
             </div>
           </div>
         </div>
