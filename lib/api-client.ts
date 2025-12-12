@@ -3,7 +3,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/a
 // Event types matching Django API response
 export interface Speaker {
   user: string | null
-  name: string
+  first_name: string
+  last_name: string
   position: string
   bio: string
 }

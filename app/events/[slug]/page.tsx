@@ -123,7 +123,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
                             <User className="w-8 h-8 text-white" />
                           </div>
                           <div>
-                            <h3 className="font-semibold text-lg">{speaker.name}</h3>
+                            <h3 className="font-semibold text-lg">{speaker.first_name} {speaker.last_name}</h3>
                             <p className="text-sm text-primary mb-1">{speaker.position}</p>
                             <p className="text-sm text-muted-foreground">{speaker.bio}</p>
                           </div>
