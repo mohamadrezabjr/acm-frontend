@@ -47,13 +47,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                   </Badge>
                 ))}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-primaryryer-foregroundroundar-primary-4uctiveer-foregroundtuctiveer-foregroundforegroundround bg-primary bg-primary bg-primary-foreground bg-muted-foreground bg-card-foreground bg-card">{course.name}</h1>
-            </div>
-          </div>
-        </div>
-
-        <div className="container mx-auto max-w-4xl px-4 py-12">
-          <div className="grid md:grid-cols-3 gap-8">
+              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-primaryryer-foregroundroundar-primary-4uctiveer-foregroundtuctiveer-foregroundforegroundround bg-primary-foreground bg-muted-foreground bg-card-foreground bg-card bg-transparentrd text-foreground text-primary-foreground text-secondary text-accent text-destructive-foreground text-border text-input text-ring text-sidebar-border text-sidebar-primary text-sidebar-foreground text-chart-5 text-input text-border text-accent text-card-foreground text-foreground text-backgrounde="grid md:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="md:col-span-2 space-y-8">
               {/* Description */}
