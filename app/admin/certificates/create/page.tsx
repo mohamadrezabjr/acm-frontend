@@ -4,15 +4,17 @@ import type React from "react"
 
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, Download } from "lucide-react"
+import { ArrowRight, Download, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function CreateCertificatePage() {
   const router = useRouter()
+  const { user, loading, isCreator } = useAuth()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [certificateData, setCertificateData] = useState({
     participantName: "",
@@ -22,15 +24,32 @@ export default function CreateCertificatePage() {
   })
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isAdminLoggedIn")
-    if (!isLoggedIn) {
-      router.push("/admin/login")
+    if (!loading) {
+      if (!user) {
+        router.push("/auth/login")
+      } else if (!isCreator()) {
+        router.push("/")
+      }
     }
-  }, [router])
+  }, [loading, user, router, isCreator])
 
   useEffect(() => {
-    drawCertificate()
-  }, [certificateData])
+    if (user && isCreator()) {
+      drawCertificate()
+    }
+  }, [certificateData, user])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!user || !isCreator()) {
+    return null
+  }
 
   const drawCertificate = () => {
     const canvas = canvasRef.current

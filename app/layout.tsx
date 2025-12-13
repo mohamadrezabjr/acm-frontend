@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Vazirmatn } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
+import { AuthProvider } from "@/lib/auth-context"
 
 const vazirmatn = Vazirmatn({ subsets: ["arabic"] })
 
@@ -38,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl">
       <body className={`${vazirmatn.className} font-sans antialiased`}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
         <Analytics />
       </body>
     </html>

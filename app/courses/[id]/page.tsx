@@ -47,12 +47,13 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                   </Badge>
                 ))}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{course.name}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-white">{course.name}</h1>
             </div>
           </div>
         </div>
 
-        <div className="container mx-auto max-w-4xl px-4 py-12">
+        {/* Content Section */}
+        <div className="container mx-auto max-w-4xl px-4 py-8">
           <div className="grid md:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="md:col-span-2 space-y-8">

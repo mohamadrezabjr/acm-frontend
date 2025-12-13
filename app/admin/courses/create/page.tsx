@@ -3,12 +3,13 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, X, Upload, ArrowRight } from "lucide-react"
+import { Plus, X, Upload, ArrowRight, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 interface Instructor {
@@ -20,6 +21,7 @@ interface Instructor {
 
 export default function CreateCoursePage() {
   const router = useRouter()
+  const { user, loading, isCreator } = useAuth()
   const [instructors, setInstructors] = useState<Instructor[]>([])
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
@@ -37,11 +39,26 @@ export default function CreateCoursePage() {
   })
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isAdminLoggedIn")
-    if (!isLoggedIn) {
-      router.push("/admin/login")
+    if (!loading) {
+      if (!user) {
+        router.push("/auth/login")
+      } else if (!isCreator()) {
+        router.push("/")
+      }
     }
-  }, [router])
+  }, [loading, user, router, isCreator])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!user || !isCreator()) {
+    return null
+  }
 
   const addInstructor = () => {
     setInstructors([

@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Header } from "@/components/header"
+import { useAuth } from "@/lib/auth-context"
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -22,6 +23,8 @@ export default function RegisterPage() {
     confirmPassword: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [loading, setLoading] = useState(false)
+  const { register } = useAuth()
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -52,19 +55,24 @@ export default function RegisterPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
-      const dataToSend = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        mobile: formData.mobile,
-        email: formData.email || undefined,
-        studentId: formData.studentId || undefined,
-        password: formData.password,
+      setLoading(true)
+      try {
+        await register({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phone: formData.mobile,
+          email: formData.email || undefined,
+          studentId: formData.studentId || undefined,
+          password: formData.password,
+        })
+      } catch (err: any) {
+        setErrors({ submit: err.message || "خطا در ثبت‌نام. لطفاً دوباره تلاش کنید." })
+      } finally {
+        setLoading(false)
       }
-      console.log("Register data:", dataToSend)
-      // Send to backend
     }
   }
 
@@ -85,6 +93,12 @@ export default function RegisterPage() {
             <CardDescription>برای ایجاد حساب کاربری اطلاعات خود را وارد کنید</CardDescription>
           </CardHeader>
           <CardContent>
+            {errors.submit && (
+              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                <p className="text-sm text-destructive text-center">{errors.submit}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -96,6 +110,7 @@ export default function RegisterPage() {
                     value={formData.firstName}
                     onChange={(e) => handleChange("firstName", e.target.value)}
                     className={errors.firstName ? "border-destructive" : ""}
+                    disabled={loading}
                   />
                   {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
                 </div>
@@ -109,6 +124,7 @@ export default function RegisterPage() {
                     value={formData.lastName}
                     onChange={(e) => handleChange("lastName", e.target.value)}
                     className={errors.lastName ? "border-destructive" : ""}
+                    disabled={loading}
                   />
                   {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
                 </div>
@@ -125,6 +141,7 @@ export default function RegisterPage() {
                   value={formData.mobile}
                   onChange={(e) => handleChange("mobile", e.target.value)}
                   className={errors.mobile ? "border-destructive" : ""}
+                  disabled={loading}
                 />
                 {errors.mobile && <p className="text-xs text-destructive">{errors.mobile}</p>}
               </div>
@@ -138,6 +155,7 @@ export default function RegisterPage() {
                   value={formData.studentId}
                   onChange={(e) => handleChange("studentId", e.target.value)}
                   className={errors.studentId ? "border-destructive" : ""}
+                  disabled={loading}
                 />
                 {errors.studentId && <p className="text-xs text-destructive">{errors.studentId}</p>}
                 <p className="text-xs text-muted-foreground">در صورت وارد کردن، باید 10 رقم باشد</p>
@@ -152,6 +170,7 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={(e) => handleChange("email", e.target.value)}
                   className={errors.email ? "border-destructive" : ""}
+                  disabled={loading}
                 />
                 {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
               </div>
@@ -167,11 +186,13 @@ export default function RegisterPage() {
                     value={formData.password}
                     onChange={(e) => handleChange("password", e.target.value)}
                     className={errors.password ? "border-destructive" : ""}
+                    disabled={loading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    disabled={loading}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -190,12 +211,20 @@ export default function RegisterPage() {
                   value={formData.confirmPassword}
                   onChange={(e) => handleChange("confirmPassword", e.target.value)}
                   className={errors.confirmPassword ? "border-destructive" : ""}
+                  disabled={loading}
                 />
                 {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
               </div>
 
-              <Button type="submit" className="w-full">
-                ثبت‌نام
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                    در حال ثبت‌نام...
+                  </>
+                ) : (
+                  "ثبت‌نام"
+                )}
               </Button>
             </form>
 

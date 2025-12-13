@@ -4,12 +4,13 @@ import type React from "react"
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, X, Upload, ArrowRight } from "lucide-react"
+import { Plus, X, Upload, ArrowRight, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 interface Speaker {
@@ -21,10 +22,10 @@ interface Speaker {
 
 export default function CreateEventPage() {
   const router = useRouter()
+  const { user, loading, isCreator } = useAuth()
   const [speakers, setSpeakers] = useState<Speaker[]>([])
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
-  // Event form data
   const [eventData, setEventData] = useState({
     name: "",
     description: "",
@@ -39,11 +40,26 @@ export default function CreateEventPage() {
   })
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isAdminLoggedIn")
-    if (!isLoggedIn) {
-      router.push("/admin/login")
+    if (!loading) {
+      if (!user) {
+        router.push("/auth/login")
+      } else if (!isCreator()) {
+        router.push("/")
+      }
     }
-  }, [router])
+  }, [loading, user, router, isCreator])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!user || !isCreator()) {
+    return null
+  }
 
   const addSpeaker = () => {
     setSpeakers([
@@ -80,7 +96,6 @@ export default function CreateEventPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Prepare data to send to backend
     const formData = new FormData()
     formData.append("name", eventData.name)
     formData.append("description", eventData.description)
@@ -102,9 +117,6 @@ export default function CreateEventPage() {
       speakers,
       image: eventData.image?.name,
     })
-
-    // TODO: Send formData to Django backend
-    // fetch('/api/events', { method: 'POST', body: formData })
 
     alert("رویداد با موفقیت ایجاد شد! (داده‌ها در console لاگ شده‌اند)")
     router.push("/admin/dashboard")

@@ -1,34 +1,55 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Clock, Users, ArrowLeft, Filter, ArrowUpDown, User } from "lucide-react"
+import { Calendar, MapPin, Clock, Users, ArrowLeft, Filter, ArrowUpDown, User, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { eventsData } from "@/lib/events-data"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Header } from "@/components/header"
+import { fetchEvents, type Event } from "@/lib/api-client"
 
 const ITEMS_PER_PAGE = 6
 
 export default function EventsPage() {
+  const [events, setEvents] = useState<Event[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedTag, setSelectedTag] = useState<string>("همه")
   const [priceFilter, setPriceFilter] = useState<string>("همه")
   const [sortBy, setSortBy] = useState<string>("date")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
 
+  useEffect(() => {
+    loadEvents()
+  }, [])
+
+  const loadEvents = async () => {
+    try {
+      setLoading(true)
+      const data = await fetchEvents()
+      setEvents(data)
+    } catch (err) {
+      console.error("Failed to fetch events:", err)
+      setError("خطا در بارگذاری رویدادها")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const allTags = useMemo(() => {
     const tags = new Set<string>()
-    eventsData.forEach((event) => {
+    events.forEach((event) => {
       event.tags.forEach((tag) => tags.add(tag))
     })
     return ["همه", ...Array.from(tags)]
-  }, [])
+  }, [events])
 
   const filteredAndSortedEvents = useMemo(() => {
-    let filtered = eventsData
+    let filtered = events
 
     if (selectedTag !== "همه") {
       filtered = filtered.filter((event) => event.tags.includes(selectedTag))
@@ -45,7 +66,7 @@ export default function EventsPage() {
 
       switch (sortBy) {
         case "date":
-          comparison = a.startDate.localeCompare(b.startDate, "fa")
+          comparison = new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
           break
         case "capacity":
           comparison = a.capacity - b.capacity
@@ -54,7 +75,7 @@ export default function EventsPage() {
           comparison = a.registered - b.registered
           break
         case "title":
-          comparison = a.name.localeCompare(b.name, "fa")
+          comparison = a.title.localeCompare(b.title, "fa")
           break
         case "price":
           comparison = a.price - b.price
@@ -67,7 +88,7 @@ export default function EventsPage() {
     })
 
     return sorted
-  }, [selectedTag, priceFilter, sortBy, sortOrder])
+  }, [events, selectedTag, priceFilter, sortBy, sortOrder])
 
   const totalPages = Math.ceil(filteredAndSortedEvents.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
@@ -93,6 +114,10 @@ export default function EventsPage() {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
   }
 
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })
+  }
+
   return (
     <>
       <Header />
@@ -109,6 +134,7 @@ export default function EventsPage() {
             <p className="text-xl text-muted-foreground">لیست کامل رویدادها، کارگاه‌ها و هاکاتون‌های انجمن ACM</p>
           </div>
 
+          {/* Filters */}
           <div className="flex flex-col md:flex-row gap-4 mb-8 p-4 bg-muted/50 rounded-lg">
             <div className="flex items-center gap-2 flex-1">
               <Filter className="w-5 h-5 text-muted-foreground" />
@@ -160,23 +186,35 @@ export default function EventsPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center justify-between text-sm text-muted-foreground mb-6">
             <span>{filteredAndSortedEvents.length} رویداد یافت شد</span>
             <span className="text-xs">ترتیب: {sortOrder === "asc" ? "صعودی ↑" : "نزولی ↓"}</span>
           </div>
 
-          {currentEvents.length === 0 ? (
+          {/* Loading State */}
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-xl text-destructive">{error}</p>
+              <Button onClick={loadEvents} className="mt-4">
+                تلاش مجدد
+              </Button>
+            </div>
+          ) : currentEvents.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-xl text-muted-foreground">رویدادی یافت نشد</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {currentEvents.map((event) => (
-                <Card key={event.id} className="overflow-hidden group hover:shadow-xl transition-shadow">
+                <Card key={event.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
                   <div className="aspect-video overflow-hidden relative">
                     <img
                       src={event.image || "/placeholder.svg"}
-                      alt={event.name}
+                      alt={event.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute top-2 left-2">
@@ -193,17 +231,16 @@ export default function EventsPage() {
                         </Badge>
                       ))}
                     </div>
-                    <CardTitle className="text-xl">{event.name}</CardTitle>
-                    <CardDescription>{event.description}</CardDescription>
+                    <CardTitle className="text-xl">{event.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="w-4 h-4" />
-                      <span>{new Date(event.startDate).toLocaleDateString("fa-IR")}</span>
+                      <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="w-4 h-4" />
-                      <span>{event.time}</span>
+                      <span>{formatTime(event.start_date)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <MapPin className="w-4 h-4" />
@@ -219,7 +256,7 @@ export default function EventsPage() {
                       <User className="w-4 h-4" />
                       <span>{event.organizer}</span>
                     </div>
-                    <Link href={`/events/${event.id}`}>
+                    <Link href={`/events/${event.slug}`}>
                       <Button variant="outline" className="w-full mt-4 bg-transparent">
                         مشاهده جزئیات
                       </Button>
@@ -230,7 +267,8 @@ export default function EventsPage() {
             </div>
           )}
 
-          {totalPages > 1 && (
+          {/* Pagination */}
+          {!loading && totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-8">
               <Button
                 variant="outline"
