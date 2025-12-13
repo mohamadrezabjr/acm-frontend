@@ -3,22 +3,44 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Clock, Users, ArrowLeft, Filter, ArrowUpDown, User } from "lucide-react"
+import { Calendar, MapPin, Clock, Users, ArrowLeft, Filter, ArrowUpDown, User,Loader2 } from "lucide-react"
 import Link from "next/link"
 import { coursesData } from "@/lib/courses-data"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Header } from "@/components/header"
+import { fetchCourses, type Course, WeekdayFa } from "@/lib/api-client"
 
 const ITEMS_PER_PAGE = 6
 
 export default function CoursesPage() {
+    const [courses, setCourses] = useState<Course[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedTag, setSelectedTag] = useState<string>("همه")
   const [priceFilter, setPriceFilter] = useState<string>("همه")
   const [sortBy, setSortBy] = useState<string>("startDate")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
 
+    useEffect(() => {
+      loadCourses()
+    }, [])
+
+
+      const loadCourses = async () => {
+        try {
+          setLoading(true)
+          const data = await fetchCourses()
+          setCourses(data)
+        } catch (err) {
+          console.error("Failed to fetch courses:", err)
+          setError("خطا در بارگذاری دوره هاا")
+        } finally {
+          setLoading(false)
+        }
+      }
   const allTags = useMemo(() => {
     const tags = new Set<string>()
     coursesData.forEach((course) => {
@@ -28,7 +50,7 @@ export default function CoursesPage() {
   }, [])
 
   const filteredAndSortedCourses = useMemo(() => {
-    let filtered = coursesData
+    let filtered = courses
 
     if (selectedTag !== "همه") {
       filtered = filtered.filter((course) => course.tags.includes(selectedTag))
@@ -44,8 +66,8 @@ export default function CoursesPage() {
       let comparison = 0
 
       switch (sortBy) {
-        case "startDate":
-          comparison = a.startDate.localeCompare(b.startDate, "fa")
+        case "date":
+          comparison = new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
           break
         case "capacity":
           comparison = a.capacity - b.capacity
@@ -53,8 +75,8 @@ export default function CoursesPage() {
         case "registered":
           comparison = a.registered - b.registered
           break
-        case "name":
-          comparison = a.name.localeCompare(b.name, "fa")
+        case "title":
+          comparison = a.title.localeCompare(b.title, "fa")
           break
         case "price":
           comparison = a.price - b.price
@@ -67,7 +89,7 @@ export default function CoursesPage() {
     })
 
     return sorted
-  }, [selectedTag, priceFilter, sortBy, sortOrder])
+  }, [courses, selectedTag, priceFilter, sortBy, sortOrder])
 
   const totalPages = Math.ceil(filteredAndSortedCourses.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
@@ -92,6 +114,16 @@ export default function CoursesPage() {
   const toggleSortOrder = () => {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
   }
+  
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })
+  }
+  const formatJustTime = (time: string) =>
+    toPersianNumber(time.slice(0, 5));
+  const toPersianNumber = (value: string | number) =>
+    value.toString().replace(/\d/g, (d) => (+d).toLocaleString('fa-IR'));
+
+
 
   return (
     <>
@@ -165,18 +197,30 @@ export default function CoursesPage() {
             <span className="text-xs">ترتیب: {sortOrder === "asc" ? "صعودی ↑" : "نزولی ↓"}</span>
           </div>
 
-          {currentCourses.length === 0 ? (
+          {/* Loading State */}
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            </div>
+          ) : error ? (
             <div className="text-center py-12">
-              <p className="text-xl text-muted-foreground">دوره‌ای یافت نشد</p>
+              <p className="text-xl text-destructive">{error}</p>
+              <Button onClick={loadCourses} className="mt-4">
+                تلاش مجدد
+              </Button>
+            </div>
+          ) : currentCourses.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-xl text-muted-foreground">دوره ای یافت نشد</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {currentCourses.map((course) => (
-                <Card key={course.id} className="overflow-hidden group hover:shadow-xl transition-shadow">
+                <Card key={course.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
                   <div className="aspect-video overflow-hidden relative">
                     <img
                       src={course.image || "/placeholder.svg"}
-                      alt={course.name}
+                      alt={course.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute top-2 left-2">
@@ -193,18 +237,34 @@ export default function CoursesPage() {
                         </Badge>
                       ))}
                     </div>
-                    <CardTitle className="text-xl">{course.name}</CardTitle>
-                    <CardDescription className="line-clamp-2">{course.description}</CardDescription>
+                    <CardTitle className="text-xl">{course.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="w-4 h-4" />
-                      <span>شروع: {new Date(course.startDate).toLocaleDateString("fa-IR")}</span>
+                      <span>{new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+
+              
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="w-4 h-4" />
-                      <span>{course.schedule}</span>
+                      <span>{formatTime(course.start_date)}</span>
                     </div>
+                    {course.time_plans && course.time_plans.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      
+                      <Clock className="w-4 h-4" />
+                      {course.time_plans.map((time_plan, index) => (
+                        <span
+                          key={`${index}`}
+                        >
+                          {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} , {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
+
+                        </span>
+                      ))}
+
+                    </div>
+                  )}
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <MapPin className="w-4 h-4" />
                       <span>{course.location}</span>
@@ -217,9 +277,9 @@ export default function CoursesPage() {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <User className="w-4 h-4" />
-                      <span>{course.instructors.length} استاد</span>
+                      <span>{course.organizer}</span>
                     </div>
-                    <Link href={`/courses/${course.id}`}>
+                    <Link href={`/courses/${course.slug}`}>
                       <Button variant="outline" className="w-full mt-4 bg-transparent">
                         مشاهده جزئیات
                       </Button>
@@ -230,7 +290,8 @@ export default function CoursesPage() {
             </div>
           )}
 
-          {totalPages > 1 && (
+          {/* Pagination */}
+          {!loading && totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-8">
               <Button
                 variant="outline"

@@ -1,36 +1,81 @@
-import { notFound } from "next/navigation"
+"use client"
+
+import { useEffect, useState} from "react"
+import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, MapPin, Clock, Users, ArrowLeft, User } from "lucide-react"
+import { Calendar, MapPin, Clock, Users, ArrowLeft, User, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { getCourseById, getAllCourseIds } from "@/lib/courses-data"
+import { fetchCourseBySlug, type Course, WeekdayFa } from "@/lib/api-client"
+
 import { Header } from "@/components/header"
 
-export function generateStaticParams() {
-  return getAllCourseIds().map((id) => ({
-    id: id,
-  }))
-}
 
-export default async function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const course = getCourseById(id)
 
-  if (!course) {
-    notFound()
+export default function CourseDetailPage() {
+  const { slug } = useParams<{ slug: string }>()
+  const router = useRouter()
+
+  const [course, setCourse] = useState<Course | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    loadCourse()
+  }, [slug])
+
+  const loadCourse = async () => {
+    try {
+      setLoading(true)
+      const data = await fetchCourseBySlug(slug)
+      setCourse(data)
+    } catch (err) {
+      console.error("Failed to fetch event:", err)
+      setError("رویداد یافت نشد")
+    } finally {
+      setLoading(false)
+    }
+  }
+    if (loading) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen pt-24 flex items-center justify-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        </main>
+      </>
+    )
   }
 
+  if (error || !course) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen pt-24 flex flex-col items-center justify-center">
+          <p className="text-xl text-destructive mb-4">{error || "رویداد یافت نشد"}</p>
+          <Link href="/events">
+            <Button>بازگشت به رویدادها</Button>
+          </Link>
+        </main>
+      </>
+    )
+  }
   const availableSeats = course.capacity - course.registered
   const isAlmostFull = availableSeats < course.capacity * 0.2
-
-  return (
+  const isFull = availableSeats <= 0
+  const formatJustTime = (time: string) =>
+    toPersianNumber(time.slice(0, 5));
+  const toPersianNumber = (value: string | number) =>
+    value.toString().replace(/\d/g, (d) => (+d).toLocaleString('fa-IR'));
+  
+    return (
     <>
       <Header />
       <main className="min-h-screen pt-24">
         {/* Hero Section */}
         <div className="relative h-[400px] overflow-hidden">
-          <img src={course.image || "/placeholder.svg"} alt={course.name} className="w-full h-full object-cover" />
+          <img src={course.image || "/placeholder.svg"} alt={course.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="absolute bottom-0 right-0 left-0 p-8">
             <div className="container mx-auto max-w-4xl">
@@ -47,7 +92,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                   </Badge>
                 ))}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-white">{course.name}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-white">{course.title}</h1>
             </div>
           </div>
         </div>
@@ -81,7 +126,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                             <User className="w-8 h-8 text-white" />
                           </div>
                           <div>
-                            <h3 className="font-semibold text-lg">{instructor.name}</h3>
+                            <h3 className="font-semibold text-lg">{instructor.first_name}</h3>
                             <p className="text-sm text-primary mb-1">{instructor.position}</p>
                             <p className="text-sm text-muted-foreground">{instructor.bio}</p>
                           </div>
@@ -106,7 +151,17 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                       <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-muted-foreground">تاریخ شروع</div>
-                        <div className="font-medium">{new Date(course.startDate).toLocaleDateString("fa-IR")}</div>
+                        <div className="font-medium">{new Date(course.start_date).toLocaleDateString("fa-IR")}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">تاریخ پایان</div>
+                        <div className="font-medium">
+                          {new Date(course.end_date).toLocaleDateString("fa-IR")}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -114,17 +169,22 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                       <div>
                         <div className="text-sm text-muted-foreground">مهلت ثبت‌نام</div>
                         <div className="font-medium">
-                          {new Date(course.registrationDeadline).toLocaleDateString("fa-IR")}
+                          {new Date(course.registration_deadline).toLocaleDateString("fa-IR")}
                         </div>
                       </div>
                     </div>
+                    {course.time_plans && course.time_plans.length > 0 && (
                     <div className="flex items-start gap-3">
                       <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-muted-foreground">برنامه زمانی</div>
-                        <div className="font-medium">{course.schedule}</div>
+                        
+                      {course.time_plans.map((time_plan, index) => (
+                        <div key={`${time_plan.weekday}-${time_plan.time_start}`} className="font-medium">{WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} , {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}</div>
+                      ))}
                       </div>
-                    </div>
+                      
+                    </div>)}
                     <div className="flex items-start gap-3">
                       <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
@@ -139,7 +199,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                         <div className="font-medium">
                           {course.registered} / {course.capacity} نفر
                         </div>
-                        {isAlmostFull && (
+                        {isAlmostFull && !isFull && (
                           <Badge variant="destructive" className="mt-1">
                             ظرفیت محدود!
                           </Badge>
@@ -154,7 +214,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                       </div>
                     </div>
                   </div>
-
+                  {!isFull &&(
                   <div className="pt-4 border-t">
                     <div className="text-2xl font-bold text-center mb-4">
                       {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
@@ -162,7 +222,16 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                     <Button className="w-full" size="lg">
                       ثبت‌نام در دوره
                     </Button>
-                  </div>
+                  </div>)}
+                  {isFull &&(
+                  <div className="pt-4 border-t">
+                    <div className="text-2xl  font-bold text-center ">
+
+                    </div>
+                    <Button className="w-full" size="lg" variant="destructive">
+                     ظرفیت پر است !
+                    </Button>
+                  </div>)}
                 </CardContent>
               </Card>
 

@@ -5,17 +5,25 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
-
+import { useAuth } from "@/lib/auth-context"
 export default function EventsListPage() {
   const router = useRouter()
+  const { user, loading, isCreator } = useAuth()
+  
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isAdminLoggedIn")
-    if (!isLoggedIn) {
-      router.push("/admin/login")
+    if (!loading && (!user || !isCreator)) {
+      router.push("/auth/login")
     }
-  }, [router])
+  }, [router, user, isCreator])
 
+    if (loading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div>در حال بارگذاری...</div>
+      </div>
+    )
+  }
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">

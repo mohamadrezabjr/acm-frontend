@@ -1,5 +1,6 @@
+"use client"
+
 export const dynamic = "force-dynamic"
-;("use client")
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -11,28 +12,34 @@ import { useAuth } from "@/lib/auth-context"
 
 export default function AdminDashboard() {
   const router = useRouter()
-  const { user, logout } = useAuth()
+  const { user, loading, isCreator, logout } = useAuth()
 
-  useEffect(() => {
-    if (!user) {
-      router.push("/auth/login")
-    } else if (user.role !== "admin" && user.role !== "creator") {
-      router.push("/")
-    }
-  }, [user, router])
+useEffect(() => {
+  if (loading) return
 
+  if (!user) {
+    router.push("/auth/login")
+    return
+  }
+
+  if (!isCreator()) {
+    router.push("/")
+    return
+  }
+}, [user, loading, isCreator, router])
   const handleLogout = () => {
     logout()
     router.push("/")
   }
 
-  if (!user) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div>در حال بارگذاری...</div>
       </div>
     )
   }
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,7 +49,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-4">
             <div className="text-sm">
               <span className="text-muted-foreground">خوش آمدید، </span>
-              <span className="font-semibold">{user.name}</span>
+              <span className="font-semibold">{user.firstName}</span>
             </div>
             <Button variant="outline" onClick={handleLogout}>
               <LogOut className="ml-2 h-4 w-4" />

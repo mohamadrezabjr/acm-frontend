@@ -1,12 +1,27 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
 
 // Event types matching Django API response
-export interface Speaker {
+export interface Person {
   user: string | null
   first_name: string
   last_name: string
   position: string
   bio: string
+}
+
+export interface TimePlan {
+  weekday : string
+  time_start : string
+  time_end: string
+}
+export enum WeekdayFa {
+  Sat = 'شنبه',
+  Sun = 'یکشنبه',
+  Mon = 'دوشنبه',
+  Tue = 'سه‌شنبه',
+  Wed = 'چهارشنبه',
+  Thu = 'پنجشنبه',
+  Fr = 'جمعه',
 }
 
 export interface Event {
@@ -24,7 +39,26 @@ export interface Event {
   price: number
   organizer: string
   image: string
-  speakers: Speaker[]
+  speakers: Person[]
+}
+
+export interface Course {
+  slug: string
+  title: string
+  description: string
+  tags: string[]
+  start_date: string
+  end_date: string
+  registration_start_at: string
+  registration_deadline: string
+  capacity: number
+  registered: number
+  location: string
+  price: number
+  organizer: string
+  image: string
+  instructors: Person[]
+  time_plans: TimePlan[]
 }
 
 function getCookie(name: string): string | null {
@@ -80,6 +114,22 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   return response
 }
 
+export async function fetchCourses(): Promise<Course[]> {
+  const response = await apiRequest("/courses/")
+  if (!response.ok) {
+    throw new Error("Failed to fetch courses")
+  }
+  return response.json()
+}
+
+export async function fetchCourseBySlug(slug: string): Promise<Course> {
+  const response = await apiRequest(`/courses/${slug}/`)
+  if (!response.ok) {
+    throw new Error("Failed to fetch course")
+  }
+  return response.json()
+}
+
 export async function fetchEvents(): Promise<Event[]> {
   const response = await apiRequest("/events/")
   if (!response.ok) {
@@ -95,6 +145,9 @@ export async function fetchEventBySlug(slug: string): Promise<Event> {
   }
   return response.json()
 }
+
+
+
 
 export async function fetchUserEvents(): Promise<Event[]> {
   const response = await apiRequest("/profile/events/")

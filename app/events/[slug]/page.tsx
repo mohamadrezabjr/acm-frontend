@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState, use } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState} from "react"
+import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,8 +10,9 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { fetchEventBySlug, type Event } from "@/lib/api-client"
 
-export default function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params)
+export default function CourseDetailPage() {
+  const { slug } = useParams<{ slug: string }>()
+  
   const router = useRouter()
 
   const [event, setEvent] = useState<Event | null>(null)
@@ -147,20 +148,6 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
                     <div className="flex items-start gap-3">
                       <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
-                        <div className="text-sm text-muted-foreground">تاریخ شروع</div>
-                        <div className="font-medium">{new Date(event.start_date).toLocaleDateString("fa-IR")}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">تاریخ پایان</div>
-                        <div className="font-medium">{new Date(event.end_date).toLocaleDateString("fa-IR")}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
                         <div className="text-sm text-muted-foreground">مهلت ثبت‌نام</div>
                         <div className="font-medium">
                           {new Date(event.registration_deadline).toLocaleDateString("fa-IR")}
@@ -168,9 +155,23 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
+                      <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">تاریخ رویداد</div>
+                        <div className="font-medium">{new Date(event.start_date).toLocaleDateString("fa-IR")}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
                       <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
-                        <div className="text-sm text-muted-foreground">ساعت</div>
+                        <div className="text-sm text-muted-foreground">ساعت شروع</div>
+                        <div className="font-medium">{formatTime(event.start_date)}</div>
+                      </div>
+                    </div>                    
+                    <div className="flex items-start gap-3">
+                      <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">ساعت پایان</div>
                         <div className="font-medium">{formatTime(event.start_date)}</div>
                       </div>
                     </div>

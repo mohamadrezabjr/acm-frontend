@@ -1,6 +1,6 @@
-export const dynamic = "force-dynamic"
-;("use client")
+"use client"
 
+export const dynamic = "force-dynamic"
 import type React from "react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Plus, X, Upload, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Loader2 } from "lucide-react"
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/lib/auth-context"
 
 interface Speaker {
   id: string
