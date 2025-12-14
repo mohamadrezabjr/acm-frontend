@@ -7,6 +7,7 @@ export interface Person {
   last_name: string
   position: string
   bio: string
+  avatar: string
 }
 
 export interface TimePlan {

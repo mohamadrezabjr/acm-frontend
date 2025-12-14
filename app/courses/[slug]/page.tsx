@@ -121,7 +121,7 @@ export default function CourseDetailPage() {
                   <CardTitle>درباره دوره</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-lg leading-relaxed text-muted-foreground">{course.description}</p>
+                  <p className="text-lg leading-relaxed text-muted-foreground" style={{ whiteSpace: "pre-line" }}>{course.description}</p>
                 </CardContent>
               </Card>
 
@@ -139,7 +139,7 @@ export default function CourseDetailPage() {
                             <User className="w-8 h-8 text-white" />
                           </div>
                           <div>
-                            <h3 className="font-semibold text-lg">{instructor.first_name}</h3>
+                            <h3 className="font-semibold text-lg">{instructor.first_name} {instructor.last_name}</h3>
                             <p className="text-sm text-primary mb-1">{instructor.position}</p>
                             <p className="text-sm text-muted-foreground">{instructor.bio}</p>
                           </div>

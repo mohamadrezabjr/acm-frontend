@@ -15,6 +15,8 @@ interface User {
   studentId?: string
   role: UserRole
   bio? : string
+  position?: string
+  avatar?: string
 }
 
 interface AuthContextType {
@@ -65,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           studentId: userData.student_id,
           role: userData.role || "user",
           bio : userData.bio || "",
+          avatar: userData.avatar || "",
+          position: userData.position || "",
         })
       } else {
         setUser(null)
