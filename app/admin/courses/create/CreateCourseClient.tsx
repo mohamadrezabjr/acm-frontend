@@ -27,7 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/lib/auth-context"
 
 interface Instructor {
   id: string

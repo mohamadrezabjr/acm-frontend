@@ -1,6 +1,5 @@
 "use client"
 
-
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -8,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Calendar, Award, LogOut, Plus, BookOpen } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
+import { Header } from "@/components/header"
+
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -41,6 +42,8 @@ export default function AdminDashboard() {
   }
 
   return (
+  <>
+    <Header />
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -146,5 +149,6 @@ export default function AdminDashboard() {
         </div>
       </main>
     </div>
+  </>
   )
 }
