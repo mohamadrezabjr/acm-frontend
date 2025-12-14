@@ -156,7 +156,7 @@ export default function ProfilePage() {
                   <div>
                     <CardTitle>اطلاعات کاربری</CardTitle>
                     <CardDescription>مشاهده و ویرایش اطلاعات حساب کاربری</CardDescription>
-                  </div>
+                  </div> 
                   {!isEditing ? (
                     <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                       <Edit className="w-4 h-4 ml-2" />
@@ -179,9 +179,9 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-6">
                     <div className="relative">
                       <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg ring-4 ring-primary/20">
-                        {user.profileImage ? (
+                        {user.avatar ? (
                           <img
-                            src={user.profileImage || "/placeholder.svg"}
+                            src={ user.avatar || "/placeholder.svg"}
                             alt={user.firstName}
                             className="w-full h-full rounded-full object-cover"
                           />

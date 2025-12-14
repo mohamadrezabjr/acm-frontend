@@ -8,20 +8,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, MapPin, Clock, Users, ArrowLeft, User, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Header } from "@/components/header"
-import { fetchEventBySlug, type Event } from "@/lib/api-client"
+import { fetchEventBySlug, type Event, eventRegitserBySlug } from "@/lib/api-client"
 
 export default function CourseDetailPage() {
   const { slug } = useParams<{ slug: string }>()
 
   const router = useRouter()
-
+  const [popupMessage, setPopupMessage] = useState<string | null>(null);
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+
   useEffect(() => {
     loadEvent()
   }, [slug])
+  
+  useEffect(() => {
+  if (popupMessage) {
+    const timer = setTimeout(() => setPopupMessage(null), 5000);
+    return () => clearTimeout(timer);
+  }
+}, [popupMessage]);
 
   const loadEvent = async () => {
     try {
@@ -52,6 +60,7 @@ export default function CourseDetailPage() {
     if (isExpired) return { canRegister: false, message: "مهلت ثبت‌نام تمام شده" }
     return { canRegister: true, message: "" }
   }
+  
 
   if (loading) {
     return (
@@ -82,6 +91,10 @@ export default function CourseDetailPage() {
   const isAlmostFull = availableSeats < event.capacity * 0.2
   const registrationStatus = getRegistrationStatus()
 
+  const handleRegister = async () => {
+    const result = await eventRegitserBySlug(event.slug);
+    setPopupMessage(result.detail);
+};
   return (
     <>
       <Header />
@@ -235,7 +248,7 @@ export default function CourseDetailPage() {
                         <div className="text-2xl font-bold text-center mb-4">
                           {event.price === 0 ? "رایگان" : `${event.price.toLocaleString("fa-IR")} تومان`}
                         </div>
-                        <Button className="w-full" size="lg">
+                        <Button className="w-full" size="lg" onClick={handleRegister}>
                           ثبت‌نام در رویداد
                         </Button>
                       </>
@@ -264,6 +277,19 @@ export default function CourseDetailPage() {
           </div>
         </div>
       </main>
+
+    {/* Popup */}
+    {popupMessage && (
+      <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 shadow-lg rounded-xl p-4 max-w-sm w-full z-50 animate-fade-in">
+        <p className="text-gray-800">{popupMessage}</p>
+        <button
+          className="mt-2 text-sm text-blue-500 hover:underline"
+          onClick={() => setPopupMessage(null)}
+        >
+          بستن
+        </button>
+      </div>
+    )}
     </>
   )
 }

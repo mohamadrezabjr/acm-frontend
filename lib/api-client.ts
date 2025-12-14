@@ -171,6 +171,7 @@ export async function updateUserProfile(data: {
   last_name?: string
   email?: string
   student_id?: string
+  avatar?: string
 }): Promise<any> {
   const response = await apiRequest("/auth/me/", {
     method: "PATCH",
@@ -204,4 +205,28 @@ export async function uploadProfileImage(file: File): Promise<any> {
     throw new Error("Failed to upload profile image")
   }
   return response.json()
+}
+
+export async function eventRegitserBySlug(slug : string) : Promise<any> {
+  const response = await apiRequest(`/events/registration/${slug}/`, {
+    method : 'POST',
+  })
+
+
+  if (response.status == 409){
+        return {'detail' : "ظرفیت دوره پر شده است"}
+  }
+  else  if (response.status == 422){
+        return {'detail' : "شما قبلا در این دوره ثبت نام کرده اید"}
+  }
+  else  if (response.status == 403){
+        return {'detail' : "مهلت ثبت نام تمام شده است"}
+  }
+  else if (response.status == 201){
+    return {'detail' : "ثبت نام در رویداد با موفقیت انجام شد. لینک جلسه به شماره شما پیامک می شود. همچنین می توانید در پروفایل خود اطلاعات رویداد و لینک جلسه را ببینید."}
+  }
+  else {
+      return {"detail" : "ثبت نام موفقیت امیز نبود"}
+  }
+  
 }

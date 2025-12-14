@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           studentId: userData.student_id,
           role: userData.role || "user",
           bio : userData.bio || "",
-          avatar: userData.avatar || "",
+          avatar: `${API_BASE_URL}/${userData.avatar}` || "",
           position: userData.position || "",
         })
       } else {
