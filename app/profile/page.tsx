@@ -16,9 +16,6 @@ import { Calendar, MapPin, User, Settings, BookOpen, CalendarDays, Edit, Save, X
 import Link from "next/link"
 import { fetchUserEvents, updateUserProfile, uploadProfileImage, type Event } from "@/lib/api-client"
 
-export const dynamic = "force-dynamic"
-export const dynamicParams = true
-export const revalidate = 0
 
 export default function ProfilePage() {
   const { user, loading, isCreator } = useAuth()
