@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState} from "react"
+import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -12,7 +12,7 @@ import { fetchEventBySlug, type Event } from "@/lib/api-client"
 
 export default function CourseDetailPage() {
   const { slug } = useParams<{ slug: string }>()
-  
+
   const router = useRouter()
 
   const [event, setEvent] = useState<Event | null>(null)
@@ -38,6 +38,19 @@ export default function CourseDetailPage() {
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })
+  }
+
+  const getRegistrationStatus = () => {
+    if (!event) return { canRegister: false, message: "" }
+
+    const now = new Date()
+    const deadline = new Date(event.registration_deadline)
+    const isFull = event.registered >= event.capacity
+    const isExpired = now > deadline
+
+    if (isFull) return { canRegister: false, message: "ظرفیت تکمیل است" }
+    if (isExpired) return { canRegister: false, message: "مهلت ثبت‌نام تمام شده" }
+    return { canRegister: true, message: "" }
   }
 
   if (loading) {
@@ -67,6 +80,7 @@ export default function CourseDetailPage() {
 
   const availableSeats = event.capacity - event.registered
   const isAlmostFull = availableSeats < event.capacity * 0.2
+  const registrationStatus = getRegistrationStatus()
 
   return (
     <>
@@ -100,16 +114,19 @@ export default function CourseDetailPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="md:col-span-2 space-y-8">
-            {/* Description */}
-            {event.description && event.description.length >0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>درباره رویداد</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg leading-relaxed text-muted-foreground" style={{ whiteSpace: "pre-line" }}>{event.description}</p>
-                </CardContent>
-              </Card>)}
+              {/* Description */}
+              {event.description && event.description.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>درباره رویداد</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-lg leading-relaxed text-muted-foreground" style={{ whiteSpace: "pre-line" }}>
+                      {event.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
               {/* Speakers */}
               {event.speakers && event.speakers.length > 0 && (
                 <Card>
@@ -124,7 +141,9 @@ export default function CourseDetailPage() {
                             <User className="w-8 h-8 text-white" />
                           </div>
                           <div>
-                            <h3 className="font-semibold text-lg">{speaker.first_name} {speaker.last_name}</h3>
+                            <h3 className="font-semibold text-lg">
+                              {speaker.first_name} {speaker.last_name}
+                            </h3>
                             <p className="text-sm text-primary mb-1">{speaker.position}</p>
                             <p className="text-sm text-muted-foreground">{speaker.bio}</p>
                           </div>
@@ -167,7 +186,7 @@ export default function CourseDetailPage() {
                         <div className="text-sm text-muted-foreground">ساعت شروع</div>
                         <div className="font-medium">{formatTime(event.start_date)}</div>
                       </div>
-                    </div>                    
+                    </div>
                     <div className="flex items-start gap-3">
                       <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
@@ -189,9 +208,14 @@ export default function CourseDetailPage() {
                         <div className="font-medium">
                           {event.registered} / {event.capacity} نفر
                         </div>
-                        {isAlmostFull && (
+                        {isAlmostFull && registrationStatus.canRegister && (
                           <Badge variant="destructive" className="mt-1">
                             ظرفیت محدود!
+                          </Badge>
+                        )}
+                        {!registrationStatus.canRegister && event.registered >= event.capacity && (
+                          <Badge variant="destructive" className="mt-1">
+                            ظرفیت تکمیل است
                           </Badge>
                         )}
                       </div>
@@ -206,12 +230,20 @@ export default function CourseDetailPage() {
                   </div>
 
                   <div className="pt-4 border-t">
-                    <div className="text-2xl font-bold text-center mb-4">
-                      {event.price === 0 ? "رایگان" : `${event.price.toLocaleString("fa-IR")} تومان`}
-                    </div>
-                    <Button className="w-full" size="lg">
-                      ثبت‌نام در رویداد
-                    </Button>
+                    {registrationStatus.canRegister ? (
+                      <>
+                        <div className="text-2xl font-bold text-center mb-4">
+                          {event.price === 0 ? "رایگان" : `${event.price.toLocaleString("fa-IR")} تومان`}
+                        </div>
+                        <Button className="w-full" size="lg">
+                          ثبت‌نام در رویداد
+                        </Button>
+                      </>
+                    ) : (
+                      <Button className="w-full" size="lg" variant="destructive" disabled>
+                        {registrationStatus.message}
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>

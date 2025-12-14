@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState} from "react"
+import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,8 +10,6 @@ import Link from "next/link"
 import { fetchCourseBySlug, type Course, WeekdayFa } from "@/lib/api-client"
 
 import { Header } from "@/components/header"
-
-
 
 export default function CourseDetailPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -37,7 +35,21 @@ export default function CourseDetailPage() {
       setLoading(false)
     }
   }
-    if (loading) {
+
+  const getRegistrationStatus = () => {
+    if (!course) return { canRegister: false, message: "" }
+
+    const now = new Date()
+    const deadline = new Date(course.registration_deadline)
+    const isFull = course.registered >= course.capacity
+    const isExpired = now > deadline
+
+    if (isFull) return { canRegister: false, message: "ظرفیت تکمیل است" }
+    if (isExpired) return { canRegister: false, message: "مهلت ثبت‌نام تمام شده" }
+    return { canRegister: true, message: "" }
+  }
+
+  if (loading) {
     return (
       <>
         <Header />
@@ -64,12 +76,13 @@ export default function CourseDetailPage() {
   const availableSeats = course.capacity - course.registered
   const isAlmostFull = availableSeats < course.capacity * 0.2
   const isFull = availableSeats <= 0
-  const formatJustTime = (time: string) =>
-    toPersianNumber(time.slice(0, 5));
+  const registrationStatus = getRegistrationStatus()
+
+  const formatJustTime = (time: string) => toPersianNumber(time.slice(0, 5))
   const toPersianNumber = (value: string | number) =>
-    value.toString().replace(/\d/g, (d) => (+d).toLocaleString('fa-IR'));
-  
-    return (
+    value.toString().replace(/\d/g, (d) => (+d).toLocaleString("fa-IR"))
+
+  return (
     <>
       <Header />
       <main className="min-h-screen pt-24">
@@ -154,14 +167,12 @@ export default function CourseDetailPage() {
                         <div className="font-medium">{new Date(course.start_date).toLocaleDateString("fa-IR")}</div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-start gap-3">
                       <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-muted-foreground">تاریخ پایان</div>
-                        <div className="font-medium">
-                          {new Date(course.end_date).toLocaleDateString("fa-IR")}
-                        </div>
+                        <div className="font-medium">{new Date(course.end_date).toLocaleDateString("fa-IR")}</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -174,17 +185,20 @@ export default function CourseDetailPage() {
                       </div>
                     </div>
                     {course.time_plans && course.time_plans.length > 0 && (
-                    <div className="flex items-start gap-3">
-                      <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">برنامه زمانی</div>
-                        
-                      {course.time_plans.map((time_plan, index) => (
-                        <div key={`${time_plan.weekday}-${time_plan.time_start}`} className="font-medium">{WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} , {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}</div>
-                      ))}
+                      <div className="flex items-start gap-3">
+                        <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                        <div>
+                          <div className="text-sm text-muted-foreground">برنامه زمانی</div>
+
+                          {course.time_plans.map((time_plan, index) => (
+                            <div key={`${time_plan.weekday}-${time_plan.time_start}`} className="font-medium">
+                              {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} ,{" "}
+                              {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      
-                    </div>)}
+                    )}
                     <div className="flex items-start gap-3">
                       <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
@@ -199,9 +213,14 @@ export default function CourseDetailPage() {
                         <div className="font-medium">
                           {course.registered} / {course.capacity} نفر
                         </div>
-                        {isAlmostFull && !isFull && (
+                        {isAlmostFull && !isFull && registrationStatus.canRegister && (
                           <Badge variant="destructive" className="mt-1">
                             ظرفیت محدود!
+                          </Badge>
+                        )}
+                        {!registrationStatus.canRegister && isFull && (
+                          <Badge variant="destructive" className="mt-1">
+                            ظرفیت تکمیل است
                           </Badge>
                         )}
                       </div>
@@ -214,24 +233,22 @@ export default function CourseDetailPage() {
                       </div>
                     </div>
                   </div>
-                  {!isFull &&(
-                  <div className="pt-4 border-t">
-                    <div className="text-2xl font-bold text-center mb-4">
-                      {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
+                  {registrationStatus.canRegister ? (
+                    <div className="pt-4 border-t">
+                      <div className="text-2xl font-bold text-center mb-4">
+                        {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
+                      </div>
+                      <Button className="w-full" size="lg">
+                        ثبت‌نام در دوره
+                      </Button>
                     </div>
-                    <Button className="w-full" size="lg">
-                      ثبت‌نام در دوره
-                    </Button>
-                  </div>)}
-                  {isFull &&(
-                  <div className="pt-4 border-t">
-                    <div className="text-2xl  font-bold text-center ">
-
+                  ) : (
+                    <div className="pt-4 border-t">
+                      <Button className="w-full" size="lg" variant="destructive" disabled>
+                        {registrationStatus.message}
+                      </Button>
                     </div>
-                    <Button className="w-full" size="lg" variant="destructive">
-                     ظرفیت پر است !
-                    </Button>
-                  </div>)}
+                  )}
                 </CardContent>
               </Card>
 

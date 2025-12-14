@@ -1,9 +1,9 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Clock, Users, ArrowLeft, Filter, ArrowUpDown, User,Loader2 } from "lucide-react"
+import { Calendar, MapPin, Clock, Users, ArrowLeft, Filter, ArrowUpDown, User, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { coursesData } from "@/lib/courses-data"
 import { useState, useMemo, useEffect } from "react"
@@ -14,9 +14,9 @@ import { fetchCourses, type Course, WeekdayFa } from "@/lib/api-client"
 const ITEMS_PER_PAGE = 6
 
 export default function CoursesPage() {
-    const [courses, setCourses] = useState<Course[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
+  const [courses, setCourses] = useState<Course[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedTag, setSelectedTag] = useState<string>("همه")
@@ -24,23 +24,22 @@ export default function CoursesPage() {
   const [sortBy, setSortBy] = useState<string>("startDate")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
 
-    useEffect(() => {
-      loadCourses()
-    }, [])
+  useEffect(() => {
+    loadCourses()
+  }, [])
 
-
-      const loadCourses = async () => {
-        try {
-          setLoading(true)
-          const data = await fetchCourses()
-          setCourses(data)
-        } catch (err) {
-          console.error("Failed to fetch courses:", err)
-          setError("خطا در بارگذاری دوره هاا")
-        } finally {
-          setLoading(false)
-        }
-      }
+  const loadCourses = async () => {
+    try {
+      setLoading(true)
+      const data = await fetchCourses()
+      setCourses(data)
+    } catch (err) {
+      console.error("Failed to fetch courses:", err)
+      setError("خطا در بارگذاری دوره هاا")
+    } finally {
+      setLoading(false)
+    }
+  }
   const allTags = useMemo(() => {
     const tags = new Set<string>()
     coursesData.forEach((course) => {
@@ -114,16 +113,24 @@ export default function CoursesPage() {
   const toggleSortOrder = () => {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
   }
-  
+
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })
   }
-  const formatJustTime = (time: string) =>
-    toPersianNumber(time.slice(0, 5));
+  const formatJustTime = (time: string) => toPersianNumber(time.slice(0, 5))
   const toPersianNumber = (value: string | number) =>
-    value.toString().replace(/\d/g, (d) => (+d).toLocaleString('fa-IR'));
+    value.toString().replace(/\d/g, (d) => (+d).toLocaleString("fa-IR"))
 
+  const getRegistrationStatus = (course: Course) => {
+    const now = new Date()
+    const deadline = new Date(course.registration_deadline)
+    const isFull = course.registered >= course.capacity
+    const isExpired = now > deadline
 
+    if (isFull) return { status: "full", text: "ظرفیت تکمیل است" }
+    if (isExpired) return { status: "expired", text: "مهلت ثبت‌نام تمام شده" }
+    return { status: "open", text: "ثبت‌نام فعال" }
+  }
 
   return (
     <>
@@ -215,78 +222,88 @@ export default function CoursesPage() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentCourses.map((course) => (
-                <Card key={course.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
-                  <div className="aspect-video overflow-hidden relative">
-                    <img
-                      src={course.image || "/placeholder.svg"}
-                      alt={course.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2 left-2">
-                      <Badge variant={course.price === 0 ? "default" : "secondary"} className="font-bold">
-                        {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
-                      </Badge>
-                    </div>
-                  </div>
-                  <CardHeader>
-                    <div className="flex gap-2 flex-wrap mb-2">
-                      {course.tags.slice(0, 2).map((tag) => (
-                        <Badge key={tag} variant="secondary">
-                          {tag}
+              {currentCourses.map((course) => {
+                const regStatus = getRegistrationStatus(course)
+
+                return (
+                  <Card key={course.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
+                    <div className="aspect-video overflow-hidden relative">
+                      <img
+                        src={course.image || "/placeholder.svg"}
+                        alt={course.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 left-2">
+                        <Badge variant={course.price === 0 ? "default" : "secondary"} className="font-bold">
+                          {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
                         </Badge>
-                      ))}
+                      </div>
+                      {regStatus.status !== "open" && (
+                        <div className="absolute top-2 right-2">
+                          <Badge variant="destructive" className="font-bold">
+                            {regStatus.text}
+                          </Badge>
+                        </div>
+                      )}
                     </div>
-                    <CardTitle className="text-xl">{course.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      <span>{new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
-                    </div>
+                    <CardHeader>
+                      <div className="flex gap-2 flex-wrap mb-2">
+                        {course.tags.slice(0, 2).map((tag) => (
+                          <Badge key={tag} variant="secondary">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      <CardTitle className="text-xl">{course.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        <span>{new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
+                      </div>
 
-              
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="w-4 h-4" />
-                      <span>{formatTime(course.start_date)}</span>
-                    </div>
-                    {course.time_plans && course.time_plans.length > 0 && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      
-                      <Clock className="w-4 h-4" />
-                      {course.time_plans.map((time_plan, index) => (
-                        <span
-                          key={`${index}`}
-                        >
-                          {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} , {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
-
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock className="w-4 h-4" />
+                        <span>{formatTime(course.start_date)}</span>
+                      </div>
+                      {course.time_plans && course.time_plans.length > 0 && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="w-4 h-4" />
+                          {course.time_plans.map((time_plan, index) => (
+                            <span key={`${index}`}>
+                              {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} ,{" "}
+                              {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="w-4 h-4" />
+                        <span>{course.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Users className="w-4 h-4" />
+                        <span>
+                          {course.registered} / {course.capacity} نفر
                         </span>
-                      ))}
-
-                    </div>
-                  )}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="w-4 h-4" />
-                      <span>{course.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Users className="w-4 h-4" />
-                      <span>
-                        {course.registered} / {course.capacity} نفر
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <User className="w-4 h-4" />
-                      <span>{course.organizer}</span>
-                    </div>
-                    <Link href={`/courses/${course.slug}`}>
-                      <Button variant="outline" className="w-full mt-4 bg-transparent">
-                        مشاهده جزئیات
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <User className="w-4 h-4" />
+                        <span>{course.organizer}</span>
+                      </div>
+                      <Link href={`/courses/${course.slug}`}>
+                        <Button
+                          variant="outline"
+                          className="w-full mt-4 bg-transparent"
+                          disabled={regStatus.status !== "open"}
+                        >
+                          مشاهده جزئیات
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
           )}
 

@@ -118,6 +118,17 @@ export default function EventsPage() {
     return new Date(dateString).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })
   }
 
+  const getRegistrationStatus = (event: Event) => {
+    const now = new Date()
+    const deadline = new Date(event.registration_deadline)
+    const isFull = event.registered >= event.capacity
+    const isExpired = now > deadline
+
+    if (isFull) return { status: "full", text: "ظرفیت تکمیل است" }
+    if (isExpired) return { status: "expired", text: "مهلت ثبت‌نام تمام شده" }
+    return { status: "open", text: "ثبت‌نام فعال" }
+  }
+
   return (
     <>
       <Header />
@@ -209,61 +220,76 @@ export default function EventsPage() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentEvents.map((event) => (
-                <Card key={event.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
-                  <div className="aspect-video overflow-hidden relative">
-                    <img
-                      src={event.image || "/placeholder.svg"}
-                      alt={event.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2 left-2">
-                      <Badge variant={event.price === 0 ? "default" : "secondary"} className="font-bold">
-                        {event.price === 0 ? "رایگان" : `${event.price.toLocaleString("fa-IR")} تومان`}
-                      </Badge>
-                    </div>
-                  </div>
-                  <CardHeader>
-                    <div className="flex gap-2 flex-wrap mb-2">
-                      {event.tags.slice(0, 2).map((tag) => (
-                        <Badge key={tag} variant="secondary">
-                          {tag}
+              {currentEvents.map((event) => {
+                const regStatus = getRegistrationStatus(event)
+
+                return (
+                  <Card key={event.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
+                    <div className="aspect-video overflow-hidden relative">
+                      <img
+                        src={event.image || "/placeholder.svg"}
+                        alt={event.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 left-2">
+                        <Badge variant={event.price === 0 ? "default" : "secondary"} className="font-bold">
+                          {event.price === 0 ? "رایگان" : `${event.price.toLocaleString("fa-IR")} تومان`}
                         </Badge>
-                      ))}
+                      </div>
+                      {regStatus.status !== "open" && (
+                        <div className="absolute top-2 right-2">
+                          <Badge variant="destructive" className="font-bold">
+                            {regStatus.text}
+                          </Badge>
+                        </div>
+                      )}
                     </div>
-                    <CardTitle className="text-xl">{event.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="w-4 h-4" />
-                      <span>{formatTime(event.start_date)}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="w-4 h-4" />
-                      <span>{event.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Users className="w-4 h-4" />
-                      <span>
-                        {event.registered} / {event.capacity} نفر
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <User className="w-4 h-4" />
-                      <span>{event.organizer}</span>
-                    </div>
-                    <Link href={`/events/${event.slug}`}>
-                      <Button variant="outline" className="w-full mt-4 bg-transparent">
-                        مشاهده جزئیات
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
+                    <CardHeader>
+                      <div className="flex gap-2 flex-wrap mb-2">
+                        {event.tags.slice(0, 2).map((tag) => (
+                          <Badge key={tag} variant="secondary">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      <CardTitle className="text-xl">{event.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock className="w-4 h-4" />
+                        <span>{formatTime(event.start_date)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="w-4 h-4" />
+                        <span>{event.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Users className="w-4 h-4" />
+                        <span>
+                          {event.registered} / {event.capacity} نفر
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <User className="w-4 h-4" />
+                        <span>{event.organizer}</span>
+                      </div>
+                      <Link href={`/events/${event.slug}`}>
+                        <Button
+                          variant="outline"
+                          className="w-full mt-4 bg-transparent"
+                          disabled={regStatus.status !== "open"}
+                        >
+                          مشاهده جزئیات
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
           )}
 
