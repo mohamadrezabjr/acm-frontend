@@ -1,7 +1,5 @@
 "use client"
 
-export const dynamic = "force-dynamic"
-
 import type React from "react"
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
@@ -13,6 +11,8 @@ import { ArrowRight, Download } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/hooks/useAuth"
 import { Loader2 } from "lucide-react"
+
+export const dynamic = "force-dynamic"
 
 export default function CreateCertificatePage() {
   const { user, loading, isCreator } = useAuth()

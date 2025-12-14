@@ -14,19 +14,20 @@ export default function AdminDashboard() {
   const router = useRouter()
   const { user, loading, isCreator, logout } = useAuth()
 
-useEffect(() => {
-  if (loading) return
+  useEffect(() => {
+    if (loading) return
 
-  if (!user) {
-    router.push("/auth/login")
-    return
-  }
+    if (!user) {
+      router.push("/auth/login")
+      return
+    }
 
-  if (!isCreator()) {
-    router.push("/")
-    return
-  }
-}, [user, loading, isCreator, router])
+    if (!isCreator()) {
+      router.push("/")
+      return
+    }
+  }, [user, loading, isCreator, router])
+
   const handleLogout = () => {
     logout()
     router.push("/")
@@ -39,7 +40,6 @@ useEffect(() => {
       </div>
     )
   }
-
 
   return (
     <div className="min-h-screen bg-background">
