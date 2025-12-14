@@ -1,10 +1,5 @@
-import dynamic from "next/dynamic"
-
-const CreateCertificateClient = dynamic(
-  () => import("./CreateCertificateClient"),
-  { ssr: false }
-)
+import ClientPage from "./ClientPage"
 
 export default function Page() {
-  return <CreateCertificateClient />
+  return <ClientPage />
 }
