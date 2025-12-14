@@ -13,6 +13,8 @@ import { useAuth } from "@/hooks/useAuth"
 import { Loader2 } from "lucide-react"
 
 export const dynamic = "force-dynamic"
+export const dynamicParams = true
+export const revalidate = 0
 
 export default function CreateCertificatePage() {
   const { user, loading, isCreator } = useAuth()

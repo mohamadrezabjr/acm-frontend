@@ -1,5 +1,7 @@
 "use client"
 export const dynamic = "force-dynamic"
+export const dynamicParams = true
+export const revalidate = 0
 
 import type React from "react"
 import { useEffect, useState } from "react"
