@@ -226,8 +226,9 @@ export default function CoursesPage() {
                 const regStatus = getRegistrationStatus(course)
 
                 return (
-                  <Card key={course.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
-                    <div className="aspect-video overflow-hidden relative">
+                  <Card key={course.slug} 
+                  className="overflow-hidden group hover:shadow-xl transition-shadow">
+                    <div className="relative aspect-[1/1.414] overflow-hidden bg-muted">
                       <img
                         src={course.image || "/placeholder.svg"}
                         alt={course.title}
@@ -239,21 +240,36 @@ export default function CoursesPage() {
                         </Badge>
                       </div>
                       {regStatus.status !== "open" && (
-                        <div className="absolute top-2 right-2">
+                        <div className="absolute top-2 right-2 z-10">
                           <Badge variant="destructive" className="font-bold">
                             {regStatus.text}
                           </Badge>
                         </div>
                       )}
+
+                      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
+
+
+                        {/* Tags inside image */}
+                        <div className="absolute bottom-4 right-4 flex gap-2 flex-wrap z-10">
+                          {course.tags.slice(0, 2).map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="
+                            backdrop-blur-sm
+                            bg-secondary/80
+                            text-secondary-foreground
+                            border border-secondary/30
+                          "
+                          >
+                          {tag}
+                        </Badge>
+                          ))}
+                        </div>
                     </div>
                     <CardHeader>
-                      <div className="flex gap-2 flex-wrap mb-2">
-                        {course.tags.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="secondary">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
+
                       <CardTitle className="text-xl">{course.title}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
