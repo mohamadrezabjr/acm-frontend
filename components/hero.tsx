@@ -4,13 +4,14 @@ import NetworkPlexus from '@/components/NetworkPlexus'
 
 export function Hero() {
   return (
-    <section className="pt-32 pb-20 px-4">
+    <section className="relative pt-32 pb-20 px-4 min-h-screen">
       <NetworkPlexus />
-      <div className="container mx-auto max-w-6xl">
+      
+      <div className="container mx-auto max-w-6xl relative z-10">
         <div className="text-center space-y-8">
-          
-
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-balance">انجمن دانشجویی ACM</h1>
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-balance">
+            انجمن دانشجویی ACM
+          </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto text-balance">
             به جامعه‌ای از دانشجویان علاقه‌مند به کاوش در علوم کامپیوتر، ساخت پروژه‌های نوآورانه و شکل‌دهی به آینده فناوری
@@ -39,13 +40,17 @@ export function Hero() {
             <div className="p-6 rounded-xl bg-card border border-border hover:shadow-lg transition-shadow">
               <Users className="w-12 h-12 text-secondary mb-4 mx-auto" />
               <h3 className="text-xl font-semibold mb-2">شبکه اجتماعی</h3>
-              <p className="text-muted-foreground">با دانشجویان هم‌فکر و متخصصان صنعت ارتباط برقرار کنید</p>
+              <p className="text-muted-foreground">
+                با دانشجویان هم‌فکر و متخصصان صنعت ارتباط برقرار کنید
+              </p>
             </div>
 
             <div className="p-6 rounded-xl bg-card border border-border hover:shadow-lg transition-shadow">
               <Calendar className="w-12 h-12 text-accent mb-4 mx-auto" />
               <h3 className="text-xl font-semibold mb-2">رویدادهای منظم</h3>
-              <p className="text-muted-foreground">در هاکاتون‌ها، مسابقات و جلسات سخنرانی مهمانان شرکت کنید</p>
+              <p className="text-muted-foreground">
+                در هاکاتون‌ها، مسابقات و جلسات سخنرانی مهمانان شرکت کنید
+              </p>
             </div>
           </div>
         </div>
