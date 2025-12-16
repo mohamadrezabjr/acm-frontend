@@ -105,7 +105,7 @@ export default function CourseDetailPage() {
                   </Badge>
                 ))}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-white">{course.title}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-forground">{course.title}</h1>
             </div>
           </div>
         </div>
