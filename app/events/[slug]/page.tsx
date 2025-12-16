@@ -204,7 +204,7 @@ export default function CourseDetailPage() {
                       <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-muted-foreground">ساعت پایان</div>
-                        <div className="font-medium">{formatTime(event.start_date)}</div>
+                        <div className="font-medium">{formatTime(event.end_date)}</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
