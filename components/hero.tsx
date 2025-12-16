@@ -6,10 +6,7 @@ export function Hero() {
     <section className="pt-32 pb-20 px-4">
       <div className="container mx-auto max-w-6xl">
         <div className="text-center space-y-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/20 text-secondary-foreground text-sm">
-            <span className="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
-            توانمندسازی نسل آینده متخصصان علوم کامپیوتر
-          </div>
+          
 
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-balance">انجمن دانشجویی ACM</h1>
 
