@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Code2, Users, Calendar } from "lucide-react"
+import NetworkPlexus from '@/components/NetworkPlexus'
 
 export function Hero() {
   return (
     <section className="pt-32 pb-20 px-4">
+      <NetworkPlexus />
       <div className="container mx-auto max-w-6xl">
         <div className="text-center space-y-8">
           
