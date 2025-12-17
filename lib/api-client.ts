@@ -1,13 +1,19 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
 
 // Event types matching Django API response
+export interface Tag {
+  id: number
+  name: string
+}
+
 export interface Person {
-  user: string | null
+  id: number
+  user?: number
   first_name: string
   last_name: string
-  position: string
-  bio: string
-  avatar: string
+  bio?: string
+  position?: string
+  avatar?: string
 }
 
 export interface TimePlan {
@@ -118,7 +124,24 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
   return response
 }
-
+export async function fetchTags (): Promise<Tag[]> {
+      try {
+        const response = await apiRequest("/tags")
+        return response.json()
+      } catch (error) {
+        console.error("Error fetching tags:", error)
+        return []
+      }
+    }
+export async function fetchPersons (): Promise<Person[]> {
+      try {
+        const response = await apiRequest("/persons")
+        return response.json()
+      } catch (error) {
+        console.error("Error fetching persons:", error)
+        return []
+      }
+    }
 export async function fetchCourses(): Promise<Course[]> {
   const response = await apiRequest("/courses/")
   if (!response.ok) {
