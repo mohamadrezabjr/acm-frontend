@@ -18,21 +18,7 @@ import persian from "react-date-object/calendars/persian"
 import persian_fa from "react-date-object/locales/persian_fa"
 import TimePicker from "react-multi-date-picker/plugins/time_picker"
 import "react-multi-date-picker/styles/colors/red.css"
-import { apiRequest } from "@/lib/api-client"
-
-interface Tag {
-  id: number
-  name: string
-}
-
-interface Person {
-  id: number
-  user?: number
-  first_name: string
-  last_name: string
-  bio?: string
-  position?: string
-}
+import { apiRequest, fetchPersons, fetchTags, type Tag, type Person } from "@/lib/api-client"
 
 interface Speaker {
   id: string
@@ -77,33 +63,25 @@ export default function CreateEventPage() {
     }
   }, [loading, user, router, isCreator])
 
+
   useEffect(() => {
-    // Fetch tags from backend
-    const fetchTags = async () => {
-      try {
-        const response = await apiRequest("/tags")
-        const data = await response.json()
-        setAvailableTags(data)
-      } catch (error) {
-        console.error("Error fetching tags:", error)
-      }
-    }
+      const fetchData = async () => {
+        try {
+          // Fetch tags
+          const tagsData = await fetchTags()
+          setAvailableTags(tagsData)
 
-    // Fetch persons from backend
-    const fetchPersons = async () => {
-      try {
-        const response = await apiRequest("/persons")
-        const data = await response.json()
-        setAvailablePersons(data)
-      } catch (error) {
-        console.error("Error fetching persons:", error)
-      }
-    }
+          // Fetch persons
+          const personsData = await fetchPersons()
+          setAvailablePersons(personsData)
 
-    fetchTags()
-    fetchPersons()
+        } catch (error) {
+          console.error("Error fetching data:", error)
+        }
+      }
+
+    fetchData()
   }, [])
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
