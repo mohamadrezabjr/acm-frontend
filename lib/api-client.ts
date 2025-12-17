@@ -74,10 +74,14 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const token = getCookie("access_token")
 
   const headers: HeadersInit = {
-    "Content-Type": "application/json",
     ...options.headers,
   }
 
+  if (options.body instanceof FormData) {
+    delete (headers as any)['Content-Type']
+  } else {
+    headers['Content-Type'] = 'application/json'
+  }
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers,
