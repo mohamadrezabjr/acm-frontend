@@ -126,7 +126,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 }
 export async function fetchTags (): Promise<Tag[]> {
       try {
-        const response = await apiRequest("/tags")
+        const response = await apiRequest("/tags/")
         return response.json()
       } catch (error) {
         console.error("Error fetching tags:", error)
@@ -135,7 +135,7 @@ export async function fetchTags (): Promise<Tag[]> {
     }
 export async function fetchPersons (): Promise<Person[]> {
       try {
-        const response = await apiRequest("/persons")
+        const response = await apiRequest("/persons/")
         return response.json()
       } catch (error) {
         console.error("Error fetching persons:", error)
