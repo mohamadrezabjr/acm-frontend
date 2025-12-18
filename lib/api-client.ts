@@ -114,8 +114,14 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
             headers,
             credentials: "include",
           })
+        } else {
+          document.cookie = "access_token=; path=/; max-age=0"
+          document.cookie = "refresh_token=; path=/; max-age=0"
         }
+
       } catch (error) {
+        document.cookie = "access_token=; path=/; max-age=0"
+        document.cookie = "refresh_token=; path=/; max-age=0"
         console.error("Token refresh failed:", error)
         window.location.href = "/auth/login"
       }
