@@ -247,16 +247,40 @@ export async function eventRegitserBySlug(slug : string) : Promise<any> {
 
 
   if (response.status == 409){
+        return {'detail' : "ظرفیت رویداد پر شده است"}
+  }
+  else  if (response.status == 422){
+        return {'detail' : "شما قبلا در این رویداد ثبت نام کرده اید"}
+  }
+  else  if (response.status == 410){
+        return {'detail' : "مهلت ثبت نام تمام شده است"}
+  }
+  else if (response.status == 201){
+    return {'detail' : "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید."}
+  }
+  else {
+      return {"detail" : "ثبت نام موفقیت امیز نبود"}
+  }
+  
+}
+
+export async function courseRegitserBySlug(slug : string) : Promise<any> {
+  const response = await apiRequest(`/courses/registration/${slug}/`, {
+    method : 'POST',
+  })
+
+
+  if (response.status == 409){
         return {'detail' : "ظرفیت دوره پر شده است"}
   }
   else  if (response.status == 422){
         return {'detail' : "شما قبلا در این دوره ثبت نام کرده اید"}
   }
-  else  if (response.status == 403){
+  else  if (response.status == 410){
         return {'detail' : "مهلت ثبت نام تمام شده است"}
   }
   else if (response.status == 201){
-    return {'detail' : "ثبت نام در رویداد با موفقیت انجام شد. لینک جلسه به شماره شما پیامک می شود. همچنین می توانید در پروفایل خود اطلاعات رویداد و لینک جلسه را ببینید."}
+    return {'detail' : "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید."}
   }
   else {
       return {"detail" : "ثبت نام موفقیت امیز نبود"}
