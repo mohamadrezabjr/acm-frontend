@@ -7,13 +7,14 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, MapPin, Clock, Users, ArrowLeft, User, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { fetchCourseBySlug, type Course, WeekdayFa } from "@/lib/api-client"
+import { fetchCourseBySlug, type Course, WeekdayFa, courseRegitserBySlug } from "@/lib/api-client"
 
 import { Header } from "@/components/header"
 
 export default function CourseDetailPage() {
   const { slug } = useParams<{ slug: string }>()
   const router = useRouter()
+  const [popupMessage, setPopupMessage] = useState<string | null>(null);
 
   const [course, setCourse] = useState<Course | null>(null)
   const [loading, setLoading] = useState(true)
@@ -77,6 +78,11 @@ export default function CourseDetailPage() {
   const isAlmostFull = availableSeats < course.capacity * 0.2
   const isFull = availableSeats <= 0
   const registrationStatus = getRegistrationStatus()
+
+  const handleRegister = async () => {
+      const result = await courseRegitserBySlug(course.slug);
+      setPopupMessage(result.detail);
+  };
 
   const formatJustTime = (time: string) => toPersianNumber(time.slice(0, 5))
   const toPersianNumber = (value: string | number) =>
@@ -233,22 +239,23 @@ export default function CourseDetailPage() {
                       </div>
                     </div>
                   </div>
-                  {registrationStatus.canRegister ? (
-                    <div className="pt-4 border-t">
-                      <div className="text-2xl font-bold text-center mb-4">
-                        {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
-                      </div>
-                      <Button className="w-full" size="lg">
-                        ثبت‌نام در دوره
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="pt-4 border-t">
+
+                  <div className="pt-4 border-t">
+                    {registrationStatus.canRegister ? (
+                      <>
+                        <div className="text-2xl font-bold text-center mb-4">
+                          {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
+                        </div>
+                        <Button className="w-full" size="lg" onClick={handleRegister}>
+                          ثبت‌نام در رویداد
+                        </Button>
+                      </>
+                    ) : (
                       <Button className="w-full" size="lg" variant="destructive" disabled>
                         {registrationStatus.message}
                       </Button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -268,6 +275,19 @@ export default function CourseDetailPage() {
           </div>
         </div>
       </main>
+      {/* Popup */}
+    {popupMessage && (
+      <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 shadow-lg rounded-xl p-4 max-w-sm w-full z-50 animate-fade-in">
+        <p className="text-gray-800">{popupMessage}</p>
+        <button
+          className="mt-2 text-sm text-blue-500 hover:underline"
+          onClick={() => setPopupMessage(null)}
+        >
+          بستن
+        </button>
+      </div>
+    )}
+    
     </>
   )
 }
