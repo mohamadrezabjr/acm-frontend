@@ -252,7 +252,7 @@ export async function eventRegitserBySlug(slug : string) : Promise<any> {
   else  if (response.status == 422){
         return {'detail' : "شما قبلا در این دوره ثبت نام کرده اید"}
   }
-  else  if (response.status == 403){
+  else  if (response.status == 410){
         return {'detail' : "مهلت ثبت نام تمام شده است"}
   }
   else if (response.status == 201){
