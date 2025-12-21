@@ -174,11 +174,21 @@ export async function fetchEvents(): Promise<Event[]> {
 export async function fetchCoursesAdmin():Promise<Event[]> {
   const response = await apiRequest("/admin/courses/")
   if (!response.ok) {
+    throw new Error("Failed to fetch courses")
+
+  }
+  return response.json()
+}
+
+export async function fetchEventsAdmin():Promise<Event[]> {
+  const response = await apiRequest("/admin/events/")
+  if (!response.ok) {
     throw new Error("Failed to fetch events")
 
   }
   return response.json()
 }
+
 export async function fetchEventBySlug(slug: string): Promise<Event> {
   const response = await apiRequest(`/events/${slug}/`)
   if (!response.ok) {

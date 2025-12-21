@@ -242,7 +242,7 @@ export default function AdminCoursesPage() {
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2 justify-end">
-                              <Link href={`/admin/courses/${course.slug}/edit`}>
+                              <Link href={`/admin/courses/${course.slug}/update/`}>
                                 <Button variant="outline" size="sm" title="ویرایش">
                                   <Edit className="h-4 w-4" />
                                 </Button>

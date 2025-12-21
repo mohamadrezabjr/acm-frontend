@@ -1,46 +1,340 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { ArrowRight, Edit, Trash2, Power, Loader2, Plus } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
-export default function EventsListPage() {
-  const router = useRouter()
+import { Header } from "@/components/header"
+import { apiRequest, fetchEventsAdmin } from "@/lib/api-client"
+
+interface Event {
+  id: number
+  title: string
+  slug: string
+  start_date: string
+  end_date: string
+  location: string
+  capacity: number
+  registered: number
+  price: number
+  is_active: boolean
+  organizer: string
+}
+
+export default function AdminEventsPage() {
   const { user, loading, isCreator } = useAuth()
-  
+  const router = useRouter()
+  const [events, setEvents] = useState<Event[]>([])
+  const [loadingEvents, setLoadingEvents] = useState(true)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const [actionLoading, setActionLoading] = useState(false)
 
   useEffect(() => {
-    if (!loading && (!user || !isCreator)) {
+    if (!loading && (!user || !isCreator())) {
       router.push("/auth/login")
     }
-  }, [router, user, isCreator])
+  }, [loading, user, router, isCreator])
 
-    if (loading || !user) {
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const data = await fetchEventsAdmin()
+        setEvents(data)
+      } catch (error) {
+        console.error("Error fetching events:", error)
+      } finally {
+        setLoadingEvents(false)
+      }
+    }
+
+    if (user && isCreator()) {
+      loadEvents()
+    }
+  }, [user, isCreator])
+
+  const handleDelete = async () => {
+    if (!selectedEvent) return
+
+    setActionLoading(true)
+    try {
+      const response = await apiRequest(`/admin/events/${selectedEvent.slug}/delete/`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        setEvents(events.filter((e) => e.id !== selectedEvent.id))
+        alert("رویداد با موفقیت حذف شد")
+      } else {
+        throw new Error("Failed to delete event")
+      }
+    } catch (error) {
+      console.error("Error deleting event:", error)
+      alert("خطا در حذف رویداد")
+    } finally {
+      setActionLoading(false)
+      setDeleteDialogOpen(false)
+      setSelectedEvent(null)
+    }
+  }
+
+  const handleToggleActive = async () => {
+    if (!selectedEvent) return
+
+    setActionLoading(true)
+    try {
+      const response = await apiRequest(`/admin/events/${selectedEvent.slug}/deactivate/`, {
+        method: "POST",
+      })
+
+      if (response.ok) {
+        setEvents(
+          events.map((e) =>
+            e.id === selectedEvent.id ? { ...e, is_active: !e.is_active } : e
+          )
+        )
+        alert(`رویداد با موفقیت ${selectedEvent.is_active ? "غیرفعال" : "فعال"} شد`)
+      } else {
+        throw new Error("Failed to toggle event status")
+      }
+    } catch (error) {
+      console.error("Error toggling event status:", error)
+      alert("خطا در تغییر وضعیت رویداد")
+    } finally {
+      setActionLoading(false)
+      setDeactivateDialogOpen(false)
+      setSelectedEvent(null)
+    }
+  }
+
+  const openDeleteDialog = (event: Event) => {
+    setSelectedEvent(event)
+    setDeleteDialogOpen(true)
+  }
+
+  const openDeactivateDialog = (event: Event) => {
+    setSelectedEvent(event)
+    setDeactivateDialogOpen(true)
+  }
+
+  if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div>در حال بارگذاری...</div>
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     )
   }
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <Link href="/admin/dashboard">
-            <Button variant="ghost">
-              <ArrowRight className="ml-2 h-4 w-4" />
-              بازگشت به داشبورد
-            </Button>
-          </Link>
-        </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">لیست رویدادها</h1>
-        <p className="text-muted-foreground">لیست رویدادها در اینجا نمایش داده می‌شود</p>
-      </main>
-    </div>
+  return (
+    <>
+      <Header />
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <Link href="/admin/dashboard">
+                <Button variant="ghost" size="sm">
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                  بازگشت
+                </Button>
+              </Link>
+              <h1 className="text-2xl font-bold">مدیریت رویدادها</h1>
+            </div>
+            <Link href="/admin/events/create">
+              <Button>
+                <Plus className="ml-2 h-4 w-4" />
+                ایجاد رویداد جدید
+              </Button>
+            </Link>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>لیست رویدادها</CardTitle>
+              <CardDescription>مدیریت و ویرایش رویدادهای انجمن</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loadingEvents ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : events.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>هیچ رویدادی ثبت نشده است</p>
+                  <Link href="/admin/events/create">
+                    <Button className="mt-4">
+                      <Plus className="ml-2 h-4 w-4" />
+                      ایجاد اولین رویداد
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="rounded-md border overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="min-w-[200px]">عنوان</TableHead>
+                        <TableHead className="min-w-[120px]">تاریخ شروع</TableHead>
+                        <TableHead className="min-w-[150px]">مکان</TableHead>
+                        <TableHead className="min-w-[100px] text-center">ظرفیت</TableHead>
+                        <TableHead className="min-w-[120px]">هزینه</TableHead>
+                        <TableHead className="min-w-[100px]">وضعیت</TableHead>
+                        <TableHead className="min-w-[180px] text-left">عملیات</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {events.map((event) => (
+                        <TableRow key={event.id}>
+                          <TableCell className="font-medium max-w-[250px]">
+                            <div className="truncate" title={event.title}>
+                              {event.title}
+                            </div>
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {new Date(event.start_date).toLocaleDateString("fa-IR")}
+                          </TableCell>
+                          <TableCell>
+                            <div className="truncate max-w-[150px]" title={event.location}>
+                              {event.location}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className="text-sm">
+                              {event.registered}/{event.capacity}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            {event.price === 0 ? (
+                              <Badge variant="secondary">رایگان</Badge>
+                            ) : (
+                              <span className="text-sm whitespace-nowrap">
+                                {event.price.toLocaleString()} تومان
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={event.is_active ? "default" : "secondary"}>
+                              {event.is_active ? "فعال" : "غیرفعال"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2 justify-end">
+                              <Link href={`/admin/events/${event.slug}/update/`}>
+                                <Button variant="outline" size="sm" title="ویرایش">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openDeactivateDialog(event)}
+                                title={event.is_active ? "غیرفعال کردن" : "فعال کردن"}
+                              >
+                                <Power className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => openDeleteDialog(event)}
+                                title="حذف"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </main>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>آیا مطمئن هستید؟</DialogTitle>
+              <DialogDescription>
+                این عملیات قابل بازگشت نیست. رویداد "{selectedEvent?.title}" به طور کامل حذف
+                خواهد شد.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={actionLoading}>
+                انصراف
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={actionLoading}
+              >
+                {actionLoading ? (
+                  <>
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                    در حال حذف...
+                  </>
+                ) : (
+                  "حذف"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Deactivate Confirmation Dialog */}
+        <Dialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>تغییر وضعیت رویداد</DialogTitle>
+              <DialogDescription>
+                آیا می‌خواهید رویداد "{selectedEvent?.title}" را{" "}
+                {selectedEvent?.is_active ? "غیرفعال" : "فعال"} کنید؟
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeactivateDialogOpen(false)} disabled={actionLoading}>
+                انصراف
+              </Button>
+              <Button onClick={handleToggleActive} disabled={actionLoading}>
+                {actionLoading ? (
+                  <>
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                    در حال تغییر...
+                  </>
+                ) : (
+                  "تایید"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
   )
 }
