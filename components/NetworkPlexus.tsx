@@ -16,9 +16,9 @@ export default function NetworkPlexus() {
     canvas.height = window.innerHeight
 
     const nodes: Node[] = []
-    const nodeCount = 120
-    const connectionDistance = 150
-    const mouseRadius = 180
+    const nodeCount = 50
+    const connectionDistance = 120
+    const mouseRadius = 150
     let mouse = { x: null as number | null, y: null as number | null }
     let animationId: number
 
@@ -74,15 +74,7 @@ export default function NetworkPlexus() {
         
         ctx.beginPath()
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
-        ctx.fillStyle = 'rgba(100, 200, 255, 0.8)'
-        ctx.fill()
-
-        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 3)
-        gradient.addColorStop(0, 'rgba(100, 200, 255, 0.3)')
-        gradient.addColorStop(1, 'rgba(100, 200, 255, 0)')
-        ctx.fillStyle = gradient
-        ctx.beginPath()
-        ctx.arc(this.x, this.y, this.radius * 3, 0, Math.PI * 2)
+        ctx.fillStyle = 'rgba(100, 200, 255, 0.7)'
         ctx.fill()
       }
     }
@@ -94,27 +86,24 @@ export default function NetworkPlexus() {
     function drawConnections() {
       if (!ctx) return
       
+      // Only check nearby nodes for connections (performance optimization)
       for (let i = 0; i < nodes.length; i++) {
+        let connectionsDrawn = 0
         for (let j = i + 1; j < nodes.length; j++) {
+          if (connectionsDrawn >= 3) break // Limit connections per node
+          
           const dx = nodes[i].x - nodes[j].x
           const dy = nodes[i].y - nodes[j].y
           const dist = Math.sqrt(dx * dx + dy * dy)
 
           if (dist < connectionDistance) {
-            const opacity = (1 - dist / connectionDistance) * 0.5
+            connectionsDrawn++
+            const opacity = (1 - dist / connectionDistance) * 0.4
             ctx.beginPath()
             ctx.moveTo(nodes[i].x, nodes[i].y)
             ctx.lineTo(nodes[j].x, nodes[j].y)
 
-            const gradient = ctx.createLinearGradient(
-              nodes[i].x, nodes[i].y,
-              nodes[j].x, nodes[j].y
-            )
-            gradient.addColorStop(0, `rgba(100, 200, 255, ${opacity})`)
-            gradient.addColorStop(0.5, `rgba(150, 100, 255, ${opacity})`)
-            gradient.addColorStop(1, `rgba(100, 200, 255, ${opacity})`)
-
-            ctx.strokeStyle = gradient
+            ctx.strokeStyle = `rgba(100, 200, 255, ${opacity})`
             ctx.lineWidth = 0.5
             ctx.stroke()
           }
@@ -158,8 +147,16 @@ export default function NetworkPlexus() {
       }
     }
 
+    // Use ResizeObserver for better resize detection
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize()
+    })
+
+    if (canvas.parentElement) {
+      resizeObserver.observe(canvas.parentElement)
+    }
+
     window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('resize', handleResize)
     handleResize()
 
     animate()
@@ -167,7 +164,7 @@ export default function NetworkPlexus() {
     return () => {
       cancelAnimationFrame(animationId)
       window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('resize', handleResize)
+      resizeObserver.disconnect()
     }
   }, [])
 
