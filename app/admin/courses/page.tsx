@@ -25,7 +25,7 @@ import { ArrowRight, Edit, Trash2, Power, Loader2, Plus } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { Header } from "@/components/header"
-import { apiRequest, fetchCoursesAdmin } from "@/lib/api-client"
+import { apiRequest, fetchCourses } from "@/lib/api-client"
 
 interface Course {
   id: number
@@ -60,7 +60,7 @@ export default function AdminCoursesPage() {
   useEffect(() => {
     const loadCourses = async () => {
       try {
-        const data = await fetchCoursesAdmin()
+        const data = await fetchCourses()
         setCourses(data)
       } catch (error) {
         console.error("Error fetching courses:", error)
@@ -148,7 +148,6 @@ export default function AdminCoursesPage() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">

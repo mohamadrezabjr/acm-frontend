@@ -25,7 +25,7 @@ import { ArrowRight, Edit, Trash2, Power, Loader2, Plus } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { Header } from "@/components/header"
-import { apiRequest, fetchEventsAdmin } from "@/lib/api-client"
+import { apiRequest, fetchEvents } from "@/lib/api-client"
 
 interface Event {
   id: number
@@ -60,7 +60,7 @@ export default function AdminEventsPage() {
   useEffect(() => {
     const loadEvents = async () => {
       try {
-        const data = await fetchEventsAdmin()
+        const data = await fetchEvents()
         setEvents(data)
       } catch (error) {
         console.error("Error fetching events:", error)
@@ -148,7 +148,6 @@ export default function AdminEventsPage() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
