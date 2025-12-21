@@ -350,7 +350,7 @@ export default function AdminDashboard() {
                   <div className="space-y-3">
                     {stats.recent_events.map((event) => (
                       <Link
-                        key={event.id}
+                        key={event.slug}
                         href={`/admin/events/${event.slug}`}
                         className="block p-3 rounded-lg border hover:bg-accent/50 transition-colors"
                       >
@@ -394,7 +394,7 @@ export default function AdminDashboard() {
                   <div className="space-y-3">
                     {stats.recent_courses.map((course) => (
                       <Link
-                        key={course.id}
+                        key={course.slug}
                         href={`/admin/courses/${course.slug}`}
                         className="block p-3 rounded-lg border hover:bg-accent/50 transition-colors"
                       >
