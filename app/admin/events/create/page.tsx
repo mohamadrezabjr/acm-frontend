@@ -205,8 +205,6 @@ export default function CreateEventPage() {
       })),
     }
 
-    console.log("Event Data to send to backend:", JSON.stringify(payload))
-
     try {
       const formData = new FormData()
       formData.append("data", JSON.stringify(payload))
@@ -215,7 +213,6 @@ export default function CreateEventPage() {
       }
 
       // Send to Django backend
-      console.log(formData)
       const response = await apiRequest('/events/create/', {
         method: 'POST',
         body: formData

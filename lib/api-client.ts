@@ -129,24 +129,24 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
   return response
 }
-export async function fetchTags(): Promise<Tag[]> {
-  try {
-    const response = await apiRequest("/tags")
-    return response.json()
-  } catch (error) {
-    console.error("Error fetching tags:", error)
-    return []
-  }
-}
-export async function fetchPersons(): Promise<Person[]> {
-  try {
-    const response = await apiRequest("/persons")
-    return response.json()
-  } catch (error) {
-    console.error("Error fetching persons:", error)
-    return []
-  }
-}
+export async function fetchTags (): Promise<Tag[]> {
+      try {
+        const response = await apiRequest("/tags/")
+        return response.json()
+      } catch (error) {
+        console.error("Error fetching tags:", error)
+        return []
+      }
+    }
+export async function fetchPersons (): Promise<Person[]> {
+      try {
+        const response = await apiRequest("/persons/")
+        return response.json()
+      } catch (error) {
+        console.error("Error fetching persons:", error)
+        return []
+      }
+    }
 export async function fetchCourses(): Promise<Course[]> {
   const response = await apiRequest("/courses/")
   if (!response.ok) {
