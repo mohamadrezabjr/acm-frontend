@@ -113,7 +113,7 @@ export function UpcomingCourses() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <GraduationCap className="w-4 h-4" />
-                    <span>{course.instructors.map((i) => i.first_name).join("، ")}</span>
+                    <span>{course.instructors.map((i) => `${i.first_name} ${i.last_name}`).join("، ")}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="w-4 h-4" />
