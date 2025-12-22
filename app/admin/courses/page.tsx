@@ -24,7 +24,6 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Edit, Trash2, Power, Loader2, Plus } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
-import { Header } from "@/components/header"
 import { apiRequest, fetchCourses } from "@/lib/api-client"
 
 interface Course {

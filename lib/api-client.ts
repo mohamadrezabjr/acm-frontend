@@ -47,6 +47,7 @@ export interface Event {
   organizer: string
   image: string
   speakers: Person[]
+  dependencies: string[]
 }
 
 export interface Course {
@@ -66,6 +67,7 @@ export interface Course {
   image: string
   instructors: Person[]
   time_plans: TimePlan[]
+  dependencies: string[]
 }
 
 function getCookie(name: string): string | null {
@@ -242,15 +244,15 @@ export async function eventRegitserBySlug(slug: string): Promise<any> {
   })
 
   if (response.status == 409) {
-    return { detail: "ظرفیت رویداد پر شده است" }
+    return { detail: "ظرفیت رویداد پر شده است",  type: "error" }
   } else if (response.status == 422) {
-    return { detail: "شما قبلا در این رویداد ثبت نام کرده اید" }
+    return { detail: "شما قبلا در این رویداد ثبت نام کرده اید" ,type: "info"}
   } else if (response.status == 410) {
-    return { detail: "مهلت ثبت نام تمام شده است" }
+    return { detail: "مهلت ثبت نام تمام شده است",  type: "error" }
   } else if (response.status == 201) {
-    return { detail: "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید." }
+    return { detail: "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید.", type: "success" }
   } else {
-    return { detail: "ثبت نام موفقیت امیز نبود" }
+    return { detail: "ثبت نام موفقیت امیز نبود",  type: "error" }
   }
 }
 
@@ -260,15 +262,15 @@ export async function courseRegitserBySlug(slug: string): Promise<any> {
   })
 
   if (response.status == 409) {
-    return { detail: "ظرفیت دوره پر شده است" }
+    return { detail: "ظرفیت دوره پر شده است", type: "error"}
   } else if (response.status == 422) {
-    return { detail: "شما قبلا در این دوره ثبت نام کرده اید" }
+    return { detail: "شما قبلا در این دوره ثبت نام کرده اید", type: "info"}
   } else if (response.status == 410) {
-    return { detail: "مهلت ثبت نام تمام شده است" }
+    return { detail: "مهلت ثبت نام تمام شده است", type: "error"}
   } else if (response.status == 201) {
-    return { detail: "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید." }
+    return { detail: "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید.", type: "success" }
   } else {
-    return { detail: "ثبت نام موفقیت امیز نبود" }
+    return { detail: "ثبت نام موفقیت امیز نبود", type: "error"}
   }
 }
 
