@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, ArrowRight, Users, GraduationCap } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { apiClient } from "@/lib/api-client"
+import { apiClient, type Person } from "@/lib/api-client"
 
 interface Course {
   slug: string
@@ -19,7 +19,7 @@ interface Course {
   registered: number
   price: number
   image: string
-  instructors: Array<{ name: string }>
+  instructors: Array<Person>
 }
 
 export function UpcomingCourses() {
@@ -113,7 +113,7 @@ export function UpcomingCourses() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <GraduationCap className="w-4 h-4" />
-                    <span>{course.instructors.map((i) => i.name).join("، ")}</span>
+                    <span>{course.instructors.map((i) => i.first_name).join("، ")}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="w-4 h-4" />
