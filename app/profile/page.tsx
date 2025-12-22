@@ -185,10 +185,12 @@ export default function ProfilePage() {
             {/* User Info Tab */}
             <TabsContent value="info">
               <Card className="border-2 shadow-lg">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div className="text-right">
-                    <CardTitle>اطلاعات کاربری</CardTitle>
-                    <CardDescription>مشاهده و ویرایش اطلاعات حساب کاربری</CardDescription>
+                                  <div className="text-right flex-1">
+                    <CardTitle className="text-right">اطلاعات کاربری</CardTitle>
+                    <CardDescription className="text-right">مشاهده و ویرایش اطلاعات حساب کاربری</CardDescription>
+                  </div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                  <div className="text-right flex-1">
                   </div>
                   {!isEditing ? (
                     <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
@@ -256,8 +258,8 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-2 text-right">
-                      <Label className="text-sm font-semibold text-muted-foreground">نام</Label>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">نام</Label>
                       {isEditing ? (
                         <Input
                           value={editForm.firstName}
@@ -265,11 +267,11 @@ export default function ProfilePage() {
                           className="border-2 focus:border-primary text-right"
                         />
                       ) : (
-                        <p className="text-lg font-medium">{user.firstName || "-"}</p>
+                        <p className="text-lg font-medium text-right">{user.firstName || "-"}</p>
                       )}
                     </div>
-                    <div className="space-y-2 text-right">
-                      <Label className="text-sm font-semibold text-muted-foreground">نام خانوادگی</Label>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">نام خانوادگی</Label>
                       {isEditing ? (
                         <Input
                           value={editForm.lastName}
@@ -277,31 +279,32 @@ export default function ProfilePage() {
                           className="border-2 focus:border-primary text-right"
                         />
                       ) : (
-                        <p className="text-lg font-medium">{user.lastName || "-"}</p>
+                        <p className="text-lg font-medium text-right">{user.lastName || "-"}</p>
                       )}
                     </div>
-                    <div className="space-y-2 text-right">
-                      <Label className="text-sm font-semibold text-muted-foreground">شماره موبایل</Label>
-                      <p className="text-lg font-medium">{user.phone}</p>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">شماره موبایل</Label>
+                      <p className="text-lg font-medium text-right">{user.phone}</p>
                     </div>
-                    <div className="space-y-2 text-right">
-                      <Label className="text-sm font-semibold text-muted-foreground">ایمیل</Label>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">ایمیل</Label>
                       {isEditing ? (
                         <Input
                           type="email"
                           value={editForm.email}
                           onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                          className="border-2 focus:border-primary text-right"
+                          className="border-2 focus:border-primary"
                           dir="ltr"
+                          placeholder="example@email.com"
                         />
                       ) : (
-                        <p className="text-lg font-medium" dir="ltr">
+                        <p className="text-lg font-medium text-left" dir="ltr">
                           {user.email || "-"}
                         </p>
                       )}
                     </div>
-                    <div className="space-y-2 text-right">
-                      <Label className="text-sm font-semibold text-muted-foreground">شماره دانشجویی</Label>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">شماره دانشجویی</Label>
                       {isEditing ? (
                         <Input
                           value={editForm.studentId}
@@ -310,13 +313,13 @@ export default function ProfilePage() {
                           className="border-2 focus:border-primary text-right"
                         />
                       ) : (
-                        <p className="text-lg font-medium">{user.studentId || "-"}</p>
+                        <p className="text-lg font-medium text-right">{user.studentId || "-"}</p>
                       )}
                     </div>
                     {user.position && (
-                      <div className="space-y-2 text-right">
-                        <Label className="text-sm font-semibold text-muted-foreground">سمت</Label>
-                        <p className="text-lg font-medium">{user.position}</p>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold text-muted-foreground text-right block">سمت</Label>
+                        <p className="text-lg font-medium text-right">{user.position}</p>
                       </div>
                     )}
                   </div>
@@ -327,9 +330,9 @@ export default function ProfilePage() {
             {/* Events Tab */}
             <TabsContent value="events">
               <Card className="border-2 shadow-lg">
-                <CardHeader className="text-right">
-                  <CardTitle>رویدادهای ثبت‌نام شده</CardTitle>
-                  <CardDescription>لیست رویدادهایی که در آنها ثبت‌نام کرده‌اید</CardDescription>
+                <CardHeader>
+                  <CardTitle className="text-right">رویدادهای ثبت‌نام شده</CardTitle>
+                  <CardDescription className="text-right">لیست رویدادهایی که در آنها ثبت‌نام کرده‌اید</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {loadingData ? (
@@ -393,9 +396,9 @@ export default function ProfilePage() {
             {/* Courses Tab */}
             <TabsContent value="courses">
               <Card className="border-2 shadow-lg">
-                <CardHeader className="text-right">
-                  <CardTitle>دوره‌های ثبت‌نام شده</CardTitle>
-                  <CardDescription>لیست دوره‌هایی که در آنها ثبت‌نام کرده‌اید</CardDescription>
+                <CardHeader>
+                  <CardTitle className="text-right">دوره‌های ثبت‌نام شده</CardTitle>
+                  <CardDescription className="text-right">لیست دوره‌هایی که در آنها ثبت‌نام کرده‌اید</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {loadingData ? (
@@ -446,9 +449,9 @@ export default function ProfilePage() {
             {isCreator() && (
               <TabsContent value="admin">
                 <Card className="border-2 shadow-lg">
-                  <CardHeader className="text-right">
-                    <CardTitle>پنل مدیریت</CardTitle>
-                    <CardDescription>دسترسی به بخش‌های مدیریتی سایت</CardDescription>
+                  <CardHeader>
+                    <CardTitle className="text-right">پنل مدیریت</CardTitle>
+                    <CardDescription className="text-right">دسترسی به بخش‌های مدیریتی سایت</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
