@@ -1,6 +1,7 @@
 import { Hero } from "@/components/hero"
 import { About } from "@/components/about"
-import { Events } from "@/components/events"
+import { UpcomingEvents } from "@/components/upcoming-events"
+import { UpcomingCourses } from "@/components/upcoming-courses"
 import { Team } from "@/components/team"
 import { Contact } from "@/components/contact"
 import { Header } from "@/components/header"
@@ -13,7 +14,8 @@ export default function Page() {
       <main>
         <Hero />
         <About />
-        <Events />
+        <UpcomingEvents />
+        <UpcomingCourses />
         <Team />
         <Contact />
       </main>

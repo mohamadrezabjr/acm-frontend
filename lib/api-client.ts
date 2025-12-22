@@ -17,18 +17,18 @@ export interface Person {
 }
 
 export interface TimePlan {
-  weekday : string
-  time_start : string
+  weekday: string
+  time_start: string
   time_end: string
 }
 export enum WeekdayFa {
-  Sat = 'شنبه',
-  Sun = 'یکشنبه',
-  Mon = 'دوشنبه',
-  Tue = 'سه‌شنبه',
-  Wed = 'چهارشنبه',
-  Thu = 'پنجشنبه',
-  Fr = 'جمعه',
+  Sat = "شنبه",
+  Sun = "یکشنبه",
+  Mon = "دوشنبه",
+  Tue = "سه‌شنبه",
+  Wed = "چهارشنبه",
+  Thu = "پنجشنبه",
+  Fr = "جمعه",
 }
 
 export interface Event {
@@ -84,9 +84,9 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   }
 
   if (options.body instanceof FormData) {
-    delete (headers as any)['Content-Type']
+    delete (headers as any)["Content-Type"]
   } else {
-    headers['Content-Type'] = 'application/json'
+    headers["Content-Type"] = "application/json"
   }
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
@@ -118,7 +118,6 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
           document.cookie = "access_token=; path=/; max-age=0"
           document.cookie = "refresh_token=; path=/; max-age=0"
         }
-
       } catch (error) {
         document.cookie = "access_token=; path=/; max-age=0"
         document.cookie = "refresh_token=; path=/; max-age=0"
@@ -130,24 +129,24 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
   return response
 }
-export async function fetchTags (): Promise<Tag[]> {
-      try {
-        const response = await apiRequest("/tags")
-        return response.json()
-      } catch (error) {
-        console.error("Error fetching tags:", error)
-        return []
-      }
-    }
-export async function fetchPersons (): Promise<Person[]> {
-      try {
-        const response = await apiRequest("/persons")
-        return response.json()
-      } catch (error) {
-        console.error("Error fetching persons:", error)
-        return []
-      }
-    }
+export async function fetchTags(): Promise<Tag[]> {
+  try {
+    const response = await apiRequest("/tags")
+    return response.json()
+  } catch (error) {
+    console.error("Error fetching tags:", error)
+    return []
+  }
+}
+export async function fetchPersons(): Promise<Person[]> {
+  try {
+    const response = await apiRequest("/persons")
+    return response.json()
+  } catch (error) {
+    console.error("Error fetching persons:", error)
+    return []
+  }
+}
 export async function fetchCourses(): Promise<Course[]> {
   const response = await apiRequest("/courses/")
   if (!response.ok) {
@@ -179,9 +178,6 @@ export async function fetchEventBySlug(slug: string): Promise<Event> {
   }
   return response.json()
 }
-
-
-
 
 export async function fetchUserEvents(): Promise<Event[]> {
   const response = await apiRequest("/profile/events/")
@@ -240,50 +236,63 @@ export async function uploadProfileImage(file: File): Promise<any> {
   return response.json()
 }
 
-export async function eventRegitserBySlug(slug : string) : Promise<any> {
+export async function eventRegitserBySlug(slug: string): Promise<any> {
   const response = await apiRequest(`/events/registration/${slug}/`, {
-    method : 'POST',
+    method: "POST",
   })
 
-
-  if (response.status == 409){
-        return {'detail' : "ظرفیت رویداد پر شده است"}
+  if (response.status == 409) {
+    return { detail: "ظرفیت رویداد پر شده است" }
+  } else if (response.status == 422) {
+    return { detail: "شما قبلا در این رویداد ثبت نام کرده اید" }
+  } else if (response.status == 410) {
+    return { detail: "مهلت ثبت نام تمام شده است" }
+  } else if (response.status == 201) {
+    return { detail: "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید." }
+  } else {
+    return { detail: "ثبت نام موفقیت امیز نبود" }
   }
-  else  if (response.status == 422){
-        return {'detail' : "شما قبلا در این رویداد ثبت نام کرده اید"}
-  }
-  else  if (response.status == 410){
-        return {'detail' : "مهلت ثبت نام تمام شده است"}
-  }
-  else if (response.status == 201){
-    return {'detail' : "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید."}
-  }
-  else {
-      return {"detail" : "ثبت نام موفقیت امیز نبود"}
-  }
-  
 }
 
-export async function courseRegitserBySlug(slug : string) : Promise<any> {
+export async function courseRegitserBySlug(slug: string): Promise<any> {
   const response = await apiRequest(`/courses/registration/${slug}/`, {
-    method : 'POST',
+    method: "POST",
   })
 
+  if (response.status == 409) {
+    return { detail: "ظرفیت دوره پر شده است" }
+  } else if (response.status == 422) {
+    return { detail: "شما قبلا در این دوره ثبت نام کرده اید" }
+  } else if (response.status == 410) {
+    return { detail: "مهلت ثبت نام تمام شده است" }
+  } else if (response.status == 201) {
+    return { detail: "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید." }
+  } else {
+    return { detail: "ثبت نام موفقیت امیز نبود" }
+  }
+}
 
-  if (response.status == 409){
-        return {'detail' : "ظرفیت دوره پر شده است"}
-  }
-  else  if (response.status == 422){
-        return {'detail' : "شما قبلا در این دوره ثبت نام کرده اید"}
-  }
-  else  if (response.status == 410){
-        return {'detail' : "مهلت ثبت نام تمام شده است"}
-  }
-  else if (response.status == 201){
-    return {'detail' : "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید."}
-  }
-  else {
-      return {"detail" : "ثبت نام موفقیت امیز نبود"}
-  }
-  
+export const apiClient = {
+  get: async (endpoint: string) => {
+    const response = await apiRequest(endpoint, { method: "GET" })
+    return { data: await response.json() }
+  },
+  post: async (endpoint: string, data?: any) => {
+    const response = await apiRequest(endpoint, {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+    return { data: await response.json() }
+  },
+  patch: async (endpoint: string, data?: any) => {
+    const response = await apiRequest(endpoint, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    })
+    return { data: await response.json() }
+  },
+  delete: async (endpoint: string) => {
+    const response = await apiRequest(endpoint, { method: "DELETE" })
+    return { data: await response.json() }
+  },
 }
