@@ -14,8 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, MapPin, User, Settings, BookOpen, CalendarDays, Edit, Save, X, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { fetchUserEvents, updateUserProfile, uploadProfileImage, type Event } from "@/lib/api-client"
-
+import { fetchUserEvents, apiRequest, type Event } from "@/lib/api-client"
 
 export default function ProfilePage() {
   const { user, loading, isCreator } = useAuth()
@@ -26,7 +25,8 @@ export default function ProfilePage() {
   const [loadingData, setLoadingData] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
 
   const [editForm, setEditForm] = useState({
     firstName: "",
@@ -49,6 +49,7 @@ export default function ProfilePage() {
         email: user.email || "",
         studentId: user.studentId || "",
       })
+      setImagePreview(user.avatar || null)
       loadUserData()
     }
   }, [user])
@@ -56,8 +57,11 @@ export default function ProfilePage() {
   const loadUserData = async () => {
     setLoadingData(true)
     try {
-      const [events, courses] = await Promise.all([fetchUserEvents(), null])
+      const events = await fetchUserEvents()
       setUserEvents(events)
+      // TODO: Fetch user courses when API is ready
+      // const courses = await fetchUserCourses()
+      // setUserCourses(courses)
     } catch (error) {
       console.error("Failed to load user data:", error)
     } finally {
@@ -65,16 +69,49 @@ export default function ProfilePage() {
     }
   }
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setSelectedImage(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleSaveProfile = async () => {
     setSaving(true)
     try {
-      await updateUserProfile({
+      const formData = new FormData()
+      
+      // Add profile data as JSON
+      const profileData = {
         first_name: editForm.firstName,
         last_name: editForm.lastName,
         email: editForm.email || undefined,
         student_id: editForm.studentId || undefined,
+      }
+      formData.append("data", JSON.stringify(profileData))
+      
+      // Add image if selected
+      if (selectedImage) {
+        formData.append("avatar", selectedImage)
+      }
+
+      const response = await apiRequest("/profile/update/", {
+        method: "PUT",
+        body: formData,
       })
+
+      if (!response.ok) {
+        throw new Error("Failed to update profile")
+      }
+
+      alert("پروفایل با موفقیت به‌روزرسانی شد")
       setIsEditing(false)
+      setSelectedImage(null)
       window.location.reload()
     } catch (error) {
       console.error("Failed to update profile:", error)
@@ -84,20 +121,16 @@ export default function ProfilePage() {
     }
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    setUploadingImage(true)
-    try {
-      await uploadProfileImage(file)
-      window.location.reload()
-    } catch (error) {
-      console.error("Failed to upload image:", error)
-      alert("خطا در آپلود تصویر")
-    } finally {
-      setUploadingImage(false)
-    }
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    setSelectedImage(null)
+    setImagePreview(user?.avatar || null)
+    setEditForm({
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+      email: user?.email || "",
+      studentId: user?.studentId || "",
+    })
   }
 
   if (loading) {
@@ -118,9 +151,9 @@ export default function ProfilePage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen pt-24 pb-12 px-4" dir="rtl">
+      <main className="min-h-screen pt-24 pb-12 px-4">
         <div className="container mx-auto max-w-5xl">
-          <div className="mb-8">
+          <div className="mb-8 text-right">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               پروفایل کاربری
             </h1>
@@ -153,35 +186,39 @@ export default function ProfilePage() {
             <TabsContent value="info">
               <Card className="border-2 shadow-lg">
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
+                  <div className="text-right">
                     <CardTitle>اطلاعات کاربری</CardTitle>
                     <CardDescription>مشاهده و ویرایش اطلاعات حساب کاربری</CardDescription>
-                  </div> 
+                  </div>
                   {!isEditing ? (
                     <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-                      <Edit className="w-4 h-4 ml-2" />
+                      <Edit className="w-4 h-4 mr-2" />
                       ویرایش
                     </Button>
                   ) : (
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={saving}>
-                        <X className="w-4 h-4 ml-2" />
+                      <Button variant="outline" size="sm" onClick={handleCancelEdit} disabled={saving}>
+                        <X className="w-4 h-4 mr-2" />
                         انصراف
                       </Button>
                       <Button size="sm" onClick={handleSaveProfile} disabled={saving}>
-                        {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
+                        {saving ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Save className="w-4 h-4 mr-2" />
+                        )}
                         ذخیره
                       </Button>
                     </div>
                   )}
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-6 flex-row-reverse">
                     <div className="relative">
                       <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg ring-4 ring-primary/20">
-                        {user.avatar ? (
+                        {imagePreview ? (
                           <img
-                            src={ user.avatar || "/placeholder.svg"}
+                            src={imagePreview}
                             alt={user.firstName}
                             className="w-full h-full rounded-full object-cover"
                           />
@@ -192,26 +229,25 @@ export default function ProfilePage() {
                       {isEditing && (
                         <label
                           htmlFor="profileImage"
-                          className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 shadow-lg"
+                          className="absolute bottom-0 left-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 shadow-lg"
                         >
-                          {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit className="w-4 h-4" />}
+                          <Edit className="w-4 h-4" />
                           <input
                             id="profileImage"
                             type="file"
                             accept="image/*"
-                            onChange={handleImageUpload}
+                            onChange={handleImageSelect}
                             className="hidden"
-                            disabled={uploadingImage}
                           />
                         </label>
                       )}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 text-right">
                       <h2 className="text-2xl font-bold">
                         {user.firstName} {user.lastName}
                       </h2>
                       {user.position && <p className="text-primary font-medium mt-1">{user.position}</p>}
-                      <div className="flex gap-2 mt-2">
+                      <div className="flex gap-2 mt-2 justify-end">
                         <Badge variant="secondary" className="text-sm">
                           {user.role === "admin" ? "مدیر" : user.role === "creator" ? "ایجادکننده" : "کاربر"}
                         </Badge>
@@ -220,62 +256,65 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-right">
                       <Label className="text-sm font-semibold text-muted-foreground">نام</Label>
                       {isEditing ? (
                         <Input
                           value={editForm.firstName}
                           onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
-                          className="border-2 focus:border-primary"
+                          className="border-2 focus:border-primary text-right"
                         />
                       ) : (
                         <p className="text-lg font-medium">{user.firstName || "-"}</p>
                       )}
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-right">
                       <Label className="text-sm font-semibold text-muted-foreground">نام خانوادگی</Label>
                       {isEditing ? (
                         <Input
                           value={editForm.lastName}
                           onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
-                          className="border-2 focus:border-primary"
+                          className="border-2 focus:border-primary text-right"
                         />
                       ) : (
                         <p className="text-lg font-medium">{user.lastName || "-"}</p>
                       )}
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-right">
                       <Label className="text-sm font-semibold text-muted-foreground">شماره موبایل</Label>
                       <p className="text-lg font-medium">{user.phone}</p>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-right">
                       <Label className="text-sm font-semibold text-muted-foreground">ایمیل</Label>
                       {isEditing ? (
                         <Input
                           type="email"
                           value={editForm.email}
                           onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                          className="border-2 focus:border-primary"
+                          className="border-2 focus:border-primary text-right"
+                          dir="ltr"
                         />
                       ) : (
-                        <p className="text-lg font-medium">{user.email || "-"}</p>
+                        <p className="text-lg font-medium" dir="ltr">
+                          {user.email || "-"}
+                        </p>
                       )}
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-right">
                       <Label className="text-sm font-semibold text-muted-foreground">شماره دانشجویی</Label>
                       {isEditing ? (
                         <Input
                           value={editForm.studentId}
                           onChange={(e) => setEditForm({ ...editForm, studentId: e.target.value })}
                           maxLength={10}
-                          className="border-2 focus:border-primary"
+                          className="border-2 focus:border-primary text-right"
                         />
                       ) : (
                         <p className="text-lg font-medium">{user.studentId || "-"}</p>
                       )}
                     </div>
                     {user.position && (
-                      <div className="space-y-2">
+                      <div className="space-y-2 text-right">
                         <Label className="text-sm font-semibold text-muted-foreground">سمت</Label>
                         <p className="text-lg font-medium">{user.position}</p>
                       </div>
@@ -288,7 +327,7 @@ export default function ProfilePage() {
             {/* Events Tab */}
             <TabsContent value="events">
               <Card className="border-2 shadow-lg">
-                <CardHeader>
+                <CardHeader className="text-right">
                   <CardTitle>رویدادهای ثبت‌نام شده</CardTitle>
                   <CardDescription>لیست رویدادهایی که در آنها ثبت‌نام کرده‌اید</CardDescription>
                 </CardHeader>
@@ -309,7 +348,7 @@ export default function ProfilePage() {
                     <div className="space-y-4">
                       {userEvents.map((event) => (
                         <Card key={event.slug} className="overflow-hidden">
-                          <div className="flex flex-col md:flex-row">
+                          <div className="flex flex-col md:flex-row-reverse">
                             <div className="w-full md:w-48 h-32 overflow-hidden">
                               <img
                                 src={event.image || "/placeholder.svg"}
@@ -317,19 +356,19 @@ export default function ProfilePage() {
                                 className="w-full h-full object-cover"
                               />
                             </div>
-                            <CardContent className="flex-1 p-4">
+                            <CardContent className="flex-1 p-4 text-right">
                               <h3 className="font-semibold text-lg mb-2">{event.title}</h3>
-                              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end">
                                 <div className="flex items-center gap-1">
+                                  <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
                                   <Calendar className="w-4 h-4" />
-                                  {new Date(event.start_date).toLocaleDateString("fa-IR")}
                                 </div>
                                 <div className="flex items-center gap-1">
+                                  <span>{event.location}</span>
                                   <MapPin className="w-4 h-4" />
-                                  {event.location}
                                 </div>
                               </div>
-                              <div className="flex gap-2 mt-3">
+                              <div className="flex gap-2 mt-3 justify-end flex-wrap">
                                 {event.tags.slice(0, 2).map((tag) => (
                                   <Badge key={tag} variant="secondary">
                                     {tag}
@@ -354,7 +393,7 @@ export default function ProfilePage() {
             {/* Courses Tab */}
             <TabsContent value="courses">
               <Card className="border-2 shadow-lg">
-                <CardHeader>
+                <CardHeader className="text-right">
                   <CardTitle>دوره‌های ثبت‌نام شده</CardTitle>
                   <CardDescription>لیست دوره‌هایی که در آنها ثبت‌نام کرده‌اید</CardDescription>
                 </CardHeader>
@@ -375,7 +414,7 @@ export default function ProfilePage() {
                     <div className="space-y-4">
                       {userCourses.map((course) => (
                         <Card key={course.id} className="overflow-hidden">
-                          <div className="flex flex-col md:flex-row">
+                          <div className="flex flex-col md:flex-row-reverse">
                             <div className="w-full md:w-48 h-32 overflow-hidden">
                               <img
                                 src={course.image || "/placeholder.svg"}
@@ -383,7 +422,7 @@ export default function ProfilePage() {
                                 className="w-full h-full object-cover"
                               />
                             </div>
-                            <CardContent className="flex-1 p-4">
+                            <CardContent className="flex-1 p-4 text-right">
                               <h3 className="font-semibold text-lg mb-2">{course.name}</h3>
                               <p className="text-sm text-muted-foreground mb-2">
                                 استاد: {course.instructors?.join("، ")}
@@ -407,7 +446,7 @@ export default function ProfilePage() {
             {isCreator() && (
               <TabsContent value="admin">
                 <Card className="border-2 shadow-lg">
-                  <CardHeader>
+                  <CardHeader className="text-right">
                     <CardTitle>پنل مدیریت</CardTitle>
                     <CardDescription>دسترسی به بخش‌های مدیریتی سایت</CardDescription>
                   </CardHeader>

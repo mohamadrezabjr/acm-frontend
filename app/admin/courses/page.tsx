@@ -25,9 +25,9 @@ import { ArrowRight, Edit, Trash2, Power, Loader2, Plus } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { Header } from "@/components/header"
-import { apiRequest, fetchEvents } from "@/lib/api-client"
+import { apiRequest, fetchCourses } from "@/lib/api-client"
 
-interface Event {
+interface Course {
   id: number
   title: string
   slug: string
@@ -41,14 +41,14 @@ interface Event {
   organizer: string
 }
 
-export default function AdminEventsPage() {
+export default function AdminCoursesPage() {
   const { user, loading, isCreator } = useAuth()
   const router = useRouter()
-  const [events, setEvents] = useState<Event[]>([])
-  const [loadingEvents, setLoadingEvents] = useState(true)
+  const [courses, setCourses] = useState<Course[]>([])
+  const [loadingCourses, setLoadingCourses] = useState(true)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false)
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
 
   useEffect(() => {
@@ -58,83 +58,83 @@ export default function AdminEventsPage() {
   }, [loading, user, router, isCreator])
 
   useEffect(() => {
-    const loadEvents = async () => {
+    const loadCourses = async () => {
       try {
-        const data = await fetchEvents()
-        setEvents(data)
+        const data = await fetchCourses()
+        setCourses(data)
       } catch (error) {
-        console.error("Error fetching events:", error)
+        console.error("Error fetching courses:", error)
       } finally {
-        setLoadingEvents(false)
+        setLoadingCourses(false)
       }
     }
 
     if (user && isCreator()) {
-      loadEvents()
+      loadCourses()
     }
   }, [user, isCreator])
 
   const handleDelete = async () => {
-    if (!selectedEvent) return
+    if (!selectedCourse) return
 
     setActionLoading(true)
     try {
-      const response = await apiRequest(`/admin/events/${selectedEvent.slug}/delete/`, {
+      const response = await apiRequest(`/admin/courses/${selectedCourse.slug}/delete/`, {
         method: "DELETE",
       })
 
       if (response.ok) {
-        setEvents(events.filter((e) => e.id !== selectedEvent.id))
-        alert("رویداد با موفقیت حذف شد")
+        setCourses(courses.filter((c) => c.id !== selectedCourse.id))
+        alert("دوره با موفقیت حذف شد")
       } else {
-        throw new Error("Failed to delete event")
+        throw new Error("Failed to delete course")
       }
     } catch (error) {
-      console.error("Error deleting event:", error)
-      alert("خطا در حذف رویداد")
+      console.error("Error deleting course:", error)
+      alert("خطا در حذف دوره")
     } finally {
       setActionLoading(false)
       setDeleteDialogOpen(false)
-      setSelectedEvent(null)
+      setSelectedCourse(null)
     }
   }
 
   const handleToggleActive = async () => {
-    if (!selectedEvent) return
+    if (!selectedCourse) return
 
     setActionLoading(true)
     try {
-      const response = await apiRequest(`/admin/events/${selectedEvent.slug}/deactivate/`, {
+      const response = await apiRequest(`/admin/courses/${selectedCourse.slug}/deactivate/`, {
         method: "POST",
       })
 
       if (response.ok) {
-        setEvents(
-          events.map((e) =>
-            e.id === selectedEvent.id ? { ...e, is_active: !e.is_active } : e
+        setCourses(
+          courses.map((c) =>
+            c.id === selectedCourse.id ? { ...c, is_active: !c.is_active } : c
           )
         )
-        alert(`رویداد با موفقیت ${selectedEvent.is_active ? "غیرفعال" : "فعال"} شد`)
+        alert(`دوره با موفقیت ${selectedCourse.is_active ? "غیرفعال" : "فعال"} شد`)
       } else {
-        throw new Error("Failed to toggle event status")
+        throw new Error("Failed to toggle course status")
       }
     } catch (error) {
-      console.error("Error toggling event status:", error)
-      alert("خطا در تغییر وضعیت رویداد")
+      console.error("Error toggling course status:", error)
+      alert("خطا در تغییر وضعیت دوره")
     } finally {
       setActionLoading(false)
       setDeactivateDialogOpen(false)
-      setSelectedEvent(null)
+      setSelectedCourse(null)
     }
   }
 
-  const openDeleteDialog = (event: Event) => {
-    setSelectedEvent(event)
+  const openDeleteDialog = (course: Course) => {
+    setSelectedCourse(course)
     setDeleteDialogOpen(true)
   }
 
-  const openDeactivateDialog = (event: Event) => {
-    setSelectedEvent(event)
+  const openDeactivateDialog = (course: Course) => {
+    setSelectedCourse(course)
     setDeactivateDialogOpen(true)
   }
 
@@ -158,12 +158,12 @@ export default function AdminEventsPage() {
                   بازگشت
                 </Button>
               </Link>
-              <h1 className="text-2xl font-bold">مدیریت رویدادها</h1>
+              <h1 className="text-2xl font-bold">مدیریت دوره‌ها</h1>
             </div>
-            <Link href="/admin/events/create">
+            <Link href="/admin/courses/create">
               <Button>
                 <Plus className="ml-2 h-4 w-4" />
-                ایجاد رویداد جدید
+                ایجاد دوره جدید
               </Button>
             </Link>
           </div>
@@ -172,21 +172,21 @@ export default function AdminEventsPage() {
         <main className="container mx-auto px-4 py-8">
           <Card>
             <CardHeader>
-              <CardTitle>لیست رویدادها</CardTitle>
-              <CardDescription>مدیریت و ویرایش رویدادهای انجمن</CardDescription>
+              <CardTitle>لیست دوره‌ها</CardTitle>
+              <CardDescription>مدیریت و ویرایش دوره‌های آموزشی</CardDescription>
             </CardHeader>
             <CardContent>
-              {loadingEvents ? (
+              {loadingCourses ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
                 </div>
-              ) : events.length === 0 ? (
+              ) : courses.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  <p>هیچ رویدادی ثبت نشده است</p>
-                  <Link href="/admin/events/create">
+                  <p>هیچ دوره‌ای ثبت نشده است</p>
+                  <Link href="/admin/courses/create">
                     <Button className="mt-4">
                       <Plus className="ml-2 h-4 w-4" />
-                      ایجاد اولین رویداد
+                      ایجاد اولین دوره
                     </Button>
                   </Link>
                 </div>
@@ -205,43 +205,43 @@ export default function AdminEventsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {events.map((event) => (
-                        <TableRow key={event.id}>
+                      {courses.map((course) => (
+                        <TableRow key={course.id}>
                           <TableCell className="font-medium max-w-[250px]">
-                            <div className="truncate" title={event.title}>
-                              {event.title}
+                            <div className="truncate" title={course.title}>
+                              {course.title}
                             </div>
                           </TableCell>
                           <TableCell className="whitespace-nowrap">
-                            {new Date(event.start_date).toLocaleDateString("fa-IR")}
+                            {new Date(course.start_date).toLocaleDateString("fa-IR")}
                           </TableCell>
                           <TableCell>
-                            <div className="truncate max-w-[150px]" title={event.location}>
-                              {event.location}
+                            <div className="truncate max-w-[150px]" title={course.location}>
+                              {course.location}
                             </div>
                           </TableCell>
                           <TableCell className="text-center">
                             <span className="text-sm">
-                              {event.registered}/{event.capacity}
+                              {course.registered}/{course.capacity}
                             </span>
                           </TableCell>
                           <TableCell>
-                            {event.price === 0 ? (
+                            {course.price === 0 ? (
                               <Badge variant="secondary">رایگان</Badge>
                             ) : (
                               <span className="text-sm whitespace-nowrap">
-                                {event.price.toLocaleString()} تومان
+                                {course.price.toLocaleString()} تومان
                               </span>
                             )}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={event.is_active ? "default" : "secondary"}>
-                              {event.is_active ? "فعال" : "غیرفعال"}
+                            <Badge variant={course.is_active ? "default" : "secondary"}>
+                              {course.is_active ? "فعال" : "غیرفعال"}
                             </Badge>
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2 justify-end">
-                              <Link href={`/admin/events/${event.slug}/update/`}>
+                              <Link href={`/admin/courses/${course.slug}/update/`}>
                                 <Button variant="outline" size="sm" title="ویرایش">
                                   <Edit className="h-4 w-4" />
                                 </Button>
@@ -249,15 +249,15 @@ export default function AdminEventsPage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => openDeactivateDialog(event)}
-                                title={event.is_active ? "غیرفعال کردن" : "فعال کردن"}
+                                onClick={() => openDeactivateDialog(course)}
+                                title={course.is_active ? "غیرفعال کردن" : "فعال کردن"}
                               >
                                 <Power className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="destructive"
                                 size="sm"
-                                onClick={() => openDeleteDialog(event)}
+                                onClick={() => openDeleteDialog(course)}
                                 title="حذف"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -280,7 +280,7 @@ export default function AdminEventsPage() {
             <DialogHeader>
               <DialogTitle>آیا مطمئن هستید؟</DialogTitle>
               <DialogDescription>
-                این عملیات قابل بازگشت نیست. رویداد "{selectedEvent?.title}" به طور کامل حذف
+                این عملیات قابل بازگشت نیست. دوره "{selectedCourse?.title}" به طور کامل حذف
                 خواهد شد.
               </DialogDescription>
             </DialogHeader>
@@ -310,10 +310,10 @@ export default function AdminEventsPage() {
         <Dialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>تغییر وضعیت رویداد</DialogTitle>
+              <DialogTitle>تغییر وضعیت دوره</DialogTitle>
               <DialogDescription>
-                آیا می‌خواهید رویداد "{selectedEvent?.title}" را{" "}
-                {selectedEvent?.is_active ? "غیرفعال" : "فعال"} کنید؟
+                آیا می‌خواهید دوره "{selectedCourse?.title}" را{" "}
+                {selectedCourse?.is_active ? "غیرفعال" : "فعال"} کنید؟
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
