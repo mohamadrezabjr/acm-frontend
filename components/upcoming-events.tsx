@@ -84,7 +84,7 @@ export function UpcomingEvents() {
 
             return (
               <Card key={event.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
-                <div className="aspect-video overflow-hidden relative">
+                <div className="relative aspect-[1/1.414] overflow-hidden bg-muted">
                   <img
                     src={event.image || "/placeholder.svg?height=200&width=400"}
                     alt={event.title}

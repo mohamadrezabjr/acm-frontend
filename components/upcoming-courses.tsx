@@ -83,7 +83,7 @@ export function UpcomingCourses() {
 
             return (
               <Card key={course.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
-                <div className="aspect-video overflow-hidden relative">
+                <div className="relative aspect-[1/1.414] overflow-hidden bg-muted">
                   <img
                     src={course.image || "/placeholder.svg?height=200&width=400"}
                     alt={course.title}
@@ -113,7 +113,7 @@ export function UpcomingCourses() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <GraduationCap className="w-4 h-4" />
-                    <span>{course.instructors.map((i) => i.first_name).join("، ")}</span>
+                    <span>{course.instructors.map((i) => `${i.first_name} ${i.last_name}`).join("، ")}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="w-4 h-4" />
