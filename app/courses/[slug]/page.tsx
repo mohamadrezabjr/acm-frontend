@@ -162,7 +162,7 @@ export default function CourseDetailPage() {
       
       // ثبت‌نام در دوره
       const result = await courseRegitserBySlug(course!.slug);
-      setPopupType("success");
+      setPopupType(result.type);
       setPopupMessage(result.detail);
       
       // بارگذاری مجدد اطلاعات کاربر
@@ -196,7 +196,7 @@ export default function CourseDetailPage() {
     if (missingFields.length === 0) {
       // همه اطلاعات کامل است، مستقیم ثبت‌نام کن
       const result = await courseRegitserBySlug(course!.slug);
-      setPopupType("success");
+      setPopupType(result.type);
       setPopupMessage(result.detail);
     } else {
       // فرم تکمیل اطلاعات را نمایش بده
