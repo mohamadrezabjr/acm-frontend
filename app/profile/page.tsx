@@ -31,9 +31,21 @@ export default function ProfilePage() {
   const [editForm, setEditForm] = useState({
     firstName: "",
     lastName: "",
-    email: "",
     studentId: "",
   })
+
+  // تابع تبدیل اعداد فارسی به انگلیسی
+  const convertPersianToEnglish = (str: string) => {
+    const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    
+    let result = str;
+    for (let i = 0; i < 10; i++) {
+      result = result.replace(new RegExp(persianNumbers[i], 'g'), i.toString());
+      result = result.replace(new RegExp(arabicNumbers[i], 'g'), i.toString());
+    }
+    return result;
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -46,7 +58,6 @@ export default function ProfilePage() {
       setEditForm({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
-        email: user.email || "",
         studentId: user.studentId || "",
       })
       setImagePreview(user.avatar || null)
@@ -90,8 +101,7 @@ export default function ProfilePage() {
       const profileData = {
         first_name: editForm.firstName,
         last_name: editForm.lastName,
-        email: editForm.email || undefined,
-        student_id: editForm.studentId || undefined,
+        student_id: editForm.studentId ? convertPersianToEnglish(editForm.studentId) : undefined,
       }
       formData.append("data", JSON.stringify(profileData))
       
@@ -128,7 +138,6 @@ export default function ProfilePage() {
     setEditForm({
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
-      email: user?.email || "",
       studentId: user?.studentId || "",
     })
   }
@@ -185,20 +194,18 @@ export default function ProfilePage() {
             {/* User Info Tab */}
             <TabsContent value="info">
               <Card className="border-2 shadow-lg">
-                                  <div className="text-right flex-1">
+                <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+                  <div className="text-right flex-1 space-y-1.5">
                     <CardTitle className="text-right">اطلاعات کاربری</CardTitle>
                     <CardDescription className="text-right">مشاهده و ویرایش اطلاعات حساب کاربری</CardDescription>
                   </div>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                  <div className="text-right flex-1">
-                  </div>
                   {!isEditing ? (
-                    <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                    <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="mr-4">
                       <Edit className="w-4 h-4 mr-2" />
                       ویرایش
                     </Button>
                   ) : (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mr-4">
                       <Button variant="outline" size="sm" onClick={handleCancelEdit} disabled={saving}>
                         <X className="w-4 h-4 mr-2" />
                         انصراف
@@ -215,7 +222,8 @@ export default function ProfilePage() {
                   )}
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center gap-6 flex-row-reverse">
+                  {/* Avatar and Name Section */}
+                  <div className="flex items-center gap-6 flex-row-reverse pb-6 border-b">
                     <div className="relative">
                       <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg ring-4 ring-primary/20">
                         {imagePreview ? (
@@ -257,65 +265,77 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
+                  {/* Form Fields */}
                   <div className="grid gap-6 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground text-right block">نام</Label>
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
+                        نام <span className="text-destructive">*</span>
+                      </Label>
                       {isEditing ? (
                         <Input
                           value={editForm.firstName}
                           onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
                           className="border-2 focus:border-primary text-right"
+                          placeholder="نام خود را وارد کنید"
                         />
                       ) : (
                         <p className="text-lg font-medium text-right">{user.firstName || "-"}</p>
                       )}
                     </div>
+
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground text-right block">نام خانوادگی</Label>
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
+                        نام خانوادگی
+                      </Label>
                       {isEditing ? (
                         <Input
                           value={editForm.lastName}
                           onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
                           className="border-2 focus:border-primary text-right"
+                          placeholder="نام خانوادگی خود را وارد کنید"
                         />
                       ) : (
                         <p className="text-lg font-medium text-right">{user.lastName || "-"}</p>
                       )}
                     </div>
+
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground text-right block">شماره موبایل</Label>
-                      <p className="text-lg font-medium text-right">{user.phone}</p>
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
+                        شماره موبایل <span className="text-destructive">*</span>
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <p className="text-lg font-medium text-right flex-1">{user.phone}</p>
+                      </div>
                     </div>
+
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground text-right block">ایمیل</Label>
-                      {isEditing ? (
-                        <Input
-                          type="email"
-                          value={editForm.email}
-                          onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                          className="border-2 focus:border-primary"
-                          dir="ltr"
-                          placeholder="example@email.com"
-                        />
-                      ) : (
-                        <p className="text-lg font-medium text-left" dir="ltr">
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
+                        ایمیل <span className="text-destructive">*</span>
+                      </Label>
+                      <div className="flex items-center gap-2" dir="ltr">
+                        <p className="text-lg font-medium text-left flex-1">
                           {user.email || "-"}
                         </p>
-                      )}
+                      </div>
                     </div>
+
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground text-right block">شماره دانشجویی</Label>
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
+                        شماره دانشجویی
+                      </Label>
                       {isEditing ? (
                         <Input
                           value={editForm.studentId}
                           onChange={(e) => setEditForm({ ...editForm, studentId: e.target.value })}
                           maxLength={10}
                           className="border-2 focus:border-primary text-right"
+                          placeholder="1234567890"
                         />
                       ) : (
                         <p className="text-lg font-medium text-right">{user.studentId || "-"}</p>
                       )}
                     </div>
+
                     {user.position && (
                       <div className="space-y-2">
                         <Label className="text-sm font-semibold text-muted-foreground text-right block">سمت</Label>
