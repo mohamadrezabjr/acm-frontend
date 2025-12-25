@@ -49,6 +49,19 @@ export default function CreateCoursePage() {
   const [selectedTags, setSelectedTags] = useState<Tag[]>([])
   const [newTagName, setNewTagName] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [dependencies, setDependencies] = useState<string[]>([])
+  const dependencyOptions = [
+    { key: "student_id", label: "شماره دانشجویی" },
+    { key: "first_name", label: "نام" },
+    { key: "last_name", label: "نام خانوادگی" },
+  ]
+    const toggleDependency = (key: string) => {
+    setDependencies((prev) =>
+      prev.includes(key)
+        ? prev.filter((item) => item !== key)
+        : [...prev, key]
+    )
+  }
 
   // Course form data
   const [courseData, setCourseData] = useState({
@@ -229,6 +242,7 @@ export default function CreateCoursePage() {
         registered: 0,
         location: courseData.location,
         price: courseData.price ? parseFloat(courseData.price) : 0,
+        dependencies,
         organizer: courseData.organizer,
         instructors: instructors.map((instructor) => ({
           id: instructor.type === "existing" ? instructor.person_id : null,
@@ -616,6 +630,23 @@ export default function CreateCoursePage() {
                 </div>
               </div>
 
+              {/* Dependencies Section */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold">نیازمندی‌های ثبت‌نام</h3>
+
+                {dependencyOptions.map((dep) => (
+                  <div key={dep.key} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={dep.key}
+                      checked={dependencies.includes(dep.key)}
+                      onChange={() => toggleDependency(dep.key)}
+                      className="h-4 w-4"
+                    />
+                    <Label htmlFor={dep.key}>{dep.label}</Label>
+                  </div>
+                ))}
+              </div>
               {/* Instructors Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
