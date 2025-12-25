@@ -45,7 +45,7 @@ export function Contact() {
                   <div>
                     <h4 className="font-semibold mb-1">ایمیل به ما</h4>
                     <p className="text-muted-foreground" dir="ltr">
-                      acm@university.edu
+                      acm@khu.ac.ir
                     </p>
                   </div>
                 </CardContent>
@@ -57,7 +57,7 @@ export function Contact() {
                     <MessageSquare className="w-6 h-6 text-secondary" />
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-1">{"به صفحه لینکدین ما بپیوندید"}</h4>
+                    <h4 className="font-semibold mb-1">{"با ما در تماس باشید"}</h4>
                     <p className="text-muted-foreground">۲۴/۷ با اعضا در ارتباط باشید</p>
                   </div>
                 </CardContent>
@@ -67,8 +67,8 @@ export function Contact() {
             <div>
               <h4 className="font-semibold mb-4">ساعات کاری</h4>
               <div className="space-y-2 text-muted-foreground">
-                <p>دوشنبه - جمعه: ۱۲:۰۰ - ۱۷:۰۰</p>
-                <p>اتاق ۲۰۴، ساختمان علوم کامپیوتر</p>
+                <p>شنبه - سه شنبه: ۱۰:۰۰ - ۱۷:۰۰</p>
+                <p>دانشکده علوم ریاضی و کامپیوتر طبقه دوم</p>
               </div>
             </div>
           </div>
