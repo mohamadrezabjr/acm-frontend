@@ -71,11 +71,11 @@ export function About() {
         <div className="bg-card rounded-2xl p-8 md:p-12 border border-border">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">۲۰۰+</div>
+              <div className="text-4xl font-bold text-primary mb-2">۲۰+</div>
               <div className="text-muted-foreground">اعضای فعال</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-secondary mb-2">۵۰+</div>
+              <div className="text-4xl font-bold text-secondary mb-2">۲۰+</div>
               <div className="text-muted-foreground">رویداد در سال</div>
             </div>
             <div>
