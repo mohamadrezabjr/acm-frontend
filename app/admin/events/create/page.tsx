@@ -40,6 +40,19 @@ export default function CreateEventPage() {
   const [availablePersons, setAvailablePersons] = useState<Person[]>([])
   const [selectedTags, setSelectedTags] = useState<Tag[]>([])
   const [newTagName, setNewTagName] = useState("")
+  const [dependencies, setDependencies] = useState<string[]>([])
+  const dependencyOptions = [
+  { key: "student_id", label: "شماره دانشجویی" },
+  { key: "first_name", label: "نام" },
+  { key: "last_name", label: "نام خانوادگی" },
+]
+  const toggleDependency = (key: string) => {
+  setDependencies((prev) =>
+    prev.includes(key)
+      ? prev.filter((item) => item !== key)
+      : [...prev, key]
+  )
+}
 
   // Event form data with DatePicker values
   const [eventData, setEventData] = useState({
@@ -195,6 +208,7 @@ export default function CreateEventPage() {
       registered: 0,
       location: eventData.location,
       price: eventData.price ? parseFloat(eventData.price) : 0,
+      dependencies,
       organizer: eventData.organizer,
       speakers: speakers.map((speaker) => ({
         id: speaker.type === "existing" ? speaker.person_id : null,
@@ -505,6 +519,23 @@ export default function CreateEventPage() {
                   </div>
                 </div>
               </div>
+              {/* Dependencies Section */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold">نیازمندی‌های ثبت‌نام</h3>
+
+                {dependencyOptions.map((dep) => (
+                  <div key={dep.key} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={dep.key}
+                      checked={dependencies.includes(dep.key)}
+                      onChange={() => toggleDependency(dep.key)}
+                      className="h-4 w-4"
+                    />
+                    <Label htmlFor={dep.key}>{dep.label}</Label>
+                  </div>
+                ))}
+              </div>
 
               {/* Speakers Section */}
               <div className="space-y-4">
@@ -611,6 +642,8 @@ export default function CreateEventPage() {
                   <div className="text-center py-8 text-muted-foreground">هیچ سخنرانی اضافه نشده است</div>
                 )}
               </div>
+
+
 
               {/* Submit Button */}
               <div className="flex gap-4">
