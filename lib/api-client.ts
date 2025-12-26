@@ -384,7 +384,7 @@ export const apiClient = {
 
       // Check if response is actually JSON
       if (!text || text.startsWith("<")) {
-        console.error(`[v0] API returned HTML instead of JSON. Endpoint: ${endpoint}`)
+        console.error(`API returned HTML instead of JSON. Endpoint: ${endpoint}`)
         throw new Error(`API error: Server returned HTML. Check if endpoint is correct: ${endpoint}`)
       }
 
