@@ -12,23 +12,16 @@ export const metadata: Metadata = {
   title: "انجمن ACM دانشگاهی - انجمن علوم کامپیوتر دانشگاه",
   description:
     "به انجمن ACM دانشگاه ما بپیوندید تا با علاقه‌مندان به علوم کامپیوتر ارتباط برقرار کنید، در کارگاه‌ها شرکت کنید و حرفه خود را در فناوری پیش ببرید.",
-  generator: "v0.app",
   icons: {
     icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
+      { url: "/favicon-16x16.png", sizes: "16x16" },
+      { url: "/favicon-32x32.png", sizes: "32x32" },
+      { url: "/favicon.ico" },
     ],
-    apple: "/apple-icon.png",
+    apple: "/apple-touch-icon.png",
+  },
+  other: {
+    "apple-mobile-web-app-title": "ACM",
   },
 }
 
@@ -39,6 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
+      <head>
+        <meta name="apple-mobile-web-app-title" content="ACM" />
+      </head>
       <body className={`${vazirmatn.className} font-sans antialiased`}>
         <ThemeProvider>
           <AuthProvider>{children}</AuthProvider>
