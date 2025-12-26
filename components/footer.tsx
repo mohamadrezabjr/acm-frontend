@@ -1,7 +1,11 @@
+"use client"
 import { Github, Linkedin, Twitter, Instagram, Telegram } from "lucide-react"
 import Image from "next/image";
+import { useTheme } from "@/lib/theme-context"
 
 export function Footer() {
+  const { theme, mounted } = useTheme();
+  
   return (
     <footer className="bg-muted/30 border-t border-border py-12 px-4">
       <div className="container mx-auto max-w-6xl">
@@ -11,7 +15,8 @@ export function Footer() {
               <div className="w-38 h-10 rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xl">
                   <Image
-                    src="/logo.png"
+                    src={theme === "dark" ? "/logo-dark.png" : "/logo.png"}
+
                     alt="لوگو"
                     width={180}
                     height={100}
