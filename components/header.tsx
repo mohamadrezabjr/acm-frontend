@@ -43,7 +43,7 @@ export function Header() {
                     alt="لوگو"
                     width={120}
                     height={100}
-                    className="inline-block mr-2"
+                    className="inline-block mr-2 w-20 md:w-[120px]"
                   />
                 )}
               </span>
