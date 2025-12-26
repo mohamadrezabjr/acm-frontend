@@ -131,141 +131,54 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
   return response
 }
-export async function fetchTags(): Promise<Tag[]> {
-  try {
-    const response = await apiRequest("/tags/")
-    return response.json()
-  } catch (error) {
-    console.error("Error fetching tags:", error)
-    return []
-  }
-}
-export async function fetchPersons(): Promise<Person[]> {
-  try {
-    const response = await apiRequest("/persons/")
-    return response.json()
-  } catch (error) {
-    console.error("Error fetching persons:", error)
-    return []
-  }
-}
-
-const MOCK_EVENTS: Event[] = [
-  {
-    slug: "python-workshop",
-    title: "رویداد پایتون",
-    description: "یک رویداد آموزشی درباره پایتون و برنامه‌نویسی",
-    tags: ["پایتون", "برنامه‌نویسی"],
-    start_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
-    registration_start_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    registration_deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-    capacity: 50,
-    registered: 30,
-    location: "دانشکده علوم ریاضی و کامپیوتر",
-    price: 0,
-    organizer: "انجمن ACM",
-    image: "/python-workshop.jpg",
-    speakers: [
-      {
-        id: 1,
-        first_name: "برنا",
-        last_name: "محمدی",
-        position: "جاوا دولوپر",
-        bio: "i love java",
-      },
-    ],
-    dependencies: [],
-  },
-]
-
-const MOCK_COURSES: Course[] = [
-  {
-    slug: "web-development",
-    title: "توسعه وب",
-    description: "دوره جامع توسعه وب با HTML، CSS و JavaScript",
-    tags: ["وب", "برنامه‌نویسی"],
-    start_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-    end_date: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
-    registration_start_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    registration_deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    capacity: 100,
-    registered: 45,
-    location: "دانشکده علوم ریاضی و کامپیوتر",
-    price: 50000,
-    organizer: "انجمن ACM",
-    image: "/web-development.jpg",
-    instructors: [
-      {
-        id: 2,
-        first_name: "احمد",
-        last_name: "کریمی",
-        position: "استاد",
-        bio: "متخصص توسعه وب",
-      },
-    ],
-    time_plans: [
-      { weekday: "شنبه", time_start: "18:00", time_end: "20:00" },
-      { weekday: "دوشنبه", time_start: "18:00", time_end: "20:00" },
-    ],
-    dependencies: [],
-  },
-]
-
-export async function fetchCourses(): Promise<Course[]> {
-  try {
-    const response = await apiRequest("/courses/")
-    if (!response.ok) {
-      throw new Error("Failed to fetch courses")
+export async function fetchTags (): Promise<Tag[]> {
+      try {
+        const response = await apiRequest("/tags/")
+        return response.json()
+      } catch (error) {
+        console.error("Error fetching tags:", error)
+        return []
+      }
     }
-    return response.json()
-  } catch (error) {
-    console.error("[v0] Fetching courses failed, using mock data:", error)
-    return MOCK_COURSES
+export async function fetchPersons (): Promise<Person[]> {
+      try {
+        const response = await apiRequest("/persons/")
+        return response.json()
+      } catch (error) {
+        console.error("Error fetching persons:", error)
+        return []
+      }
+    }
+export async function fetchCourses(): Promise<Course[]> {
+  const response = await apiRequest("/courses/")
+  if (!response.ok) {
+    throw new Error("Failed to fetch courses")
   }
+  return response.json()
 }
 
 export async function fetchCourseBySlug(slug: string): Promise<Course> {
-  try {
-    const response = await apiRequest(`/courses/${slug}/`)
-    if (!response.ok) {
-      throw new Error("Failed to fetch course")
-    }
-    return response.json()
-  } catch (error) {
-    console.error("[v0] Fetching course failed:", error)
-    const mockCourse = MOCK_COURSES.find((c) => c.slug === slug)
-    if (mockCourse) return mockCourse
-    throw error
+  const response = await apiRequest(`/courses/${slug}/`)
+  if (!response.ok) {
+    throw new Error("Failed to fetch course")
   }
+  return response.json()
 }
 
 export async function fetchEvents(): Promise<Event[]> {
-  try {
-    const response = await apiRequest("/events/")
-    if (!response.ok) {
-      throw new Error("Failed to fetch events")
-    }
-    return response.json()
-  } catch (error) {
-    console.error("[v0] Fetching events failed, using mock data:", error)
-    return MOCK_EVENTS
+  const response = await apiRequest("/events/")
+  if (!response.ok) {
+    throw new Error("Failed to fetch events")
   }
+  return response.json()
 }
 
 export async function fetchEventBySlug(slug: string): Promise<Event> {
-  try {
-    const response = await apiRequest(`/events/${slug}/`)
-    if (!response.ok) {
-      throw new Error("Failed to fetch event")
-    }
-    return response.json()
-  } catch (error) {
-    console.error("[v0] Fetching event failed:", error)
-    const mockEvent = MOCK_EVENTS.find((e) => e.slug === slug)
-    if (mockEvent) return mockEvent
-    throw error
+  const response = await apiRequest(`/events/${slug}/`)
+  if (!response.ok) {
+    throw new Error("Failed to fetch event")
   }
+  return response.json()
 }
 
 export async function fetchUserEvents(): Promise<Event[]> {
@@ -331,20 +244,18 @@ export async function eventRegitserBySlug(slug: string): Promise<any> {
   })
 
   if (response.status == 409) {
-    return { detail: "ظرفیت رویداد پر شده است", type: "error" }
+    return { detail: "ظرفیت رویداد پر شده است",  type: "error" }
   } else if (response.status == 422) {
-    return { detail: "شما قبلا در این رویداد ثبت نام کرده اید", type: "info" }
+    return { detail: "شما قبلا در این رویداد ثبت نام کرده اید" ,type: "info"}
   } else if (response.status == 410) {
-    return { detail: "مهلت ثبت نام تمام شده است", type: "error" }
+    return { detail: "مهلت ثبت نام تمام شده است",  type: "error" }
   } else if (response.status == 201) {
-    return {
-      detail: "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید.",
-      type: "success",
-    }
-  } else if (response.status == 400) {
+    return { detail: "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید.", type: "success" }
+  }
+  else if (response.status == 400) {
     return { detail: "لطفا فیلد های مورد نیاز برای ثبت نام را پر کنید", type: "error" }
   } else {
-    return { detail: "ثبت نام موفقیت امیز نبود", type: "error" }
+    return { detail: "ثبت نام موفقیت امیز نبود",  type: "error" }
   }
 }
 
@@ -354,45 +265,24 @@ export async function courseRegitserBySlug(slug: string): Promise<any> {
   })
 
   if (response.status == 409) {
-    return { detail: "ظرفیت دوره پر شده است", type: "error" }
+    return { detail: "ظرفیت دوره پر شده است", type: "error"}
   } else if (response.status == 422) {
-    return { detail: "شما قبلا در این دوره ثبت نام کرده اید", type: "info" }
+    return { detail: "شما قبلا در این دوره ثبت نام کرده اید", type: "info"}
   } else if (response.status == 410) {
-    return { detail: "مهلت ثبت نام تمام شده است", type: "error" }
+    return { detail: "مهلت ثبت نام تمام شده است", type: "error"}
   } else if (response.status == 201) {
-    return {
-      detail: "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید.",
-      type: "success",
-    }
+    return { detail: "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید.", type: "success" }
   } else if (response.status == 400) {
     return { detail: "لطفا فیلد های مورد نیاز برای ثبت نام را پر کنید", type: "error" }
   } else {
-    return { detail: "ثبت نام موفقیت امیز نبود", type: "error" }
+    return { detail: "ثبت نام موفقیت امیز نبود", type: "error"}
   }
 }
 
 export const apiClient = {
   get: async (endpoint: string) => {
-    try {
-      const response = await apiRequest(endpoint, { method: "GET" })
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`)
-      }
-
-      const text = await response.text()
-
-      // Check if response is actually JSON
-      if (!text || text.startsWith("<")) {
-        console.error(`API returned HTML instead of JSON. Endpoint: ${endpoint}`)
-        throw new Error(`API error: Server returned HTML. Check if endpoint is correct: ${endpoint}`)
-      }
-
-      return { data: JSON.parse(text) }
-    } catch (error) {
-      console.error(`[v0] API GET failed for ${endpoint}:`, error)
-      throw error
-    }
+    const response = await apiRequest(endpoint, { method: "GET" })
+    return { data: await response.json() }
   },
   post: async (endpoint: string, data?: any) => {
     const response = await apiRequest(endpoint, {

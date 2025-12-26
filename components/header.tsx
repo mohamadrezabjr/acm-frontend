@@ -13,8 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import Image from "next/image";
-
+import Image from "next/image"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -35,14 +35,7 @@ export function Header() {
           <Link href="/" className="flex items-center gap-2">
             <div className="w-50 h-10 rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-xl">
-              <Image
-                src="/logo.png"
-                alt="لوگو"
-                width={120}
-                height={100}
-                className="inline-block mr-2"
-              />
-
+                <Image src="/logo.png" alt="لوگو" width={120} height={100} className="inline-block mr-2" />
               </span>
             </div>
             {/* <span className="font-semibold text-lg">انجمن ACM</span> */}
@@ -76,6 +69,8 @@ export function Header() {
             >
               تماس با ما
             </button>
+
+            <ThemeToggle />
 
             {!loading && (
               <>
@@ -170,6 +165,11 @@ export function Header() {
             >
               تماس با ما
             </button>
+
+            <div className="flex items-center gap-2 py-2">
+              <span className="text-foreground/80">تم:</span>
+              <ThemeToggle />
+            </div>
 
             {!loading && (
               <>
