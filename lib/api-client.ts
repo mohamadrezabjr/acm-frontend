@@ -131,24 +131,24 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
   return response
 }
-export async function fetchTags (): Promise<Tag[]> {
-      try {
-        const response = await apiRequest("/tags/")
-        return response.json()
-      } catch (error) {
-        console.error("Error fetching tags:", error)
-        return []
-      }
-    }
-export async function fetchPersons (): Promise<Person[]> {
-      try {
-        const response = await apiRequest("/persons/")
-        return response.json()
-      } catch (error) {
-        console.error("Error fetching persons:", error)
-        return []
-      }
-    }
+export async function fetchTags(): Promise<Tag[]> {
+  try {
+    const response = await apiRequest("/tags/")
+    return response.json()
+  } catch (error) {
+    console.error("Error fetching tags:", error)
+    return []
+  }
+}
+export async function fetchPersons(): Promise<Person[]> {
+  try {
+    const response = await apiRequest("/persons/")
+    return response.json()
+  } catch (error) {
+    console.error("Error fetching persons:", error)
+    return []
+  }
+}
 export async function fetchCourses(): Promise<Course[]> {
   const response = await apiRequest("/courses/")
   if (!response.ok) {
@@ -244,18 +244,20 @@ export async function eventRegitserBySlug(slug: string): Promise<any> {
   })
 
   if (response.status == 409) {
-    return { detail: "ظرفیت رویداد پر شده است",  type: "error" }
+    return { detail: "ظرفیت رویداد پر شده است", type: "error" }
   } else if (response.status == 422) {
-    return { detail: "شما قبلا در این رویداد ثبت نام کرده اید" ,type: "info"}
+    return { detail: "شما قبلا در این رویداد ثبت نام کرده اید", type: "info" }
   } else if (response.status == 410) {
-    return { detail: "مهلت ثبت نام تمام شده است",  type: "error" }
+    return { detail: "مهلت ثبت نام تمام شده است", type: "error" }
   } else if (response.status == 201) {
-    return { detail: "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید.", type: "success" }
-  }
-  else if (response.status == 400) {
+    return {
+      detail: "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید.",
+      type: "success",
+    }
+  } else if (response.status == 400) {
     return { detail: "لطفا فیلد های مورد نیاز برای ثبت نام را پر کنید", type: "error" }
   } else {
-    return { detail: "ثبت نام موفقیت امیز نبود",  type: "error" }
+    return { detail: "ثبت نام موفقیت امیز نبود", type: "error" }
   }
 }
 
@@ -265,24 +267,45 @@ export async function courseRegitserBySlug(slug: string): Promise<any> {
   })
 
   if (response.status == 409) {
-    return { detail: "ظرفیت دوره پر شده است", type: "error"}
+    return { detail: "ظرفیت دوره پر شده است", type: "error" }
   } else if (response.status == 422) {
-    return { detail: "شما قبلا در این دوره ثبت نام کرده اید", type: "info"}
+    return { detail: "شما قبلا در این دوره ثبت نام کرده اید", type: "info" }
   } else if (response.status == 410) {
-    return { detail: "مهلت ثبت نام تمام شده است", type: "error"}
+    return { detail: "مهلت ثبت نام تمام شده است", type: "error" }
   } else if (response.status == 201) {
-    return { detail: "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید.", type: "success" }
+    return {
+      detail: "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید.",
+      type: "success",
+    }
   } else if (response.status == 400) {
     return { detail: "لطفا فیلد های مورد نیاز برای ثبت نام را پر کنید", type: "error" }
   } else {
-    return { detail: "ثبت نام موفقیت امیز نبود", type: "error"}
+    return { detail: "ثبت نام موفقیت امیز نبود", type: "error" }
   }
 }
 
 export const apiClient = {
   get: async (endpoint: string) => {
-    const response = await apiRequest(endpoint, { method: "GET" })
-    return { data: await response.json() }
+    try {
+      const response = await apiRequest(endpoint, { method: "GET" })
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`)
+      }
+
+      const text = await response.text()
+
+      // Check if response is actually JSON
+      if (!text || text.startsWith("<")) {
+        console.error(`[v0] API returned HTML instead of JSON. Endpoint: ${endpoint}`)
+        throw new Error(`API error: Server returned HTML. Check if endpoint is correct: ${endpoint}`)
+      }
+
+      return { data: JSON.parse(text) }
+    } catch (error) {
+      console.error(`[v0] API GET failed for ${endpoint}:`, error)
+      throw error
+    }
   },
   post: async (endpoint: string, data?: any) => {
     const response = await apiRequest(endpoint, {
