@@ -135,9 +135,12 @@ export function Header() {
           </nav>
 
           {/* Mobile Menu Button */}
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2" aria-label="Toggle menu">
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="md:hidden flex items-center gap-3">
+            <ThemeToggle />
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2" aria-label="Toggle menu">
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -175,11 +178,6 @@ export function Header() {
             >
               تماس با ما
             </button>
-
-            <div className="flex items-center gap-2 py-2">
-              <span className="text-foreground/80">تم:</span>
-              <ThemeToggle />
-            </div>
 
             {!loading && (
               <>
