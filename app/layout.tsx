@@ -9,7 +9,7 @@ import { ThemeProvider } from "@/lib/theme-context"
 const vazirmatn = Vazirmatn({ subsets: ["arabic"] })
 
 export const metadata: Metadata = {
-  title: "انجمن ACM دانشگاهی - انجمن علوم کامپیوتر دانشگاه",
+  title: "ACM Scientific Association - Kharazmi University  ",
   description:
     "به انجمن ACM دانشگاه ما بپیوندید تا با علاقه‌مندان به علوم کامپیوتر ارتباط برقرار کنید، در کارگاه‌ها شرکت کنید و حرفه خود را در فناوری پیش ببرید.",
   icons: {
