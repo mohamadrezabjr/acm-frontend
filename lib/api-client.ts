@@ -149,36 +149,123 @@ export async function fetchPersons(): Promise<Person[]> {
     return []
   }
 }
+
+const MOCK_EVENTS: Event[] = [
+  {
+    slug: "python-workshop",
+    title: "رویداد پایتون",
+    description: "یک رویداد آموزشی درباره پایتون و برنامه‌نویسی",
+    tags: ["پایتون", "برنامه‌نویسی"],
+    start_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
+    registration_start_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    registration_deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    capacity: 50,
+    registered: 30,
+    location: "دانشکده علوم ریاضی و کامپیوتر",
+    price: 0,
+    organizer: "انجمن ACM",
+    image: "/python-workshop.jpg",
+    speakers: [
+      {
+        id: 1,
+        first_name: "برنا",
+        last_name: "محمدی",
+        position: "جاوا دولوپر",
+        bio: "i love java",
+      },
+    ],
+    dependencies: [],
+  },
+]
+
+const MOCK_COURSES: Course[] = [
+  {
+    slug: "web-development",
+    title: "توسعه وب",
+    description: "دوره جامع توسعه وب با HTML، CSS و JavaScript",
+    tags: ["وب", "برنامه‌نویسی"],
+    start_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    end_date: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+    registration_start_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    registration_deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    capacity: 100,
+    registered: 45,
+    location: "دانشکده علوم ریاضی و کامپیوتر",
+    price: 50000,
+    organizer: "انجمن ACM",
+    image: "/web-development.jpg",
+    instructors: [
+      {
+        id: 2,
+        first_name: "احمد",
+        last_name: "کریمی",
+        position: "استاد",
+        bio: "متخصص توسعه وب",
+      },
+    ],
+    time_plans: [
+      { weekday: "شنبه", time_start: "18:00", time_end: "20:00" },
+      { weekday: "دوشنبه", time_start: "18:00", time_end: "20:00" },
+    ],
+    dependencies: [],
+  },
+]
+
 export async function fetchCourses(): Promise<Course[]> {
-  const response = await apiRequest("/courses/")
-  if (!response.ok) {
-    throw new Error("Failed to fetch courses")
+  try {
+    const response = await apiRequest("/courses/")
+    if (!response.ok) {
+      throw new Error("Failed to fetch courses")
+    }
+    return response.json()
+  } catch (error) {
+    console.error("[v0] Fetching courses failed, using mock data:", error)
+    return MOCK_COURSES
   }
-  return response.json()
 }
 
 export async function fetchCourseBySlug(slug: string): Promise<Course> {
-  const response = await apiRequest(`/courses/${slug}/`)
-  if (!response.ok) {
-    throw new Error("Failed to fetch course")
+  try {
+    const response = await apiRequest(`/courses/${slug}/`)
+    if (!response.ok) {
+      throw new Error("Failed to fetch course")
+    }
+    return response.json()
+  } catch (error) {
+    console.error("[v0] Fetching course failed:", error)
+    const mockCourse = MOCK_COURSES.find((c) => c.slug === slug)
+    if (mockCourse) return mockCourse
+    throw error
   }
-  return response.json()
 }
 
 export async function fetchEvents(): Promise<Event[]> {
-  const response = await apiRequest("/events/")
-  if (!response.ok) {
-    throw new Error("Failed to fetch events")
+  try {
+    const response = await apiRequest("/events/")
+    if (!response.ok) {
+      throw new Error("Failed to fetch events")
+    }
+    return response.json()
+  } catch (error) {
+    console.error("[v0] Fetching events failed, using mock data:", error)
+    return MOCK_EVENTS
   }
-  return response.json()
 }
 
 export async function fetchEventBySlug(slug: string): Promise<Event> {
-  const response = await apiRequest(`/events/${slug}/`)
-  if (!response.ok) {
-    throw new Error("Failed to fetch event")
+  try {
+    const response = await apiRequest(`/events/${slug}/`)
+    if (!response.ok) {
+      throw new Error("Failed to fetch event")
+    }
+    return response.json()
+  } catch (error) {
+    console.error("[v0] Fetching event failed:", error)
+    const mockEvent = MOCK_EVENTS.find((e) => e.slug === slug)
+    if (mockEvent) return mockEvent
+    throw error
   }
-  return response.json()
 }
 
 export async function fetchUserEvents(): Promise<Event[]> {
