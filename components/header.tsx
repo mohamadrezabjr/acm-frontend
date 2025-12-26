@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Menu, X, User, LogOut, Settings } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
+import { useTheme } from "@/lib/theme-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { user, loading, logout, isAdmin, isCreator } = useAuth()
+  const { theme, mounted } = useTheme()
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id)
@@ -35,7 +37,15 @@ export function Header() {
           <Link href="/" className="flex items-center gap-2">
             <div className="w-50 h-10 rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-xl">
-                <Image src="/logo.png" alt="لوگو" width={120} height={100} className="inline-block mr-2" />
+                {mounted && (
+                  <Image
+                    src={theme === "dark" ? "/logo-dark.png" : "/logo.png"}
+                    alt="لوگو"
+                    width={120}
+                    height={100}
+                    className="inline-block mr-2"
+                  />
+                )}
               </span>
             </div>
             {/* <span className="font-semibold text-lg">انجمن ACM</span> */}
