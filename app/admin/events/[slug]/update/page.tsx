@@ -37,6 +37,12 @@ export default function EditEventPage() {
   const router = useRouter()
   const params = useParams()
   const slug = params?.slug as string
+  const [dependencies, setDependencies] = useState<string[]>([])
+  const dependencyOptions = [
+  { key: "student_id", label: "شماره دانشجویی" },
+  { key: "first_name", label: "نام" },
+  { key: "last_name", label: "نام خانوادگی" },
+]
 
   const [speakers, setSpeakers] = useState<Speaker[]>([])
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -63,6 +69,14 @@ export default function EditEventPage() {
     image: null as File | null,
     existingImageUrl: "" as string,
   })
+
+  const toggleDependency = (key: string) => {
+  setDependencies((prev) =>
+    prev.includes(key)
+      ? prev.filter((item) => item !== key)
+      : [...prev, key]
+  )
+}
 
   useEffect(() => {
     if (!loading && (!user || !isCreator())) {
@@ -135,6 +149,13 @@ export default function EditEventPage() {
         if (eventDataFromAPI.image) {
           setImagePreview(eventDataFromAPI.image)
         }
+        if (
+          eventDataFromAPI.dependencies &&
+          Array.isArray(eventDataFromAPI.dependencies)
+        ) {
+          setDependencies(eventDataFromAPI.dependencies)
+        }
+
       } catch (error) {
         console.error("Error fetching data:", error)
         alert("خطا در بارگذاری اطلاعات رویداد")
@@ -266,6 +287,7 @@ export default function EditEventPage() {
         location: eventData.location,
         price: eventData.price ? parseFloat(eventData.price) : 0,
         organizer: eventData.organizer,
+        dependencies,
         speakers: speakers.map((speaker) => ({
           id: speaker.type === "existing" ? speaker.person_id : null,
           first_name: speaker.type === "new" ? speaker.first_name : "",
@@ -574,6 +596,24 @@ export default function EditEventPage() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Dependencies Section */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold">نیازمندی‌های ثبت‌نام</h3>
+
+                {dependencyOptions.map((dep) => (
+                  <div key={dep.key} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={dep.key}
+                      checked={dependencies.includes(dep.key)}
+                      onChange={() => toggleDependency(dep.key)}
+                      className="h-4 w-4"
+                    />
+                    <Label htmlFor={dep.key}>{dep.label}</Label>
+                  </div>
+                ))}
               </div>
 
               {/* Speakers Section */}

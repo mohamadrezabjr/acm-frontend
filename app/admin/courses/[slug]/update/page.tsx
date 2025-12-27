@@ -45,6 +45,13 @@ export default function EditCoursePage() {
   const router = useRouter()
   const params = useParams()
   const slug = params?.slug as string
+  const [dependencies, setDependencies] = useState<string[]>([])
+  const dependencyOptions = [
+  { key: "student_id", label: "شماره دانشجویی" },
+  { key: "first_name", label: "نام" },
+  { key: "last_name", label: "نام خانوادگی" },
+]
+
 
   const [instructors, setInstructors] = useState<Instructor[]>([])
   const [timePlans, setTimePlans] = useState<TimePlan[]>([])
@@ -55,6 +62,14 @@ export default function EditCoursePage() {
   const [newTagName, setNewTagName] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  const toggleDependency = (key: string) => {
+  setDependencies((prev) =>
+    prev.includes(key)
+      ? prev.filter((item) => item !== key)
+      : [...prev, key]
+  )
+}
 
   const [courseData, setCourseData] = useState({
     title: "",
@@ -153,6 +168,13 @@ export default function EditCoursePage() {
         if (courseDataFromAPI.image) {
           setImagePreview(courseDataFromAPI.image)
         }
+        if (
+            courseDataFromAPI.dependencies &&
+            Array.isArray(courseDataFromAPI.dependencies)
+          ) {
+            setDependencies(courseDataFromAPI.dependencies)
+          }
+
       } catch (error) {
         console.error("Error fetching data:", error)
         alert("خطا در بارگذاری اطلاعات دوره")
@@ -304,6 +326,7 @@ export default function EditCoursePage() {
         location: courseData.location,
         price: courseData.price ? parseFloat(courseData.price) : 0,
         organizer: courseData.organizer,
+        dependencies,
         instructors: instructors.map((instructor) => ({
           id: instructor.type === "existing" ? instructor.person_id : null,
           first_name: instructor.type === "new" ? instructor.first_name : "",
@@ -700,6 +723,24 @@ export default function EditCoursePage() {
                     />
                   </div>
                 </div>
+              </div>
+              
+              {/* Dependencies Section */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold">نیازمندی‌های ثبت‌نام</h3>
+
+                {dependencyOptions.map((dep) => (
+                  <div key={dep.key} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={dep.key}
+                      checked={dependencies.includes(dep.key)}
+                      onChange={() => toggleDependency(dep.key)}
+                      className="h-4 w-4"
+                    />
+                    <Label htmlFor={dep.key}>{dep.label}</Label>
+                  </div>
+                ))}
               </div>
 
               {/* Instructors Section */}
