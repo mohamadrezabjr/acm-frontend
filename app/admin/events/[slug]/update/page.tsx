@@ -455,6 +455,7 @@ export default function EditEventPage() {
                     <Label>تاریخ و ساعت شروع *</Label>
                     <DatePicker
                       value={eventData.startDateTime}
+                    
                       onChange={(date) => setEventData({ ...eventData, startDateTime: date })}
                       calendar={persian}
                       locale={persian_fa}
@@ -466,11 +467,11 @@ export default function EditEventPage() {
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
+                      
                     />
                   </div>
 
@@ -489,8 +490,7 @@ export default function EditEventPage() {
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
@@ -512,8 +512,7 @@ export default function EditEventPage() {
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
@@ -535,8 +534,7 @@ export default function EditEventPage() {
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"

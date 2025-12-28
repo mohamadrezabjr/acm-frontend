@@ -388,8 +388,7 @@ export default function CreateEventPage() {
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
@@ -411,8 +410,7 @@ export default function CreateEventPage() {
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
@@ -434,8 +432,7 @@ export default function CreateEventPage() {
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
@@ -457,8 +454,7 @@ export default function CreateEventPage() {
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
