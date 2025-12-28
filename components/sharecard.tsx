@@ -19,15 +19,13 @@ const ShareCard = ({ link }) => {
   }
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>اشتراک‌گذاری</CardTitle>
       </CardHeader>
 
       <CardContent>
-        <p className="text-sm text-muted-foreground mb-3">
-          این دوره را با دوستان خود به اشتراک بگذارید
-        </p>
+        <p className="text-sm text-muted-foreground mb-3">این دوره را با دوستان خود به اشتراک بگذارید</p>
 
         <Button
           variant="outline"
@@ -38,11 +36,13 @@ const ShareCard = ({ link }) => {
             transition-all duration-300 ease-out
             hover:scale-[1.02]
             active:scale-[0.98]
+            min-h-[44px]
+            px-4
           "
         >
           <span
             className={`
-              transition-all duration-300
+              transition-all duration-300 whitespace-nowrap
               ${copied ? "text-green-600" : ""}
             `}
           >
@@ -51,7 +51,7 @@ const ShareCard = ({ link }) => {
 
           <span
             className={`
-              transition-all duration-300
+              transition-all duration-300 flex-shrink-0
               ${copied ? "opacity-100 scale-100" : "opacity-100 scale-100"}
             `}
           >
