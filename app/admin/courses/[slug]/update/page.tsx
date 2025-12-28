@@ -18,7 +18,7 @@ import persian from "react-date-object/calendars/persian"
 import persian_fa from "react-date-object/locales/persian_fa"
 import TimePicker from "react-multi-date-picker/plugins/time_picker"
 import "react-multi-date-picker/styles/colors/red.css"
-import { apiRequest, fetchPersons, fetchTags, fetchCourseBySlug, WeekdayFa, type Tag, type Person } from "@/lib/api-client"
+import { apiRequest, fetchPersons, fetchTags, fetchAdminCourseBySlug, WeekdayFa, type Tag, type Person } from "@/lib/api-client"
 import { DateObject } from "react-multi-date-picker"
 
 interface Instructor {
@@ -109,7 +109,7 @@ export default function EditCoursePage() {
         const personsData = await fetchPersons()
         setAvailablePersons(personsData)
 
-        const courseDataFromAPI = await fetchCourseBySlug(slug)
+        const courseDataFromAPI = await fetchAdminCourseBySlug(slug)
 
         setCourseData({
           title: courseDataFromAPI.title || "",
