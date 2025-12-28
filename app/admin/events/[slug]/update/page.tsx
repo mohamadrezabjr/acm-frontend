@@ -39,10 +39,10 @@ export default function EditEventPage() {
   const slug = params?.slug as string
   const [dependencies, setDependencies] = useState<string[]>([])
   const dependencyOptions = [
-  { key: "student_id", label: "شماره دانشجویی" },
-  { key: "first_name", label: "نام" },
-  { key: "last_name", label: "نام خانوادگی" },
-]
+    { key: "student_id", label: "شماره دانشجویی" },
+    { key: "first_name", label: "نام" },
+    { key: "last_name", label: "نام خانوادگی" },
+  ]
 
   const [speakers, setSpeakers] = useState<Speaker[]>([])
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -71,12 +71,8 @@ export default function EditEventPage() {
   })
 
   const toggleDependency = (key: string) => {
-  setDependencies((prev) =>
-    prev.includes(key)
-      ? prev.filter((item) => item !== key)
-      : [...prev, key]
-  )
-}
+    setDependencies((prev) => (prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]))
+  }
 
   useEffect(() => {
     if (!loading && (!user || !isCreator())) {
@@ -149,13 +145,9 @@ export default function EditEventPage() {
         if (eventDataFromAPI.image) {
           setImagePreview(eventDataFromAPI.image)
         }
-        if (
-          eventDataFromAPI.dependencies &&
-          Array.isArray(eventDataFromAPI.dependencies)
-        ) {
+        if (eventDataFromAPI.dependencies && Array.isArray(eventDataFromAPI.dependencies)) {
           setDependencies(eventDataFromAPI.dependencies)
         }
-
       } catch (error) {
         console.error("Error fetching data:", error)
         alert("خطا در بارگذاری اطلاعات رویداد")
@@ -268,9 +260,49 @@ export default function EditEventPage() {
     return dateValue.toDate().toISOString()
   }
 
+  const validateForm = () => {
+    const errors: string[] = []
+
+    if (!eventData.title.trim()) {
+      errors.push("عنوان رویداد الزامی است")
+    }
+    if (!eventData.startDateTime) {
+      errors.push("تاریخ شروع رویداد الزامی است")
+    }
+    if (!eventData.endDateTime) {
+      errors.push("تاریخ پایان رویداد الزامی است")
+    }
+    if (!eventData.registrationDeadlineDateTime) {
+      errors.push("مهلت ثبت‌نام الزامی است")
+    }
+    if (!eventData.location.trim()) {
+      errors.push("مکان رویداد الزامی است")
+    }
+    if (!eventData.capacity || Number.parseInt(eventData.capacity) <= 0) {
+      errors.push("ظرفیت باید بیشتر از صفر باشد")
+    }
+    if (!eventData.organizer.trim()) {
+      errors.push("برگزارکننده الزامی است")
+    }
+    if (!eventData.price) {
+      errors.push("هزینه الزامی است (برای رایگان عدد 0 وارد کنید)")
+    }
+
+    if (errors.length > 0) {
+      alert("لطفاً موارد زیر را تکمیل کنید:\n\n" + errors.join("\n"))
+      return false
+    }
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+
+    if (!validateForm()) {
+      setIsSubmitting(false)
+      return
+    }
 
     try {
       const payload = {
@@ -282,10 +314,10 @@ export default function EditEventPage() {
         end_date: formatDateTime(eventData.endDateTime),
         registration_start_at: formatDateTime(eventData.registrationStartDateTime),
         registration_deadline: formatDateTime(eventData.registrationDeadlineDateTime),
-        capacity: eventData.capacity ? parseInt(eventData.capacity) : null,
+        capacity: eventData.capacity ? Number.parseInt(eventData.capacity) : null,
         registered: 0,
         location: eventData.location,
-        price: eventData.price ? parseFloat(eventData.price) : 0,
+        price: eventData.price ? Number.parseFloat(eventData.price) : 0,
         organizer: eventData.organizer,
         dependencies,
         speakers: speakers.map((speaker) => ({
@@ -394,7 +426,11 @@ export default function EditEventPage() {
                     </Label>
                     {imagePreview && (
                       <div className="relative w-32 h-32 rounded-lg overflow-hidden border">
-                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                        <img
+                          src={imagePreview || "/placeholder.svg"}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     )}
                   </div>
@@ -404,7 +440,7 @@ export default function EditEventPage() {
                 <div className="space-y-2">
                   <Label>برچسب‌ها (اختیاری)</Label>
                   <div className="flex gap-2 mb-2">
-                    <Select onValueChange={(value) => addTag(parseInt(value))}>
+                    <Select onValueChange={(value) => addTag(Number.parseInt(value))}>
                       <SelectTrigger className="w-[200px]">
                         <SelectValue placeholder="انتخاب برچسب موجود" />
                       </SelectTrigger>
@@ -454,13 +490,13 @@ export default function EditEventPage() {
                   <div className="space-y-2">
                     <Label>تاریخ و ساعت شروع *</Label>
                     <DatePicker
+                      key="startDateTime"
                       value={eventData.startDateTime}
-                    
                       onChange={(date) => setEventData({ ...eventData, startDateTime: date })}
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
@@ -471,19 +507,19 @@ export default function EditEventPage() {
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
-                      
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label>تاریخ و ساعت پایان *</Label>
                     <DatePicker
+                      key="endDateTime"
                       value={eventData.endDateTime}
                       onChange={(date) => setEventData({ ...eventData, endDateTime: date })}
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
@@ -500,12 +536,13 @@ export default function EditEventPage() {
                   <div className="space-y-2">
                     <Label>تاریخ و ساعت شروع ثبت‌نام (اختیاری)</Label>
                     <DatePicker
+                      key="registrationStartDateTime"
                       value={eventData.registrationStartDateTime}
                       onChange={(date) => setEventData({ ...eventData, registrationStartDateTime: date })}
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
@@ -522,12 +559,13 @@ export default function EditEventPage() {
                   <div className="space-y-2">
                     <Label>مهلت ثبت‌نام *</Label>
                     <DatePicker
+                      key="registrationDeadlineDateTime"
                       value={eventData.registrationDeadlineDateTime}
                       onChange={(date) => setEventData({ ...eventData, registrationDeadlineDateTime: date })}
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
@@ -619,7 +657,7 @@ export default function EditEventPage() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">سخنرانان</h3>
                   <div className="flex gap-2">
-                    <Select onValueChange={(value) => addExistingSpeaker(parseInt(value))}>
+                    <Select onValueChange={(value) => addExistingSpeaker(Number.parseInt(value))}>
                       <SelectTrigger className="w-[200px]">
                         <SelectValue placeholder="انتخاب سخنران موجود" />
                       </SelectTrigger>

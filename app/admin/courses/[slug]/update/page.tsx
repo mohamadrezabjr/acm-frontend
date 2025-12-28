@@ -18,7 +18,15 @@ import persian from "react-date-object/calendars/persian"
 import persian_fa from "react-date-object/locales/persian_fa"
 import TimePicker from "react-multi-date-picker/plugins/time_picker"
 import "react-multi-date-picker/styles/colors/red.css"
-import { apiRequest, fetchPersons, fetchTags, fetchAdminCourseBySlug, WeekdayFa, type Tag, type Person } from "@/lib/api-client"
+import {
+  apiRequest,
+  fetchPersons,
+  fetchTags,
+  fetchAdminCourseBySlug,
+  WeekdayFa,
+  type Tag,
+  type Person,
+} from "@/lib/api-client"
 import { DateObject } from "react-multi-date-picker"
 
 interface Instructor {
@@ -34,7 +42,7 @@ interface Instructor {
 
 interface TimePlan {
   id: string
-  pk?: number | null 
+  pk?: number | null
   weekday: string
   time_start: string
   time_end: string
@@ -47,11 +55,10 @@ export default function EditCoursePage() {
   const slug = params?.slug as string
   const [dependencies, setDependencies] = useState<string[]>([])
   const dependencyOptions = [
-  { key: "student_id", label: "شماره دانشجویی" },
-  { key: "first_name", label: "نام" },
-  { key: "last_name", label: "نام خانوادگی" },
-]
-
+    { key: "student_id", label: "شماره دانشجویی" },
+    { key: "first_name", label: "نام" },
+    { key: "last_name", label: "نام خانوادگی" },
+  ]
 
   const [instructors, setInstructors] = useState<Instructor[]>([])
   const [timePlans, setTimePlans] = useState<TimePlan[]>([])
@@ -64,12 +71,8 @@ export default function EditCoursePage() {
   const [isLoading, setIsLoading] = useState(true)
 
   const toggleDependency = (key: string) => {
-  setDependencies((prev) =>
-    prev.includes(key)
-      ? prev.filter((item) => item !== key)
-      : [...prev, key]
-  )
-}
+    setDependencies((prev) => (prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]))
+  }
 
   const [courseData, setCourseData] = useState({
     title: "",
@@ -168,13 +171,9 @@ export default function EditCoursePage() {
         if (courseDataFromAPI.image) {
           setImagePreview(courseDataFromAPI.image)
         }
-        if (
-            courseDataFromAPI.dependencies &&
-            Array.isArray(courseDataFromAPI.dependencies)
-          ) {
-            setDependencies(courseDataFromAPI.dependencies)
-          }
-
+        if (courseDataFromAPI.dependencies && Array.isArray(courseDataFromAPI.dependencies)) {
+          setDependencies(courseDataFromAPI.dependencies)
+        }
       } catch (error) {
         console.error("Error fetching data:", error)
         alert("خطا در بارگذاری اطلاعات دوره")
@@ -240,7 +239,9 @@ export default function EditCoursePage() {
   }
 
   const updateInstructor = (id: string, field: keyof Instructor, value: string) => {
-    setInstructors(instructors.map((instructor) => (instructor.id === id ? { ...instructor, [field]: value } : instructor)))
+    setInstructors(
+      instructors.map((instructor) => (instructor.id === id ? { ...instructor, [field]: value } : instructor)),
+    )
   }
 
   const addTimePlan = () => {
@@ -307,9 +308,49 @@ export default function EditCoursePage() {
     return dateValue.toDate().toISOString()
   }
 
+  const validateForm = () => {
+    const errors: string[] = []
+
+    if (!courseData.title.trim()) {
+      errors.push("عنوان دوره الزامی است")
+    }
+    if (!courseData.startDateTime) {
+      errors.push("تاریخ شروع دوره الزامی است")
+    }
+    if (!courseData.endDateTime) {
+      errors.push("تاریخ پایان دوره الزامی است")
+    }
+    if (!courseData.registrationDeadlineDateTime) {
+      errors.push("مهلت ثبت‌نام الزامی است")
+    }
+    if (!courseData.location.trim()) {
+      errors.push("مکان برگزاری الزامی است")
+    }
+    if (!courseData.capacity || Number.parseInt(courseData.capacity) <= 0) {
+      errors.push("ظرفیت باید بیشتر از صفر باشد")
+    }
+    if (!courseData.organizer.trim()) {
+      errors.push("برگزارکننده الزامی است")
+    }
+    if (!courseData.price) {
+      errors.push("هزینه الزامی است (برای رایگان عدد 0 وارد کنید)")
+    }
+
+    if (errors.length > 0) {
+      alert("لطفاً موارد زیر را تکمیل کنید:\n\n" + errors.join("\n"))
+      return false
+    }
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+
+    if (!validateForm()) {
+      setIsSubmitting(false)
+      return
+    }
 
     try {
       const payload = {
@@ -321,10 +362,10 @@ export default function EditCoursePage() {
         end_date: formatDateTime(courseData.endDateTime),
         registration_start_at: formatDateTime(courseData.registrationStartDateTime),
         registration_deadline: formatDateTime(courseData.registrationDeadlineDateTime),
-        capacity: courseData.capacity ? parseInt(courseData.capacity) : null,
+        capacity: courseData.capacity ? Number.parseInt(courseData.capacity) : null,
         registered: 0,
         location: courseData.location,
-        price: courseData.price ? parseFloat(courseData.price) : 0,
+        price: courseData.price ? Number.parseFloat(courseData.price) : 0,
         organizer: courseData.organizer,
         dependencies,
         instructors: instructors.map((instructor) => ({
@@ -335,7 +376,7 @@ export default function EditCoursePage() {
           position: instructor.position,
         })),
         time_plans: timePlans.map((plan) => ({
-          pk:plan.pk || null,
+          pk: plan.pk || null,
           weekday: plan.weekday,
           time_start: plan.time_start,
           time_end: plan.time_end,
@@ -440,14 +481,13 @@ export default function EditCoursePage() {
                     {imagePreview && (
                       <>
                         <div className="relative w-32 h-32 rounded-lg overflow-hidden border">
-                          <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                          <img
+                            src={imagePreview || "/placeholder.svg"}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={handleRemoveImage}
-                        >
+                        <Button type="button" variant="destructive" size="sm" onClick={handleRemoveImage}>
                           <X className="h-4 w-4 ml-1" />
                           حذف تصویر
                         </Button>
@@ -460,7 +500,7 @@ export default function EditCoursePage() {
                 <div className="space-y-2">
                   <Label>برچسب‌ها (اختیاری)</Label>
                   <div className="flex gap-2 mb-2">
-                    <Select onValueChange={(value) => addTag(parseInt(value))}>
+                    <Select onValueChange={(value) => addTag(Number.parseInt(value))}>
                       <SelectTrigger className="w-[200px]">
                         <SelectValue placeholder="انتخاب برچسب موجود" />
                       </SelectTrigger>
@@ -515,7 +555,7 @@ export default function EditCoursePage() {
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
@@ -537,7 +577,7 @@ export default function EditCoursePage() {
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
@@ -559,7 +599,7 @@ export default function EditCoursePage() {
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
@@ -581,7 +621,7 @@ export default function EditCoursePage() {
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
@@ -662,9 +702,7 @@ export default function EditCoursePage() {
                 ))}
 
                 {timePlans.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    هیچ برنامه زمانی اضافه نشده است
-                  </div>
+                  <div className="text-center py-8 text-muted-foreground">هیچ برنامه زمانی اضافه نشده است</div>
                 )}
               </div>
 
@@ -720,7 +758,7 @@ export default function EditCoursePage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Dependencies Section */}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">نیازمندی‌های ثبت‌نام</h3>
@@ -744,7 +782,7 @@ export default function EditCoursePage() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">اساتید</h3>
                   <div className="flex gap-2">
-                    <Select onValueChange={(value) => addExistingInstructor(parseInt(value))}>
+                    <Select onValueChange={(value) => addExistingInstructor(Number.parseInt(value))}>
                       <SelectTrigger className="w-[200px]">
                         <SelectValue placeholder="انتخاب استاد موجود" />
                       </SelectTrigger>
@@ -774,7 +812,12 @@ export default function EditCoursePage() {
                               <span className="text-sm text-muted-foreground">(از لیست موجود)</span>
                             )}
                           </h4>
-                          <Button type="button" variant="ghost" size="sm" onClick={() => removeInstructor(instructor.id)}>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeInstructor(instructor.id)}
+                          >
                             <X className="h-4 w-4" />
                           </Button>
                         </div>
