@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Clock, Users, ArrowLeft, Filter, ArrowUpDown, User, Loader2 } from "lucide-react"
+import { Calendar, MapPin, Clock, ArrowLeft, Filter, ArrowUpDown, User, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useState, useMemo, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -217,8 +217,7 @@ export default function CoursesPage() {
                 const regStatus = getRegistrationStatus(course)
 
                 return (
-                  <Card key={course.slug} 
-                  className="overflow-hidden group hover:shadow-xl transition-shadow">
+                  <Card key={course.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
                     <div className="relative aspect-[1/1.414] overflow-hidden bg-muted">
                       <img
                         src={course.image || "/placeholder.svg"}
@@ -240,27 +239,25 @@ export default function CoursesPage() {
 
                       <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
-
-                        {/* Tags inside image */}
-                        <div className="absolute bottom-4 right-4 flex gap-2 flex-wrap z-10">
-                          {course.tags.slice(0, 2).map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant="secondary"
-                          className="
+                      {/* Tags inside image */}
+                      <div className="absolute bottom-4 right-4 flex gap-2 flex-wrap z-10">
+                        {course.tags.slice(0, 2).map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="
                             backdrop-blur-sm
                             bg-secondary/80
                             text-secondary-foreground
                             border border-secondary/30
                           "
                           >
-                          {tag}
-                        </Badge>
-                          ))}
-                        </div>
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                     <CardHeader>
-
                       <CardTitle className="text-xl">{course.title}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -269,7 +266,7 @@ export default function CoursesPage() {
                         <span>تاریخ شروع : {new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
                       </div>
 
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
                         <span>تاریخ پایان : {new Date(course.end_date).toLocaleDateString("fa-IR")}</span>
                       </div>

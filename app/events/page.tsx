@@ -299,15 +299,6 @@ export default function EventsPage() {
                           مشاهده جزئیات
                         </Button>
                       </Link>
-
-                      {/* Share Button */}
-                      <Button
-                        variant="outline"
-                        className="w-full mt-4 bg-transparent"
-                        onClick={() => console.log("Share event")}
-                      >
-                        به اشتراک بگذارید
-                      </Button>
                     </CardContent>
                   </Card>
                 )
