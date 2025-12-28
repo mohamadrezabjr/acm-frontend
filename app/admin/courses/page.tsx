@@ -24,30 +24,17 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Edit, Trash2, Power, Loader2, Plus } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
-import { apiRequest, fetchCourses } from "@/lib/api-client"
+import { apiRequest, fetchAdminCourses, type adminCourse } from "@/lib/api-client"
 
-interface Course {
-  id: number
-  title: string
-  slug: string
-  start_date: string
-  end_date: string
-  location: string
-  capacity: number
-  registered: number
-  price: number
-  is_active: boolean
-  organizer: string
-}
 
 export default function AdminCoursesPage() {
   const { user, loading, isCreator } = useAuth()
   const router = useRouter()
-  const [courses, setCourses] = useState<Course[]>([])
+  const [courses, setCourses] = useState<adminCourse[]>([])
   const [loadingCourses, setLoadingCourses] = useState(true)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false)
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
+  const [selectedCourse, setSelectedCourse] = useState<adminCourse | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
 
   useEffect(() => {
@@ -59,7 +46,7 @@ export default function AdminCoursesPage() {
   useEffect(() => {
     const loadCourses = async () => {
       try {
-        const data = await fetchCourses()
+        const data = await fetchAdminCourses()
         setCourses(data)
       } catch (error) {
         console.error("Error fetching courses:", error)
@@ -127,12 +114,12 @@ export default function AdminCoursesPage() {
     }
   }
 
-  const openDeleteDialog = (course: Course) => {
+  const openDeleteDialog = (course: adminCourse) => {
     setSelectedCourse(course)
     setDeleteDialogOpen(true)
   }
 
-  const openDeactivateDialog = (course: Course) => {
+  const openDeactivateDialog = (course: adminCourse) => {
     setSelectedCourse(course)
     setDeactivateDialogOpen(true)
   }

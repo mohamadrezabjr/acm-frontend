@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, X, Upload, ArrowRight, Clock } from "lucide-react"
+import { Plus, X, Upload, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Loader2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
@@ -55,12 +55,9 @@ export default function CreateCoursePage() {
     { key: "first_name", label: "نام" },
     { key: "last_name", label: "نام خانوادگی" },
   ]
-    const toggleDependency = (key: string) => {
-    setDependencies((prev) =>
-      prev.includes(key)
-        ? prev.filter((item) => item !== key)
-        : [...prev, key]
-    )
+
+  const toggleDependency = (key: string) => {
+    setDependencies((prev) => (prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]))
   }
 
   // Course form data
@@ -160,7 +157,9 @@ export default function CreateCoursePage() {
   }
 
   const updateInstructor = (id: string, field: keyof Instructor, value: string) => {
-    setInstructors(instructors.map((instructor) => (instructor.id === id ? { ...instructor, [field]: value } : instructor)))
+    setInstructors(
+      instructors.map((instructor) => (instructor.id === id ? { ...instructor, [field]: value } : instructor)),
+    )
   }
 
   // Time Plan Management
@@ -224,9 +223,50 @@ export default function CreateCoursePage() {
     return dateValue.toDate().toISOString()
   }
 
+  // Validation function before submit
+  const validateForm = () => {
+    const errors: string[] = []
+
+    if (!courseData.title.trim()) {
+      errors.push("عنوان دوره الزامی است")
+    }
+    if (!courseData.startDateTime) {
+      errors.push("تاریخ شروع دوره الزامی است")
+    }
+    if (!courseData.endDateTime) {
+      errors.push("تاریخ پایان دوره الزامی است")
+    }
+    if (!courseData.registrationDeadlineDateTime) {
+      errors.push("مهلت ثبت‌نام الزامی است")
+    }
+    if (!courseData.location.trim()) {
+      errors.push("مکان برگزاری الزامی است")
+    }
+    if (!courseData.capacity || Number.parseInt(courseData.capacity) <= 0) {
+      errors.push("ظرفیت باید بیشتر از صفر باشد")
+    }
+    if (!courseData.organizer.trim()) {
+      errors.push("برگزارکننده الزامی است")
+    }
+    if (!courseData.price) {
+      errors.push("هزینه الزامی است (برای رایگان عدد 0 وارد کنید)")
+    }
+
+    if (errors.length > 0) {
+      alert("لطفاً موارد زیر را تکمیل کنید:\n\n" + errors.join("\n"))
+      return false
+    }
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+
+    if (!validateForm()) {
+      setIsSubmitting(false)
+      return
+    }
 
     try {
       const payload = {
@@ -238,10 +278,10 @@ export default function CreateCoursePage() {
         end_date: formatDateTime(courseData.endDateTime),
         registration_start_at: formatDateTime(courseData.registrationStartDateTime),
         registration_deadline: formatDateTime(courseData.registrationDeadlineDateTime),
-        capacity: courseData.capacity ? parseInt(courseData.capacity) : null,
+        capacity: courseData.capacity ? Number.parseInt(courseData.capacity) : null,
         registered: 0,
         location: courseData.location,
-        price: courseData.price ? parseFloat(courseData.price) : 0,
+        price: courseData.price ? Number.parseFloat(courseData.price) : 0,
         dependencies,
         organizer: courseData.organizer,
         instructors: instructors.map((instructor) => ({
@@ -264,7 +304,7 @@ export default function CreateCoursePage() {
         formData.append("image", courseData.image)
       }
 
-      const response = await apiRequest("/courses/create/", {
+      const response = await apiRequest("/admin/courses/create/", {
         method: "POST",
         body: formData,
       })
@@ -355,7 +395,11 @@ export default function CreateCoursePage() {
                     </Label>
                     {imagePreview && (
                       <div className="relative w-32 h-32 rounded-lg overflow-hidden border">
-                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                        <img
+                          src={imagePreview || "/placeholder.svg"}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     )}
                   </div>
@@ -365,7 +409,7 @@ export default function CreateCoursePage() {
                 <div className="space-y-2">
                   <Label>برچسب‌ها (اختیاری)</Label>
                   <div className="flex gap-2 mb-2">
-                    <Select onValueChange={(value) => addTag(parseInt(value))}>
+                    <Select onValueChange={(value) => addTag(Number.parseInt(value))}>
                       <SelectTrigger className="w-[200px]">
                         <SelectValue placeholder="انتخاب برچسب موجود" />
                       </SelectTrigger>
@@ -415,20 +459,20 @@ export default function CreateCoursePage() {
                   <div className="space-y-2">
                     <Label>تاریخ و ساعت شروع *</Label>
                     <DatePicker
+                      key="startDateTime"
                       value={courseData.startDateTime}
                       onChange={(date) => setCourseData({ ...courseData, startDateTime: date })}
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
@@ -438,20 +482,20 @@ export default function CreateCoursePage() {
                   <div className="space-y-2">
                     <Label>تاریخ و ساعت پایان *</Label>
                     <DatePicker
+                      key="endDateTime"
                       value={courseData.endDateTime}
                       onChange={(date) => setCourseData({ ...courseData, endDateTime: date })}
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
@@ -461,20 +505,20 @@ export default function CreateCoursePage() {
                   <div className="space-y-2">
                     <Label>تاریخ و ساعت شروع ثبت‌نام (اختیاری)</Label>
                     <DatePicker
+                      key="registrationStartDateTime"
                       value={courseData.registrationStartDateTime}
                       onChange={(date) => setCourseData({ ...courseData, registrationStartDateTime: date })}
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
@@ -484,20 +528,20 @@ export default function CreateCoursePage() {
                   <div className="space-y-2">
                     <Label>مهلت ثبت‌نام *</Label>
                     <DatePicker
+                      key="registrationDeadlineDateTime"
                       value={courseData.registrationDeadlineDateTime}
                       onChange={(date) => setCourseData({ ...courseData, registrationDeadlineDateTime: date })}
                       calendar={persian}
                       locale={persian_fa}
                       format="YYYY/MM/DD HH:mm"
-                      plugins={[<TimePicker position="bottom" />]}
+                      plugins={[<TimePicker key="time-picker" position="bottom" />]}
                       className="red"
                       containerStyle={{ width: "100%" }}
                       style={{
                         width: "100%",
                         height: "40px",
                         padding: "0 12px",
-                        borderRadius: "6px",
-                        border: "1px solid hsl(var(--input))",
+                        borderRadius: "15px",
                         backgroundColor: "hsl(var(--background))",
                       }}
                       calendarPosition="bottom-center"
@@ -571,9 +615,7 @@ export default function CreateCoursePage() {
                 ))}
 
                 {timePlans.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    هیچ برنامه زمانی اضافه نشده است
-                  </div>
+                  <div className="text-center py-8 text-muted-foreground">هیچ برنامه زمانی اضافه نشده است</div>
                 )}
               </div>
 
@@ -652,7 +694,7 @@ export default function CreateCoursePage() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">اساتید</h3>
                   <div className="flex gap-2">
-                    <Select onValueChange={(value) => addExistingInstructor(parseInt(value))}>
+                    <Select onValueChange={(value) => addExistingInstructor(Number.parseInt(value))}>
                       <SelectTrigger className="w-[200px]">
                         <SelectValue placeholder="انتخاب استاد موجود" />
                       </SelectTrigger>
@@ -682,7 +724,12 @@ export default function CreateCoursePage() {
                               <span className="text-sm text-muted-foreground">(از لیست موجود)</span>
                             )}
                           </h4>
-                          <Button type="button" variant="ghost" size="sm" onClick={() => removeInstructor(instructor.id)}>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeInstructor(instructor.id)}
+                          >
                             <X className="h-4 w-4" />
                           </Button>
                         </div>

@@ -24,31 +24,17 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Edit, Trash2, Power, Loader2, Plus } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
-import { Header } from "@/components/header"
-import { apiRequest, fetchEvents } from "@/lib/api-client"
+import { apiRequest, fetchAdminEvents, type adminEvent } from "@/lib/api-client"
 
-interface Event {
-  id: number
-  title: string
-  slug: string
-  start_date: string
-  end_date: string
-  location: string
-  capacity: number
-  registered: number
-  price: number
-  is_active: boolean
-  organizer: string
-}
 
 export default function AdminEventsPage() {
   const { user, loading, isCreator } = useAuth()
   const router = useRouter()
-  const [events, setEvents] = useState<Event[]>([])
+  const [events, setEvents] = useState<adminEvent[]>([])
   const [loadingEvents, setLoadingEvents] = useState(true)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false)
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<adminEvent | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
 
   useEffect(() => {
@@ -60,7 +46,7 @@ export default function AdminEventsPage() {
   useEffect(() => {
     const loadEvents = async () => {
       try {
-        const data = await fetchEvents()
+        const data = await fetchAdminEvents()
         setEvents(data)
       } catch (error) {
         console.error("Error fetching events:", error)
@@ -128,12 +114,12 @@ export default function AdminEventsPage() {
     }
   }
 
-  const openDeleteDialog = (event: Event) => {
+  const openDeleteDialog = (event: adminEvent) => {
     setSelectedEvent(event)
     setDeleteDialogOpen(true)
   }
 
-  const openDeactivateDialog = (event: Event) => {
+  const openDeactivateDialog = (event: adminEvent) => {
     setSelectedEvent(event)
     setDeactivateDialogOpen(true)
   }

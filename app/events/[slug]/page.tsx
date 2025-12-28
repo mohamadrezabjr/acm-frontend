@@ -1,47 +1,49 @@
 "use client"
 
+import type React from "react"
+
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, MapPin, Clock, Users, ArrowLeft, User, Loader2 } from "lucide-react"
+import { Calendar, MapPin, Clock, ArrowLeft, User, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { fetchEventBySlug, type Event, eventRegitserBySlug, apiRequest } from "@/lib/api-client"
 import { useAuth } from "@/lib/auth-context"
+import ShareCard from "@/components/sharecard"
 
 export default function EventDetailPage() {
   const { slug } = useParams<{ slug: string }>()
   const { user } = useAuth()
-  
+
   const router = useRouter()
-  const [popupMessage, setPopupMessage] = useState<string | null>(null);
-  const [popupType, setPopupType] = useState<"success" | "error" | "info">("info");
+  const [popupMessage, setPopupMessage] = useState<string | null>(null)
+  const [popupType, setPopupType] = useState<"success" | "error" | "info">("info")
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  const [showRegistrationForm, setShowRegistrationForm] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     first_name: "",
     last_name: "",
-    student_id: ""
-  });
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+    student_id: "",
+  })
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     loadEvent()
   }, [slug])
-  
+
   useEffect(() => {
     if (popupMessage) {
-      const timer = setTimeout(() => setPopupMessage(null), 5000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => setPopupMessage(null), 5000)
+      return () => clearTimeout(timer)
     }
-  }, [popupMessage]);
+  }, [popupMessage])
 
   const loadEvent = async () => {
     try {
@@ -65,7 +67,7 @@ export default function EventDetailPage() {
 
     const now = new Date()
     const deadline = new Date(event.registration_deadline)
-    const isFull = event.registered >= event.capacity
+    const isFull = event.is_full
     const isExpired = now > deadline
 
     if (isFull) return { canRegister: false, message: "ظرفیت تکمیل است" }
@@ -74,141 +76,139 @@ export default function EventDetailPage() {
   }
 
   const getMissingFields = () => {
-    if (!event || !user) return [];
-    
-    const missing: string[] = [];
-    
-    event.dependencies.forEach(field => {
+    if (!event || !user) return []
+
+    const missing: string[] = []
+
+    event.dependencies.forEach((field) => {
       if (field === "email" && !user.email) {
-        missing.push("email");
+        missing.push("email")
       } else if (field === "first_name" && !user.firstName) {
-        missing.push("first_name");
+        missing.push("first_name")
       } else if (field === "last_name" && !user.lastName) {
-        missing.push("last_name");
+        missing.push("last_name")
       } else if (field === "student_id" && !user.studentId) {
-        missing.push("student_id");
+        missing.push("student_id")
       }
-    });
-    
-    return missing;
-  };
+    })
+
+    return missing
+  }
 
   const getFieldLabel = (field: string) => {
     const labels: Record<string, string> = {
       email: "ایمیل",
       first_name: "نام",
       last_name: "نام خانوادگی",
-      student_id: "شماره دانشجویی"
-    };
-    return labels[field] || field;
-  };
+      student_id: "شماره دانشجویی",
+    }
+    return labels[field] || field
+  }
 
   const validateForm = () => {
-    const errors: Record<string, string> = {};
-    const missingFields = getMissingFields();
+    const errors: Record<string, string> = {}
+    const missingFields = getMissingFields()
 
-    missingFields.forEach(field => {
-      const value = formData[field as keyof typeof formData];
-      
+    missingFields.forEach((field) => {
+      const value = formData[field as keyof typeof formData]
+
       if (!value || value.trim() === "") {
-        errors[field] = `${getFieldLabel(field)} الزامی است`;
-        return;
+        errors[field] = `${getFieldLabel(field)} الزامی است`
+        return
       }
 
       if (field === "email") {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!emailRegex.test(value)) {
-          errors[field] = "فرمت ایمیل صحیح نیست";
+          errors[field] = "فرمت ایمیل صحیح نیست"
         }
       }
 
       if (field === "student_id") {
         if (!/^\d{10}$/.test(value)) {
-          errors[field] = "شماره دانشجویی باید 10 رقم باشد";
+          errors[field] = "شماره دانشجویی باید 10 رقم باشد"
         }
       }
-    });
+    })
 
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
 
   const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+    e.preventDefault()
+
     if (!validateForm()) {
-      return;
+      return
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
 
     try {
-      const updateData: Record<string, string> = {};
-      const updateForm = new FormData();
-      const missingFields = getMissingFields();
-      
-      missingFields.forEach(field => {
-        updateData[field] = formData[field as keyof typeof formData];
-      });
-      
-      updateForm.append('data', JSON.stringify(updateData))
+      const updateData: Record<string, string> = {}
+      const updateForm = new FormData()
+      const missingFields = getMissingFields()
+
+      missingFields.forEach((field) => {
+        updateData[field] = formData[field as keyof typeof formData]
+      })
+
+      updateForm.append("data", JSON.stringify(updateData))
 
       const response = await apiRequest("/profile/update/", {
         method: "PUT",
         body: updateForm,
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("خطا در به‌روزرسانی اطلاعات");
+        throw new Error("خطا در به‌روزرسانی اطلاعات")
       }
 
       // بستن فرم
-      setShowRegistrationForm(false);
-      
+      setShowRegistrationForm(false)
+
       // ثبت‌نام در رویداد
-      const result = await eventRegitserBySlug(event!.slug);
-      setPopupType(result.type);
-      setPopupMessage(result.detail);
-      
+      const result = await eventRegitserBySlug(event!.slug)
+      setPopupType(result.type)
+      setPopupMessage(result.detail)
+
       // بارگذاری مجدد اطلاعات کاربر
       setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-      
+        window.location.reload()
+      }, 2000)
     } catch (error) {
-      console.error("Error updating profile:", error);
-      setPopupType("error");
-      setPopupMessage("خطا در به‌روزرسانی اطلاعات. لطفاً دوباره تلاش کنید");
+      console.error("Error updating profile:", error)
+      setPopupType("error")
+      setPopupMessage("خطا در به‌روزرسانی اطلاعات. لطفاً دوباره تلاش کنید")
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const handleRegister = async () => {
     // بررسی لاگین
     if (!user) {
-      setPopupType("info");
-      setPopupMessage("لطفاً ابتدا وارد حساب کاربری خود شوید یا ثبت‌نام کنید");
+      setPopupType("info")
+      setPopupMessage("لطفاً ابتدا وارد حساب کاربری خود شوید یا ثبت‌نام کنید")
       setTimeout(() => {
-        router.push("/auth/login");
-      }, 2000);
-      return;
+        router.push("/auth/login")
+      }, 2000)
+      return
     }
 
     // بررسی فیلدهای ناقص
-    const missingFields = getMissingFields();
-    
+    const missingFields = getMissingFields()
+
     if (missingFields.length === 0) {
       // همه اطلاعات کامل است، مستقیم ثبت‌نام کن
-      const result = await eventRegitserBySlug(event!.slug);
-      setPopupType(result.type);
-      setPopupMessage(result.detail);
+      const result = await eventRegitserBySlug(event!.slug)
+      setPopupType(result.type)
+      setPopupMessage(result.detail)
     } else {
       // فرم تکمیل اطلاعات را نمایش بده
-      setShowRegistrationForm(true);
+      setShowRegistrationForm(true)
     }
-  };
-  
+  }
 
   if (loading) {
     return (
@@ -235,8 +235,6 @@ export default function EventDetailPage() {
     )
   }
 
-  const availableSeats = event.capacity - event.registered
-  const isAlmostFull = availableSeats < event.capacity * 0.2
   const registrationStatus = getRegistrationStatus()
 
   return (
@@ -268,9 +266,9 @@ export default function EventDetailPage() {
         </div>
 
         <div className="container mx-auto max-w-4xl px-4 py-12">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {/* Main Content */}
-            <div className="md:col-span-2 space-y-8">
+            <div className="md:col-span-2 space-y-6 md:space-y-8 order-2 md:order-1">
               {/* Description */}
               {event.description && event.description.length > 0 && (
                 <Card>
@@ -313,9 +311,9 @@ export default function EventDetailPage() {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6 order-1 md:order-2">
               {/* Registration Card */}
-              <Card className="sticky top-24">
+              <Card className="md:sticky md:top-24">
                 <CardHeader>
                   <CardTitle>ثبت‌نام</CardTitle>
                 </CardHeader>
@@ -358,7 +356,7 @@ export default function EventDetailPage() {
                         <div className="font-medium">{event.location}</div>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
+                    {/* <div className="flex items-start gap-3">
                       <Users className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-muted-foreground">ظرفیت</div>
@@ -370,13 +368,13 @@ export default function EventDetailPage() {
                             ظرفیت محدود!
                           </Badge>
                         )}
-                        {!registrationStatus.canRegister && event.registered >= event.capacity && (
+                        {!registrationStatus.canRegister && event.is_full && (
                           <Badge variant="destructive" className="mt-1">
                             ظرفیت تکمیل است
                           </Badge>
                         )}
                       </div>
-                    </div>
+                    </div> */}
                     <div className="flex items-start gap-3">
                       <User className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
@@ -406,17 +404,9 @@ export default function EventDetailPage() {
               </Card>
 
               {/* Share Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>اشتراک‌گذاری</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">این رویداد را با دوستان خود به اشتراک بگذارید</p>
-                  <Button variant="outline" className="w-full bg-transparent">
-                    کپی لینک
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="w-full">
+                <ShareCard />
+              </div>
             </div>
           </div>
         </div>
@@ -425,19 +415,23 @@ export default function EventDetailPage() {
       {/* Popup */}
       {popupMessage && (
         <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
-          <div className={`
+          <div
+            className={`
             flex items-start gap-4 p-4 rounded-2xl shadow-2xl backdrop-blur-sm
             border-2 max-w-md w-full mx-4
             ${popupType === "success" ? "bg-green-50/95 border-green-200" : ""}
             ${popupType === "error" ? "bg-red-50/95 border-red-200" : ""}
             ${popupType === "info" ? "bg-blue-50/95 border-blue-200" : ""}
-          `}>
-            <div className={`
+          `}
+          >
+            <div
+              className={`
               flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
               ${popupType === "success" ? "bg-green-100" : ""}
               ${popupType === "error" ? "bg-red-100" : ""}
               ${popupType === "info" ? "bg-blue-100" : ""}
-            `}>
+            `}
+            >
               {popupType === "success" && (
                 <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -450,17 +444,24 @@ export default function EventDetailPage() {
               )}
               {popupType === "info" && (
                 <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               )}
             </div>
             <div className="flex-1 pt-1">
-              <p className={`
+              <p
+                className={`
                 font-medium leading-relaxed
                 ${popupType === "success" ? "text-green-900" : ""}
                 ${popupType === "error" ? "text-red-900" : ""}
                 ${popupType === "info" ? "text-blue-900" : ""}
-              `}>
+              `}
+              >
                 {popupMessage}
               </p>
             </div>
@@ -487,13 +488,11 @@ export default function EventDetailPage() {
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>تکمیل اطلاعات</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                لطفاً اطلاعات زیر را برای تکمیل ثبت‌نام وارد کنید
-              </p>
+              <p className="text-sm text-muted-foreground">لطفاً اطلاعات زیر را برای تکمیل ثبت‌نام وارد کنید</p>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleFormSubmit} className="space-y-4">
-                {getMissingFields().map(field => (
+                {getMissingFields().map((field) => (
                   <div key={field}>
                     <label className="block text-sm font-medium mb-2">
                       {getFieldLabel(field)} <span className="text-red-500">*</span>
@@ -502,13 +501,13 @@ export default function EventDetailPage() {
                       type={field === "email" ? "email" : "text"}
                       value={formData[field as keyof typeof formData]}
                       onChange={(e) => {
-                        setFormData(prev => ({ ...prev, [field]: e.target.value }));
+                        setFormData((prev) => ({ ...prev, [field]: e.target.value }))
                         if (formErrors[field]) {
-                          setFormErrors(prev => {
-                            const newErrors = { ...prev };
-                            delete newErrors[field];
-                            return newErrors;
-                          });
+                          setFormErrors((prev) => {
+                            const newErrors = { ...prev }
+                            delete newErrors[field]
+                            return newErrors
+                          })
                         }
                       }}
                       className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
@@ -517,9 +516,7 @@ export default function EventDetailPage() {
                       placeholder={`${getFieldLabel(field)} را وارد کنید`}
                       disabled={isSubmitting}
                     />
-                    {formErrors[field] && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors[field]}</p>
-                    )}
+                    {formErrors[field] && <p className="text-red-500 text-sm mt-1">{formErrors[field]}</p>}
                   </div>
                 ))}
 
@@ -527,21 +524,17 @@ export default function EventDetailPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 bg-transparent"
                     onClick={() => {
-                      setShowRegistrationForm(false);
-                      setFormErrors({});
-                      setFormData({ email: "", first_name: "", last_name: "", student_id: "" });
+                      setShowRegistrationForm(false)
+                      setFormErrors({})
+                      setFormData({ email: "", first_name: "", last_name: "", student_id: "" })
                     }}
                     disabled={isSubmitting}
                   >
                     انصراف
                   </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1"
-                    disabled={isSubmitting}
-                  >
+                  <Button type="submit" className="flex-1" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
                         <Loader2 className="ml-2 w-4 h-4 animate-spin" />

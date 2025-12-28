@@ -32,6 +32,26 @@ export enum WeekdayFa {
 }
 
 export interface Event {
+  id: number
+  slug: string
+  title: string
+  description: string
+  tags: string[]
+  start_date: string
+  end_date: string
+  registration_start_at: string
+  registration_deadline: string
+  location: string
+  price: number
+  organizer: string
+  image: string
+  speakers: Person[]
+  dependencies: string[]
+  is_full: boolean
+}
+
+export interface adminEvent {
+  id: number
   slug: string
   title: string
   description: string
@@ -48,9 +68,31 @@ export interface Event {
   image: string
   speakers: Person[]
   dependencies: string[]
+  is_full: boolean
+  is_active: boolean
+}
+export interface Course {
+  id: number
+  slug: string
+  title: string
+  description: string
+  tags: string[]
+  start_date: string
+  end_date: string
+  registration_start_at: string
+  registration_deadline: string
+  location: string
+  price: number
+  organizer: string
+  image: string
+  instructors: Person[]
+  time_plans: TimePlan[]
+  dependencies: string[]
+  is_full: boolean
 }
 
-export interface Course {
+export interface adminCourse {
+  id: number
   slug: string
   title: string
   description: string
@@ -68,6 +110,8 @@ export interface Course {
   instructors: Person[]
   time_plans: TimePlan[]
   dependencies: string[]
+  is_full: boolean
+  is_active: boolean
 }
 
 function getCookie(name: string): string | null {
@@ -157,8 +201,23 @@ export async function fetchCourses(): Promise<Course[]> {
   return response.json()
 }
 
+export async function fetchAdminCourses(): Promise<adminCourse[]> {
+  const response = await apiRequest("/admin/courses/")
+  if (!response.ok) {
+    throw new Error("Failed to fetch courses")
+  }
+  return response.json()
+}
 export async function fetchCourseBySlug(slug: string): Promise<Course> {
   const response = await apiRequest(`/courses/${slug}/`)
+  if (!response.ok) {
+    throw new Error("Failed to fetch course")
+  }
+  return response.json()
+}
+
+export async function fetchAdminCourseBySlug(slug: string): Promise<adminCourse> {
+  const response = await apiRequest(`/admin/courses/${slug}/`)
   if (!response.ok) {
     throw new Error("Failed to fetch course")
   }
@@ -173,8 +232,25 @@ export async function fetchEvents(): Promise<Event[]> {
   return response.json()
 }
 
+export async function fetchAdminEvents(): Promise<adminEvent[]> {
+  const response = await apiRequest("/admin/events/")
+  if (!response.ok) {
+    throw new Error("Failed to fetch events")
+  }
+  return response.json()
+}
+
 export async function fetchEventBySlug(slug: string): Promise<Event> {
   const response = await apiRequest(`/events/${slug}/`)
+  if (!response.ok) {
+    throw new Error("Failed to fetch event")
+  }
+  return response.json()
+}
+
+
+export async function fetchAdminEventBySlug(slug: string): Promise<adminEvent> {
+  const response = await apiRequest(`/admin/events/${slug}/`)
   if (!response.ok) {
     throw new Error("Failed to fetch event")
   }

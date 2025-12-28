@@ -3,9 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Clock, Users, ArrowLeft, Filter, ArrowUpDown, User, Loader2 } from "lucide-react"
+import { Calendar, MapPin, Clock, ArrowLeft, Filter, ArrowUpDown, User, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { coursesData } from "@/lib/courses-data"
 import { useState, useMemo, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Header } from "@/components/header"
@@ -42,11 +41,11 @@ export default function CoursesPage() {
   }
   const allTags = useMemo(() => {
     const tags = new Set<string>()
-    coursesData.forEach((course) => {
-      course.tags.forEach((tag) => tags.add(tag))
+    courses.forEach((event) => {
+      event.tags.forEach((tag) => tags.add(tag))
     })
     return ["همه", ...Array.from(tags)]
-  }, [])
+  }, [courses])
 
   const filteredAndSortedCourses = useMemo(() => {
     let filtered = courses
@@ -67,12 +66,6 @@ export default function CoursesPage() {
       switch (sortBy) {
         case "date":
           comparison = new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
-          break
-        case "capacity":
-          comparison = a.capacity - b.capacity
-          break
-        case "registered":
-          comparison = a.registered - b.registered
           break
         case "title":
           comparison = a.title.localeCompare(b.title, "fa")
@@ -124,7 +117,7 @@ export default function CoursesPage() {
   const getRegistrationStatus = (course: Course) => {
     const now = new Date()
     const deadline = new Date(course.registration_deadline)
-    const isFull = course.registered >= course.capacity
+    const isFull = course.is_full
     const isExpired = now > deadline
 
     if (isFull) return { status: "full", text: "ظرفیت تکمیل است" }
@@ -188,8 +181,6 @@ export default function CoursesPage() {
                 <SelectContent>
                   <SelectItem value="startDate">تاریخ شروع</SelectItem>
                   <SelectItem value="name">نام دوره</SelectItem>
-                  <SelectItem value="capacity">ظرفیت</SelectItem>
-                  <SelectItem value="registered">تعداد ثبت‌نام</SelectItem>
                   <SelectItem value="price">قیمت</SelectItem>
                 </SelectContent>
               </Select>
@@ -226,8 +217,7 @@ export default function CoursesPage() {
                 const regStatus = getRegistrationStatus(course)
 
                 return (
-                  <Card key={course.slug} 
-                  className="overflow-hidden group hover:shadow-xl transition-shadow">
+                  <Card key={course.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
                     <div className="relative aspect-[1/1.414] overflow-hidden bg-muted">
                       <img
                         src={course.image || "/placeholder.svg"}
@@ -249,39 +239,38 @@ export default function CoursesPage() {
 
                       <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
-
-                        {/* Tags inside image */}
-                        <div className="absolute bottom-4 right-4 flex gap-2 flex-wrap z-10">
-                          {course.tags.slice(0, 2).map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant="secondary"
-                          className="
+                      {/* Tags inside image */}
+                      <div className="absolute bottom-4 right-4 flex gap-2 flex-wrap z-10">
+                        {course.tags.slice(0, 2).map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="
                             backdrop-blur-sm
                             bg-secondary/80
                             text-secondary-foreground
                             border border-secondary/30
                           "
                           >
-                          {tag}
-                        </Badge>
-                          ))}
-                        </div>
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                     <CardHeader>
-
                       <CardTitle className="text-xl">{course.title}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
-                        <span>{new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
+                        <span>تاریخ شروع : {new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
                       </div>
 
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4" />
-                        <span>{formatTime(course.start_date)}</span>
+                        <Calendar className="w-4 h-4" />
+                        <span>تاریخ پایان : {new Date(course.end_date).toLocaleDateString("fa-IR")}</span>
                       </div>
+
                       {course.time_plans && course.time_plans.length > 0 && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Clock className="w-4 h-4" />
@@ -296,12 +285,6 @@ export default function CoursesPage() {
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <MapPin className="w-4 h-4" />
                         <span>{course.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="w-4 h-4" />
-                        <span>
-                          {course.registered} / {course.capacity} نفر
-                        </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <User className="w-4 h-4" />
