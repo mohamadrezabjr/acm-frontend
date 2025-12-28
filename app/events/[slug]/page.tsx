@@ -10,6 +10,7 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { fetchEventBySlug, type Event, eventRegitserBySlug, apiRequest } from "@/lib/api-client"
 import { useAuth } from "@/lib/auth-context"
+import ShareCard from "@/components/sharecard"
 
 export default function EventDetailPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -404,17 +405,7 @@ export default function EventDetailPage() {
               </Card>
 
               {/* Share Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>اشتراک‌گذاری</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">این رویداد را با دوستان خود به اشتراک بگذارید</p>
-                  <Button variant="outline" className="w-full bg-transparent">
-                    کپی لینک
-                  </Button>
-                </CardContent>
-              </Card>
+              <ShareCard/>
             </div>
           </div>
         </div>

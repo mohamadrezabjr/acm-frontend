@@ -9,6 +9,8 @@ import { useState, useMemo, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Header } from "@/components/header"
 import { fetchEvents, type Event } from "@/lib/api-client"
+import ShareCard from "@/components/sharecard"
+
 
 const ITEMS_PER_PAGE = 6
 
