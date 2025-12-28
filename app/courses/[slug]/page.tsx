@@ -63,7 +63,7 @@ export default function CourseDetailPage() {
 
     const now = new Date()
     const deadline = new Date(course.registration_deadline)
-    const isFull = course.registered >= course.capacity
+    const isFull = course.is_full
     const isExpired = now > deadline
 
     if (isFull) return { canRegister: false, message: "ظرفیت تکمیل است" }

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Clock, Users, ArrowLeft, Filter, ArrowUpDown, User, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { coursesData } from "@/lib/courses-data"
 import { useState, useMemo, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Header } from "@/components/header"
@@ -42,11 +41,11 @@ export default function CoursesPage() {
   }
   const allTags = useMemo(() => {
     const tags = new Set<string>()
-    coursesData.forEach((course) => {
-      course.tags.forEach((tag) => tags.add(tag))
+    courses.forEach((event) => {
+      event.tags.forEach((tag) => tags.add(tag))
     })
     return ["همه", ...Array.from(tags)]
-  }, [])
+  }, [courses])
 
   const filteredAndSortedCourses = useMemo(() => {
     let filtered = courses
