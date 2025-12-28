@@ -229,9 +229,7 @@ export default function CourseDetailPage() {
     )
   }
   
-  const availableSeats = course.capacity - course.registered
-  const isAlmostFull = availableSeats < course.capacity * 0.2
-  const isFull = availableSeats <= 0
+  const isFull = course.is_full
   const registrationStatus = getRegistrationStatus()
 
   const formatJustTime = (time: string) => toPersianNumber(time.slice(0, 5))
@@ -363,23 +361,7 @@ export default function CourseDetailPage() {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <Users className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">ظرفیت</div>
-                        <div className="font-medium">
-                          {course.registered} / {course.capacity} نفر
-                        </div>
-                        {isAlmostFull && !isFull && registrationStatus.canRegister && (
-                          <Badge variant="destructive" className="mt-1">
-                            ظرفیت محدود!
-                          </Badge>
-                        )}
-                        {!registrationStatus.canRegister && isFull && (
-                          <Badge variant="destructive" className="mt-1">
-                            ظرفیت تکمیل است
-                          </Badge>
-                        )}
-                      </div>
+
                     </div>
                     <div className="flex items-start gap-3">
                       <User className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />

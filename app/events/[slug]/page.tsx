@@ -65,7 +65,7 @@ export default function EventDetailPage() {
 
     const now = new Date()
     const deadline = new Date(event.registration_deadline)
-    const isFull = event.registered >= event.capacity
+    const isFull = event.is_full
     const isExpired = now > deadline
 
     if (isFull) return { canRegister: false, message: "ظرفیت تکمیل است" }
@@ -235,8 +235,6 @@ export default function EventDetailPage() {
     )
   }
 
-  const availableSeats = event.capacity - event.registered
-  const isAlmostFull = availableSeats < event.capacity * 0.2
   const registrationStatus = getRegistrationStatus()
 
   return (
@@ -358,7 +356,7 @@ export default function EventDetailPage() {
                         <div className="font-medium">{event.location}</div>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
+                    {/* <div className="flex items-start gap-3">
                       <Users className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-muted-foreground">ظرفیت</div>
@@ -370,13 +368,13 @@ export default function EventDetailPage() {
                             ظرفیت محدود!
                           </Badge>
                         )}
-                        {!registrationStatus.canRegister && event.registered >= event.capacity && (
+                        {!registrationStatus.canRegister && event.is_full && (
                           <Badge variant="destructive" className="mt-1">
                             ظرفیت تکمیل است
                           </Badge>
                         )}
                       </div>
-                    </div>
+                    </div> */}
                     <div className="flex items-start gap-3">
                       <User className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>

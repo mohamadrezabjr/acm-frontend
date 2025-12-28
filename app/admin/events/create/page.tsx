@@ -227,7 +227,7 @@ export default function CreateEventPage() {
       }
 
       // Send to Django backend
-      const response = await apiRequest('/events/create/', {
+      const response = await apiRequest('amdin/events/create/', {
         method: 'POST',
         body: formData
       })

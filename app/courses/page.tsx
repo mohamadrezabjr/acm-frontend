@@ -68,12 +68,6 @@ export default function CoursesPage() {
         case "date":
           comparison = new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
           break
-        case "capacity":
-          comparison = a.capacity - b.capacity
-          break
-        case "registered":
-          comparison = a.registered - b.registered
-          break
         case "title":
           comparison = a.title.localeCompare(b.title, "fa")
           break
@@ -124,7 +118,7 @@ export default function CoursesPage() {
   const getRegistrationStatus = (course: Course) => {
     const now = new Date()
     const deadline = new Date(course.registration_deadline)
-    const isFull = course.registered >= course.capacity
+    const isFull = course.is_full
     const isExpired = now > deadline
 
     if (isFull) return { status: "full", text: "ظرفیت تکمیل است" }
@@ -188,8 +182,6 @@ export default function CoursesPage() {
                 <SelectContent>
                   <SelectItem value="startDate">تاریخ شروع</SelectItem>
                   <SelectItem value="name">نام دوره</SelectItem>
-                  <SelectItem value="capacity">ظرفیت</SelectItem>
-                  <SelectItem value="registered">تعداد ثبت‌نام</SelectItem>
                   <SelectItem value="price">قیمت</SelectItem>
                 </SelectContent>
               </Select>
@@ -296,12 +288,6 @@ export default function CoursesPage() {
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <MapPin className="w-4 h-4" />
                         <span>{course.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="w-4 h-4" />
-                        <span>
-                          {course.registered} / {course.capacity} نفر
-                        </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <User className="w-4 h-4" />

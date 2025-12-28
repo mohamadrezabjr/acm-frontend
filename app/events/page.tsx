@@ -68,12 +68,6 @@ export default function EventsPage() {
         case "date":
           comparison = new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
           break
-        case "capacity":
-          comparison = a.capacity - b.capacity
-          break
-        case "registered":
-          comparison = a.registered - b.registered
-          break
         case "title":
           comparison = a.title.localeCompare(b.title, "fa")
           break
@@ -121,7 +115,7 @@ export default function EventsPage() {
   const getRegistrationStatus = (event: Event) => {
     const now = new Date()
     const deadline = new Date(event.registration_deadline)
-    const isFull = event.registered >= event.capacity
+    const isFull = event.is_full
     const isExpired = now > deadline
 
     if (isFull) return { status: "full", text: "ظرفیت تکمیل است" }
@@ -186,8 +180,6 @@ export default function EventsPage() {
                 <SelectContent>
                   <SelectItem value="date">تاریخ</SelectItem>
                   <SelectItem value="title">عنوان</SelectItem>
-                  <SelectItem value="capacity">ظرفیت</SelectItem>
-                  <SelectItem value="registered">تعداد ثبت‌نام</SelectItem>
                   <SelectItem value="price">قیمت</SelectItem>
                 </SelectContent>
               </Select>
@@ -299,13 +291,6 @@ export default function EventsPage() {
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <MapPin className="w-4 h-4" />
                           <span>{event.location}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Users className="w-4 h-4" />
-                          <span>
-                            {event.registered} / {event.capacity} نفر
-                          </span>
                         </div>
 
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
