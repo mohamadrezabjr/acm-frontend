@@ -348,7 +348,7 @@ export default function EditCoursePage() {
         formData.append("image", courseData.image)
       }
 
-      const response = await apiRequest(`admin/courses/${slug}/update/`, {
+      const response = await apiRequest(`/admin/courses/${slug}/update/`, {
         method: "PUT",
         body: formData,
       })

@@ -264,7 +264,7 @@ export default function CreateCoursePage() {
         formData.append("image", courseData.image)
       }
 
-      const response = await apiRequest("admin/courses/create/", {
+      const response = await apiRequest("/admin/courses/create/", {
         method: "POST",
         body: formData,
       })

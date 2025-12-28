@@ -303,7 +303,7 @@ export default function EditEventPage() {
         formData.append("image", eventData.image)
       }
 
-      const response = await apiRequest(`admin/events/${slug}/update/`, {
+      const response = await apiRequest(`/admin/events/${slug}/update/`, {
         method: "PUT",
         body: formData,
       })

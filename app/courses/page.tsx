@@ -267,13 +267,14 @@ export default function CoursesPage() {
                     <CardContent className="space-y-3">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
-                        <span>{new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
+                        <span>تاریخ شروع : {new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
                       </div>
 
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4" />
-                        <span>{formatTime(course.start_date)}</span>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        <span>تاریخ پایان : {new Date(course.end_date).toLocaleDateString("fa-IR")}</span>
                       </div>
+
                       {course.time_plans && course.time_plans.length > 0 && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Clock className="w-4 h-4" />
