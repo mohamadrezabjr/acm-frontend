@@ -222,7 +222,7 @@ export default function EventsPage() {
                       <img
                         src={event.image || "/placeholder.svg"}
                         alt={event.title}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
 
                       {/* Price Badge */}
