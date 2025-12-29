@@ -25,6 +25,7 @@ import {
   Save,
   X,
   Camera,
+  Clock,
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "@/hooks/use-toast"
@@ -395,11 +396,11 @@ export default function ProfilePage() {
                                 />
                               </div>
                               <CardContent className="flex-1 p-4 text-right">
-                                <div className="flex items-start justify-between mb-2">
-                                  <h3 className="font-semibold text-lg">{event.title}</h3>
+                                <div className="flex items-start justify-between mb-2 flex-row-reverse">
+                                  <h3 className="font-semibold text-lg text-right">{event.title}</h3>
                                   <Badge
                                     variant={registration.status === "accepted" ? "default" : "secondary"}
-                                    className="mr-2"
+                                    className="ml-2"
                                   >
                                     {registration.status === "accepted" ? "تایید شده" : registration.status}
                                   </Badge>
@@ -472,16 +473,16 @@ export default function ProfilePage() {
                                 />
                               </div>
                               <CardContent className="flex-1 p-4 text-right">
-                                <div className="flex items-start justify-between mb-2">
-                                  <h3 className="font-semibold text-lg">{course.title}</h3>
+                                <div className="flex items-start justify-between mb-2 flex-row-reverse">
+                                  <h3 className="font-semibold text-lg text-right">{course.title}</h3>
                                   <Badge
                                     variant={registration.status === "accepted" ? "default" : "secondary"}
-                                    className="mr-2"
+                                    className="ml-2"
                                   >
                                     {registration.status === "accepted" ? "تایید شده" : registration.status}
                                   </Badge>
                                 </div>
-                                <p className="text-sm text-muted-foreground mb-2">
+                                <p className="text-sm text-muted-foreground mb-2 text-right">
                                   {course.instructors.length > 0 && (
                                     <>
                                       استاد:{" "}
@@ -489,6 +490,26 @@ export default function ProfilePage() {
                                     </>
                                   )}
                                 </p>
+                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end mb-2">
+                                  {course.start_date && (
+                                    <div className="flex items-center gap-1">
+                                      <span>{new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
+                                      <Calendar className="w-4 h-4" />
+                                    </div>
+                                  )}
+                                  {course.schedule && (
+                                    <div className="flex items-center gap-1">
+                                      <span>{course.schedule}</span>
+                                      <Clock className="w-4 h-4" />
+                                    </div>
+                                  )}
+                                  {course.location && (
+                                    <div className="flex items-center gap-1">
+                                      <span>{course.location}</span>
+                                      <MapPin className="w-4 h-4" />
+                                    </div>
+                                  )}
+                                </div>
                                 <div className="flex gap-2 mt-3 justify-end flex-wrap">
                                   {course.tags.slice(0, 2).map((tag) => (
                                     <Badge key={tag} variant="secondary">
