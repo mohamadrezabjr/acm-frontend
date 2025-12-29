@@ -12,16 +12,39 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, MapPin, User, Settings, BookOpen, CalendarDays, Edit, Save, X, Loader2 } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  CalendarDays,
+  MapPin,
+  BookOpen,
+  UserIcon,
+  Award as IdCard,
+  Calendar,
+  Loader2,
+  Edit,
+  Save,
+  X,
+  Camera,
+} from "lucide-react"
 import Link from "next/link"
-import { fetchUserEvents, apiRequest, type Event } from "@/lib/api-client"
+import { toast } from "@/hooks/use-toast"
+import {
+  fetchUserEvents,
+  fetchUserCourses,
+  updateUserProfile,
+  type UserEventRegistration,
+  type UserCourseRegistration,
+} from "@/lib/api-client"
+
+export const dynamic = "force-dynamic"
+export const dynamicParams = true
+export const revalidate = 0
 
 export default function ProfilePage() {
-  const { user, loading, isCreator } = useAuth()
+  const { user, loading, refreshUser } = useAuth()
   const router = useRouter()
-
-  const [userEvents, setUserEvents] = useState<Event[]>([])
-  const [userCourses, setUserCourses] = useState<any[]>([])
+  const [userEvents, setUserEvents] = useState<UserEventRegistration[]>([])
+  const [userCourses, setUserCourses] = useState<UserCourseRegistration[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -36,16 +59,16 @@ export default function ProfilePage() {
 
   // تابع تبدیل اعداد فارسی به انگلیسی
   const convertPersianToEnglish = (str: string) => {
-    const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    
-    let result = str;
+    const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"]
+    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٢", "٢", "٢", "٢"]
+
+    let result = str
     for (let i = 0; i < 10; i++) {
-      result = result.replace(new RegExp(persianNumbers[i], 'g'), i.toString());
-      result = result.replace(new RegExp(arabicNumbers[i], 'g'), i.toString());
+      result = result.replace(new RegExp(persianNumbers[i], "g"), i.toString())
+      result = result.replace(new RegExp(arabicNumbers[i], "g"), i.toString())
     }
-    return result;
-  };
+    return result
+  }
 
   useEffect(() => {
     if (!loading && !user) {
@@ -68,13 +91,16 @@ export default function ProfilePage() {
   const loadUserData = async () => {
     setLoadingData(true)
     try {
-      const events = await fetchUserEvents()
+      const [events, courses] = await Promise.all([fetchUserEvents(), fetchUserCourses()])
       setUserEvents(events)
-      // TODO: Fetch user courses when API is ready
-      // const courses = await fetchUserCourses()
-      // setUserCourses(courses)
+      setUserCourses(courses)
     } catch (error) {
-      console.error("Failed to load user data:", error)
+      console.error("Error loading user data:", error)
+      toast({
+        title: "خطا",
+        description: "بارگذاری اطلاعات کاربر با خطا مواجه شد",
+        variant: "destructive",
+      })
     } finally {
       setLoadingData(false)
     }
@@ -96,7 +122,7 @@ export default function ProfilePage() {
     setSaving(true)
     try {
       const formData = new FormData()
-      
+
       // Add profile data as JSON
       const profileData = {
         first_name: editForm.firstName,
@@ -104,28 +130,33 @@ export default function ProfilePage() {
         student_id: editForm.studentId ? convertPersianToEnglish(editForm.studentId) : undefined,
       }
       formData.append("data", JSON.stringify(profileData))
-      
+
       // Add image if selected
       if (selectedImage) {
         formData.append("avatar", selectedImage)
       }
 
-      const response = await apiRequest("/profile/update/", {
-        method: "PUT",
-        body: formData,
-      })
+      const response = await updateUserProfile(formData)
 
       if (!response.ok) {
         throw new Error("Failed to update profile")
       }
 
-      alert("پروفایل با موفقیت به‌روزرسانی شد")
+      toast({
+        title: "موفقیت",
+        description: "پروفایل با موفقیت به‌روزرسانی شد",
+        variant: "default",
+      })
       setIsEditing(false)
       setSelectedImage(null)
-      window.location.reload()
+      refreshUser()
     } catch (error) {
       console.error("Failed to update profile:", error)
-      alert("خطا در به‌روزرسانی پروفایل")
+      toast({
+        title: "خطا",
+        description: "خطا در به‌روزرسانی پروفایل",
+        variant: "destructive",
+      })
     } finally {
       setSaving(false)
     }
@@ -172,7 +203,7 @@ export default function ProfilePage() {
           <Tabs defaultValue="info" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
               <TabsTrigger value="info" className="gap-2">
-                <User className="w-4 h-4" />
+                <UserIcon className="w-4 h-4" />
                 <span className="hidden sm:inline">اطلاعات</span>
               </TabsTrigger>
               <TabsTrigger value="events" className="gap-2">
@@ -183,9 +214,10 @@ export default function ProfilePage() {
                 <BookOpen className="w-4 h-4" />
                 <span className="hidden sm:inline">دوره‌ها</span>
               </TabsTrigger>
-              {isCreator() && (
+              {/* Admin Tab Trigger */}
+              {user.role === "admin" && (
                 <TabsTrigger value="admin" className="gap-2">
-                  <Settings className="w-4 h-4" />
+                  <IdCard className="w-4 h-4" />
                   <span className="hidden sm:inline">مدیریت</span>
                 </TabsTrigger>
               )}
@@ -211,11 +243,7 @@ export default function ProfilePage() {
                         انصراف
                       </Button>
                       <Button size="sm" onClick={handleSaveProfile} disabled={saving}>
-                        {saving ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <Save className="w-4 h-4 mr-2" />
-                        )}
+                        {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                         ذخیره
                       </Button>
                     </div>
@@ -224,24 +252,15 @@ export default function ProfilePage() {
                 <CardContent className="space-y-6">
                   {/* Avatar and Name Section */}
                   <div className="flex items-center gap-6 flex-row-reverse pb-6 border-b">
-                    <div className="relative">
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg ring-4 ring-primary/20">
-                        {imagePreview ? (
-                          <img
-                            src={imagePreview}
-                            alt={user.firstName}
-                            className="w-full h-full rounded-full object-cover"
-                          />
-                        ) : (
-                          <User className="w-12 h-12 text-white" />
-                        )}
-                      </div>
+                    <Avatar className="relative">
+                      <AvatarImage src={imagePreview || "/placeholder.svg"} alt={user.firstName} />
+                      <AvatarFallback>{user.firstName?.charAt(0)}</AvatarFallback>
                       {isEditing && (
                         <label
                           htmlFor="profileImage"
                           className="absolute bottom-0 left-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 shadow-lg"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Camera className="w-4 h-4" />
                           <input
                             id="profileImage"
                             type="file"
@@ -251,7 +270,7 @@ export default function ProfilePage() {
                           />
                         </label>
                       )}
-                    </div>
+                    </Avatar>
                     <div className="flex-1 text-right">
                       <h2 className="text-2xl font-bold">
                         {user.firstName} {user.lastName}
@@ -313,9 +332,7 @@ export default function ProfilePage() {
                         ایمیل <span className="text-destructive">*</span>
                       </Label>
                       <div className="flex items-center gap-2" dir="ltr">
-                        <p className="text-lg font-medium text-left flex-1">
-                          {user.email || "-"}
-                        </p>
+                        <p className="text-lg font-medium text-left flex-1">{user.email || "-"}</p>
                       </div>
                     </div>
 
@@ -369,44 +386,55 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {userEvents.map((event) => (
-                        <Card key={event.slug} className="overflow-hidden">
-                          <div className="flex flex-col md:flex-row-reverse">
-                            <div className="w-full md:w-48 h-32 overflow-hidden">
-                              <img
-                                src={event.image || "/placeholder.svg"}
-                                alt={event.title}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <CardContent className="flex-1 p-4 text-right">
-                              <h3 className="font-semibold text-lg mb-2">{event.title}</h3>
-                              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end">
-                                <div className="flex items-center gap-1">
-                                  <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
-                                  <Calendar className="w-4 h-4" />
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span>{event.location}</span>
-                                  <MapPin className="w-4 h-4" />
-                                </div>
+                      {userEvents.map((registration) => {
+                        const event = registration.event
+                        return (
+                          <Card key={event.slug} className="overflow-hidden">
+                            <div className="flex flex-col md:flex-row-reverse">
+                              <div className="w-full md:w-48 h-32 overflow-hidden">
+                                <img
+                                  src={event.image || "/placeholder.svg"}
+                                  alt={event.title}
+                                  className="w-full h-full object-cover"
+                                />
                               </div>
-                              <div className="flex gap-2 mt-3 justify-end flex-wrap">
-                                {event.tags.slice(0, 2).map((tag) => (
-                                  <Badge key={tag} variant="secondary">
-                                    {tag}
+                              <CardContent className="flex-1 p-4 text-right">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h3 className="font-semibold text-lg">{event.title}</h3>
+                                  <Badge
+                                    variant={registration.status === "accepted" ? "default" : "secondary"}
+                                    className="mr-2"
+                                  >
+                                    {registration.status === "accepted" ? "تایید شده" : registration.status}
                                   </Badge>
-                                ))}
-                              </div>
-                              <Link href={`/events/${event.slug}`}>
-                                <Button variant="outline" size="sm" className="mt-4 bg-transparent">
-                                  مشاهده جزئیات
-                                </Button>
-                              </Link>
-                            </CardContent>
-                          </div>
-                        </Card>
-                      ))}
+                                </div>
+                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end">
+                                  <div className="flex items-center gap-1">
+                                    <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
+                                    <Calendar className="w-4 h-4" />
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span>{event.location}</span>
+                                    <MapPin className="w-4 h-4" />
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 mt-3 justify-end flex-wrap">
+                                  {event.tags.slice(0, 2).map((tag) => (
+                                    <Badge key={tag} variant="secondary">
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                <Link href={`/events/${event.slug}`}>
+                                  <Button variant="outline" size="sm" className="mt-4 bg-transparent">
+                                    مشاهده جزئیات
+                                  </Button>
+                                </Link>
+                              </CardContent>
+                            </div>
+                          </Card>
+                        )
+                      })}
                     </div>
                   )}
                 </CardContent>
@@ -435,30 +463,53 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {userCourses.map((course) => (
-                        <Card key={course.id} className="overflow-hidden">
-                          <div className="flex flex-col md:flex-row-reverse">
-                            <div className="w-full md:w-48 h-32 overflow-hidden">
-                              <img
-                                src={course.image || "/placeholder.svg"}
-                                alt={course.name}
-                                className="w-full h-full object-cover"
-                              />
+                      {userCourses.map((registration) => {
+                        const course = registration.course
+                        return (
+                          <Card key={course.slug} className="overflow-hidden">
+                            <div className="flex flex-col md:flex-row-reverse">
+                              <div className="w-full md:w-48 h-32 overflow-hidden">
+                                <img
+                                  src={course.image || "/placeholder.svg"}
+                                  alt={course.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <CardContent className="flex-1 p-4 text-right">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h3 className="font-semibold text-lg">{course.title}</h3>
+                                  <Badge
+                                    variant={registration.status === "accepted" ? "default" : "secondary"}
+                                    className="mr-2"
+                                  >
+                                    {registration.status === "accepted" ? "تایید شده" : registration.status}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-muted-foreground mb-2">
+                                  {course.instructors.length > 0 && (
+                                    <>
+                                      استاد:{" "}
+                                      {course.instructors.map((i) => `${i.first_name} ${i.last_name}`).join("، ")}
+                                    </>
+                                  )}
+                                </p>
+                                <div className="flex gap-2 mt-3 justify-end flex-wrap">
+                                  {course.tags.slice(0, 2).map((tag) => (
+                                    <Badge key={tag} variant="secondary">
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                <Link href={`/courses/${course.slug}`}>
+                                  <Button variant="outline" size="sm" className="mt-2 bg-transparent">
+                                    مشاهده جزئیات
+                                  </Button>
+                                </Link>
+                              </CardContent>
                             </div>
-                            <CardContent className="flex-1 p-4 text-right">
-                              <h3 className="font-semibold text-lg mb-2">{course.name}</h3>
-                              <p className="text-sm text-muted-foreground mb-2">
-                                استاد: {course.instructors?.join("، ")}
-                              </p>
-                              <Link href={`/courses/${course.id}`}>
-                                <Button variant="outline" size="sm" className="mt-2 bg-transparent">
-                                  مشاهده جزئیات
-                                </Button>
-                              </Link>
-                            </CardContent>
-                          </div>
-                        </Card>
-                      ))}
+                          </Card>
+                        )
+                      })}
                     </div>
                   )}
                 </CardContent>
@@ -466,7 +517,7 @@ export default function ProfilePage() {
             </TabsContent>
 
             {/* Admin Tab */}
-            {isCreator() && (
+            {user.role === "admin" && (
               <TabsContent value="admin">
                 <Card className="border-2 shadow-lg">
                   <CardHeader>
@@ -478,7 +529,7 @@ export default function ProfilePage() {
                       <Link href="/admin/dashboard">
                         <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
                           <CardContent className="p-6 flex flex-col items-center text-center">
-                            <Settings className="w-10 h-10 text-primary mb-4" />
+                            <IdCard className="w-10 h-10 text-primary mb-4" />
                             <h3 className="font-semibold">داشبورد</h3>
                             <p className="text-sm text-muted-foreground">مشاهده آمار کلی</p>
                           </CardContent>
