@@ -12,34 +12,23 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  CalendarDays,
-  MapPin,
-  BookOpen,
-  UserIcon,
-  Award as IdCard,
-  Calendar,
-  Loader2,
-  Edit,
-  Save,
-  X,
-  Camera,
-  Clock,
-} from "lucide-react"
+import { Calendar, MapPin, User, Settings, BookOpen, CalendarDays, Edit, Save, X, Loader2 , Clock, LayoutDashboard} from "lucide-react"
 import Link from "next/link"
-import { toast } from "@/hooks/use-toast"
 import {
   fetchUserEvents,
   fetchUserCourses,
-  updateUserProfile,
-  type UserEventRegistration,
+  apiRequest, 
+  type UserEventRegistration, 
   type UserCourseRegistration,
-} from "@/lib/api-client"
+  WeekdayFa
+  } from "@/lib/api-client"
+import { toast } from "@/hooks/use-toast"
+
 
 export default function ProfilePage() {
-  const { user, loading, refreshUser } = useAuth()
+  const { user, loading, isCreator } = useAuth()
   const router = useRouter()
+
   const [userEvents, setUserEvents] = useState<UserEventRegistration[]>([])
   const [userCourses, setUserCourses] = useState<UserCourseRegistration[]>([])
   const [loadingData, setLoadingData] = useState(true)
@@ -56,16 +45,22 @@ export default function ProfilePage() {
 
   // تابع تبدیل اعداد فارسی به انگلیسی
   const convertPersianToEnglish = (str: string) => {
-    const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"]
-    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٢", "٢", "٢", "٢"]
-
-    let result = str
+    const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    
+    let result = str;
     for (let i = 0; i < 10; i++) {
-      result = result.replace(new RegExp(persianNumbers[i], "g"), i.toString())
-      result = result.replace(new RegExp(arabicNumbers[i], "g"), i.toString())
+      result = result.replace(new RegExp(persianNumbers[i], 'g'), i.toString());
+      result = result.replace(new RegExp(arabicNumbers[i], 'g'), i.toString());
     }
-    return result
+    return result;
+  };
+  const formatTime = (dateString: string) => {
+  return new Date(dateString).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })
   }
+  const formatJustTime = (time: string) => toPersianNumber(time.slice(0, 5))
+  const toPersianNumber = (value: string | number) =>
+    value.toString().replace(/\d/g, (d) => (+d).toLocaleString("fa-IR"))
 
   useEffect(() => {
     if (!loading && !user) {
@@ -119,7 +114,7 @@ export default function ProfilePage() {
     setSaving(true)
     try {
       const formData = new FormData()
-
+      
       // Add profile data as JSON
       const profileData = {
         first_name: editForm.firstName,
@@ -127,13 +122,16 @@ export default function ProfilePage() {
         student_id: editForm.studentId ? convertPersianToEnglish(editForm.studentId) : undefined,
       }
       formData.append("data", JSON.stringify(profileData))
-
+      
       // Add image if selected
       if (selectedImage) {
         formData.append("avatar", selectedImage)
       }
 
-      const response = await updateUserProfile(formData)
+      const response = await apiRequest("/profile/update/", {
+        method: "PUT",
+        body: formData,
+      })
 
       if (!response.ok) {
         throw new Error("Failed to update profile")
@@ -146,7 +144,7 @@ export default function ProfilePage() {
       })
       setIsEditing(false)
       setSelectedImage(null)
-      refreshUser()
+      window.location.reload()      
     } catch (error) {
       console.error("Failed to update profile:", error)
       toast({
@@ -200,7 +198,7 @@ export default function ProfilePage() {
           <Tabs defaultValue="info" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
               <TabsTrigger value="info" className="gap-2">
-                <UserIcon className="w-4 h-4" />
+                <User className="w-4 h-4" />
                 <span className="hidden sm:inline">اطلاعات</span>
               </TabsTrigger>
               <TabsTrigger value="events" className="gap-2">
@@ -211,10 +209,9 @@ export default function ProfilePage() {
                 <BookOpen className="w-4 h-4" />
                 <span className="hidden sm:inline">دوره‌ها</span>
               </TabsTrigger>
-              {/* Admin Tab Trigger */}
-              {user.role === "admin" && (
+              {isCreator() && (
                 <TabsTrigger value="admin" className="gap-2">
-                  <IdCard className="w-4 h-4" />
+                  <Settings className="w-4 h-4" />
                   <span className="hidden sm:inline">مدیریت</span>
                 </TabsTrigger>
               )}
@@ -240,7 +237,11 @@ export default function ProfilePage() {
                         انصراف
                       </Button>
                       <Button size="sm" onClick={handleSaveProfile} disabled={saving}>
-                        {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                        {saving ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Save className="w-4 h-4 mr-2" />
+                        )}
                         ذخیره
                       </Button>
                     </div>
@@ -249,15 +250,24 @@ export default function ProfilePage() {
                 <CardContent className="space-y-6">
                   {/* Avatar and Name Section */}
                   <div className="flex items-center gap-6 flex-row-reverse pb-6 border-b">
-                    <Avatar className="relative">
-                      <AvatarImage src={imagePreview || "/placeholder.svg"} alt={user.firstName} />
-                      <AvatarFallback>{user.firstName?.charAt(0)}</AvatarFallback>
+                    <div className="relative">
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg ring-4 ring-primary/20">
+                        {imagePreview ? (
+                          <img
+                            src={imagePreview}
+                            alt={user.firstName}
+                            className="w-full h-full rounded-full object-cover"
+                          />
+                        ) : (
+                          <User className="w-12 h-12 text-white" />
+                        )}
+                      </div>
                       {isEditing && (
                         <label
                           htmlFor="profileImage"
                           className="absolute bottom-0 left-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 shadow-lg"
                         >
-                          <Camera className="w-4 h-4" />
+                          <Edit className="w-4 h-4" />
                           <input
                             id="profileImage"
                             type="file"
@@ -267,7 +277,7 @@ export default function ProfilePage() {
                           />
                         </label>
                       )}
-                    </Avatar>
+                    </div>
                     <div className="flex-1 text-right">
                       <h2 className="text-2xl font-bold">
                         {user.firstName} {user.lastName}
@@ -283,7 +293,24 @@ export default function ProfilePage() {
 
                   {/* Form Fields */}
                   <div className="grid gap-6 md:grid-cols-2">
+
+
                     <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
+                        نام خانوادگی
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          value={editForm.lastName}
+                          onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                          className="border-2 focus:border-primary text-right"
+                          placeholder="نام خانوادگی خود را وارد کنید"
+                        />
+                      ) : (
+                        <p className="text-lg font-medium text-right">{user.lastName || "-"}</p>
+                      )}
+                    </div>
+                                        <div className="space-y-2">
                       <Label className="text-sm font-semibold text-muted-foreground text-right block">
                         نام <span className="text-destructive">*</span>
                       </Label>
@@ -301,22 +328,6 @@ export default function ProfilePage() {
 
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-muted-foreground text-right block">
-                        نام خانوادگی
-                      </Label>
-                      {isEditing ? (
-                        <Input
-                          value={editForm.lastName}
-                          onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
-                          className="border-2 focus:border-primary text-right"
-                          placeholder="نام خانوادگی خود را وارد کنید"
-                        />
-                      ) : (
-                        <p className="text-lg font-medium text-right">{user.lastName || "-"}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
                         شماره موبایل <span className="text-destructive">*</span>
                       </Label>
                       <div className="flex items-center gap-2">
@@ -329,7 +340,9 @@ export default function ProfilePage() {
                         ایمیل <span className="text-destructive">*</span>
                       </Label>
                       <div className="flex items-center gap-2" dir="ltr">
-                        <p className="text-lg font-medium text-left flex-1">{user.email || "-"}</p>
+                        <p className="text-lg font-medium text-left flex-1">
+                          {user.email || "-"}
+                        </p>
                       </div>
                     </div>
 
@@ -361,7 +374,7 @@ export default function ProfilePage() {
               </Card>
             </TabsContent>
 
-            {/* Events Tab */}
+                        {/* Events Tab */}
             <TabsContent value="events">
               <Card className="border-2 shadow-lg">
                 <CardHeader>
@@ -398,12 +411,6 @@ export default function ProfilePage() {
                               <CardContent className="flex-1 p-4 text-right">
                                 <div className="flex items-start justify-between mb-2 flex-row-reverse">
                                   <h3 className="font-semibold text-lg text-right">{event.title}</h3>
-                                  <Badge
-                                    variant={registration.status === "accepted" ? "default" : "secondary"}
-                                    className="ml-2"
-                                  >
-                                    {registration.status === "accepted" ? "تایید شده" : registration.status}
-                                  </Badge>
                                 </div>
                                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end">
                                   <div className="flex items-center gap-1">
@@ -475,34 +482,39 @@ export default function ProfilePage() {
                               <CardContent className="flex-1 p-4 text-right">
                                 <div className="flex items-start justify-between mb-2 flex-row-reverse">
                                   <h3 className="font-semibold text-lg text-right">{course.title}</h3>
-                                  <Badge
-                                    variant={registration.status === "accepted" ? "default" : "secondary"}
-                                    className="ml-2"
-                                  >
-                                    {registration.status === "accepted" ? "تایید شده" : registration.status}
-                                  </Badge>
                                 </div>
                                 <p className="text-sm text-muted-foreground mb-2 text-right">
                                   {course.instructors.length > 0 && (
                                     <>
-                                      استاد:{" "}
+                                      
                                       {course.instructors.map((i) => `${i.first_name} ${i.last_name}`).join("، ")}
+                                      {" : "}اساتید  
                                     </>
                                   )}
                                 </p>
-                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end mb-2">
+                                                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end mb-2">
                                   {course.start_date && (
                                     <div className="flex items-center gap-1">
                                       <span>{new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
                                       <Calendar className="w-4 h-4" />
                                     </div>
                                   )}
-                                  {course.schedule && (
-                                    <div className="flex items-center gap-1">
-                                      <span>{course.schedule}</span>
-                                      <Clock className="w-4 h-4" />
-                                    </div>
-                                  )}
+                                  </div>
+                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end mb-2">
+
+                                  {course.time_plans && course.time_plans.length > 0 && (
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    {course.time_plans.map((time_plan, index) => (
+                                      <span key={`${index}`}>
+                                        {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} {"ها"},{" "}
+                                        {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
+                                      </span>
+                                      
+                                    ))}
+                                  <Clock className="w-4 h-4" />
+
+                                  </div>
+                                )}
                                   {course.location && (
                                     <div className="flex items-center gap-1">
                                       <span>{course.location}</span>
@@ -534,7 +546,7 @@ export default function ProfilePage() {
             </TabsContent>
 
             {/* Admin Tab */}
-            {user.role === "admin" && (
+            {isCreator() && (
               <TabsContent value="admin">
                 <Card className="border-2 shadow-lg">
                   <CardHeader>
@@ -546,7 +558,7 @@ export default function ProfilePage() {
                       <Link href="/admin/dashboard">
                         <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
                           <CardContent className="p-6 flex flex-col items-center text-center">
-                            <IdCard className="w-10 h-10 text-primary mb-4" />
+                            <LayoutDashboard className="w-10 h-10 text-primary mb-4" />
                             <h3 className="font-semibold">داشبورد</h3>
                             <p className="text-sm text-muted-foreground">مشاهده آمار کلی</p>
                           </CardContent>
