@@ -114,6 +114,18 @@ export interface adminCourse {
   is_active: boolean
 }
 
+export interface UserEventRegistration {
+  event: Event
+  joined_at: string
+  status: string
+}
+
+export interface UserCourseRegistration {
+  course: Course
+  joined_at: string
+  status: string
+}
+
 function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null
   const value = `; ${document.cookie}`
@@ -175,24 +187,24 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
   return response
 }
-export async function fetchTags (): Promise<Tag[]> {
-      try {
-        const response = await apiRequest("/tags/")
-        return response.json()
-      } catch (error) {
-        console.error("Error fetching tags:", error)
-        return []
-      }
-    }
-export async function fetchPersons (): Promise<Person[]> {
-      try {
-        const response = await apiRequest("/persons/")
-        return response.json()
-      } catch (error) {
-        console.error("Error fetching persons:", error)
-        return []
-      }
-    }
+export async function fetchTags(): Promise<Tag[]> {
+  try {
+    const response = await apiRequest("/tags/")
+    return response.json()
+  } catch (error) {
+    console.error("Error fetching tags:", error)
+    return []
+  }
+}
+export async function fetchPersons(): Promise<Person[]> {
+  try {
+    const response = await apiRequest("/persons/")
+    return response.json()
+  } catch (error) {
+    console.error("Error fetching persons:", error)
+    return []
+  }
+}
 export async function fetchCourses(): Promise<Course[]> {
   const response = await apiRequest("/courses/")
   if (!response.ok) {
@@ -248,7 +260,6 @@ export async function fetchEventBySlug(slug: string): Promise<Event> {
   return response.json()
 }
 
-
 export async function fetchAdminEventBySlug(slug: string): Promise<adminEvent> {
   const response = await apiRequest(`/admin/events/${slug}/`)
   if (!response.ok) {
@@ -257,7 +268,7 @@ export async function fetchAdminEventBySlug(slug: string): Promise<adminEvent> {
   return response.json()
 }
 
-export async function fetchUserEvents(): Promise<Event[]> {
+export async function fetchUserEvents(): Promise<UserEventRegistration[]> {
   const response = await apiRequest("/profile/events/")
   if (!response.ok) {
     throw new Error("Failed to fetch user events")
@@ -265,8 +276,8 @@ export async function fetchUserEvents(): Promise<Event[]> {
   return response.json()
 }
 
-export async function fetchUserCourses(): Promise<any[]> {
-  const response = await apiRequest("/auth/me/courses/")
+export async function fetchUserCourses(): Promise<UserCourseRegistration[]> {
+  const response = await apiRequest("/profile/courses/")
   if (!response.ok) {
     throw new Error("Failed to fetch user courses")
   }
@@ -320,18 +331,20 @@ export async function eventRegitserBySlug(slug: string): Promise<any> {
   })
 
   if (response.status == 409) {
-    return { detail: "ظرفیت رویداد پر شده است",  type: "error" }
+    return { detail: "ظرفیت رویداد پر شده است", type: "error" }
   } else if (response.status == 422) {
-    return { detail: "شما قبلا در این رویداد ثبت نام کرده اید" ,type: "info"}
+    return { detail: "شما قبلا در این رویداد ثبت نام کرده اید", type: "info" }
   } else if (response.status == 410) {
-    return { detail: "مهلت ثبت نام تمام شده است",  type: "error" }
+    return { detail: "مهلت ثبت نام تمام شده است", type: "error" }
   } else if (response.status == 201) {
-    return { detail: "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید.", type: "success" }
-  }
-  else if (response.status == 400) {
+    return {
+      detail: "ثبت نام در رویداد با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات رویداد را مشاهده کنید.",
+      type: "success",
+    }
+  } else if (response.status == 400) {
     return { detail: "لطفا فیلد های مورد نیاز برای ثبت نام را پر کنید", type: "error" }
   } else {
-    return { detail: "ثبت نام موفقیت امیز نبود",  type: "error" }
+    return { detail: "ثبت نام موفقیت امیز نبود", type: "error" }
   }
 }
 
@@ -341,17 +354,20 @@ export async function courseRegitserBySlug(slug: string): Promise<any> {
   })
 
   if (response.status == 409) {
-    return { detail: "ظرفیت دوره پر شده است", type: "error"}
+    return { detail: "ظرفیت دوره پر شده است", type: "error" }
   } else if (response.status == 422) {
-    return { detail: "شما قبلا در این دوره ثبت نام کرده اید", type: "info"}
+    return { detail: "شما قبلا در این دوره ثبت نام کرده اید", type: "info" }
   } else if (response.status == 410) {
-    return { detail: "مهلت ثبت نام تمام شده است", type: "error"}
+    return { detail: "مهلت ثبت نام تمام شده است", type: "error" }
   } else if (response.status == 201) {
-    return { detail: "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید.", type: "success" }
+    return {
+      detail: "ثبت نام در دوره با موفقیت انجام شد. می توانید در پروفایل خود اطلاعات دوره را مشاهده کنید.",
+      type: "success",
+    }
   } else if (response.status == 400) {
     return { detail: "لطفا فیلد های مورد نیاز برای ثبت نام را پر کنید", type: "error" }
   } else {
-    return { detail: "ثبت نام موفقیت امیز نبود", type: "error"}
+    return { detail: "ثبت نام موفقیت امیز نبود", type: "error" }
   }
 }
 

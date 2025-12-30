@@ -12,16 +12,25 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, MapPin, User, Settings, BookOpen, CalendarDays, Edit, Save, X, Loader2 } from "lucide-react"
+import { Calendar, MapPin, User, Settings, BookOpen, CalendarDays, Edit, Save, X, Loader2 , Clock, LayoutDashboard} from "lucide-react"
 import Link from "next/link"
-import { fetchUserEvents, apiRequest, type Event } from "@/lib/api-client"
+import {
+  fetchUserEvents,
+  fetchUserCourses,
+  apiRequest, 
+  type UserEventRegistration, 
+  type UserCourseRegistration,
+  WeekdayFa
+  } from "@/lib/api-client"
+import { toast } from "@/hooks/use-toast"
+
 
 export default function ProfilePage() {
   const { user, loading, isCreator } = useAuth()
   const router = useRouter()
 
-  const [userEvents, setUserEvents] = useState<Event[]>([])
-  const [userCourses, setUserCourses] = useState<any[]>([])
+  const [userEvents, setUserEvents] = useState<UserEventRegistration[]>([])
+  const [userCourses, setUserCourses] = useState<UserCourseRegistration[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -46,6 +55,12 @@ export default function ProfilePage() {
     }
     return result;
   };
+  const formatTime = (dateString: string) => {
+  return new Date(dateString).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })
+  }
+  const formatJustTime = (time: string) => toPersianNumber(time.slice(0, 5))
+  const toPersianNumber = (value: string | number) =>
+    value.toString().replace(/\d/g, (d) => (+d).toLocaleString("fa-IR"))
 
   useEffect(() => {
     if (!loading && !user) {
@@ -68,13 +83,16 @@ export default function ProfilePage() {
   const loadUserData = async () => {
     setLoadingData(true)
     try {
-      const events = await fetchUserEvents()
+      const [events, courses] = await Promise.all([fetchUserEvents(), fetchUserCourses()])
       setUserEvents(events)
-      // TODO: Fetch user courses when API is ready
-      // const courses = await fetchUserCourses()
-      // setUserCourses(courses)
+      setUserCourses(courses)
     } catch (error) {
-      console.error("Failed to load user data:", error)
+      console.error("Error loading user data:", error)
+      toast({
+        title: "خطا",
+        description: "بارگذاری اطلاعات کاربر با خطا مواجه شد",
+        variant: "destructive",
+      })
     } finally {
       setLoadingData(false)
     }
@@ -119,13 +137,21 @@ export default function ProfilePage() {
         throw new Error("Failed to update profile")
       }
 
-      alert("پروفایل با موفقیت به‌روزرسانی شد")
+      toast({
+        title: "موفقیت",
+        description: "پروفایل با موفقیت به‌روزرسانی شد",
+        variant: "default",
+      })
       setIsEditing(false)
       setSelectedImage(null)
-      window.location.reload()
+      window.location.reload()      
     } catch (error) {
       console.error("Failed to update profile:", error)
-      alert("خطا در به‌روزرسانی پروفایل")
+      toast({
+        title: "خطا",
+        description: "خطا در به‌روزرسانی پروفایل",
+        variant: "destructive",
+      })
     } finally {
       setSaving(false)
     }
@@ -267,21 +293,7 @@ export default function ProfilePage() {
 
                   {/* Form Fields */}
                   <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
-                        نام <span className="text-destructive">*</span>
-                      </Label>
-                      {isEditing ? (
-                        <Input
-                          value={editForm.firstName}
-                          onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
-                          className="border-2 focus:border-primary text-right"
-                          placeholder="نام خود را وارد کنید"
-                        />
-                      ) : (
-                        <p className="text-lg font-medium text-right">{user.firstName || "-"}</p>
-                      )}
-                    </div>
+
 
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-muted-foreground text-right block">
@@ -296,6 +308,21 @@ export default function ProfilePage() {
                         />
                       ) : (
                         <p className="text-lg font-medium text-right">{user.lastName || "-"}</p>
+                      )}
+                    </div>
+                                        <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
+                        نام <span className="text-destructive">*</span>
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          value={editForm.firstName}
+                          onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                          className="border-2 focus:border-primary text-right"
+                          placeholder="نام خود را وارد کنید"
+                        />
+                      ) : (
+                        <p className="text-lg font-medium text-right">{user.firstName || "-"}</p>
                       )}
                     </div>
 
@@ -347,7 +374,7 @@ export default function ProfilePage() {
               </Card>
             </TabsContent>
 
-            {/* Events Tab */}
+                        {/* Events Tab */}
             <TabsContent value="events">
               <Card className="border-2 shadow-lg">
                 <CardHeader>
@@ -369,44 +396,49 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {userEvents.map((event) => (
-                        <Card key={event.slug} className="overflow-hidden">
-                          <div className="flex flex-col md:flex-row-reverse">
-                            <div className="w-full md:w-48 h-32 overflow-hidden">
-                              <img
-                                src={event.image || "/placeholder.svg"}
-                                alt={event.title}
-                                className="w-full h-full object-cover"
-                              />
+                      {userEvents.map((registration) => {
+                        const event = registration.event
+                        return (
+                          <Card key={event.slug} className="overflow-hidden">
+                            <div className="flex flex-col md:flex-row-reverse">
+                              <div className="w-full md:w-48 h-32 overflow-hidden">
+                                <img
+                                  src={event.image || "/placeholder.svg"}
+                                  alt={event.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <CardContent className="flex-1 p-4 text-right">
+                                <div className="flex items-start justify-between mb-2 flex-row-reverse">
+                                  <h3 className="font-semibold text-lg text-right">{event.title}</h3>
+                                </div>
+                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end">
+                                  <div className="flex items-center gap-1">
+                                    <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
+                                    <Calendar className="w-4 h-4" />
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span>{event.location}</span>
+                                    <MapPin className="w-4 h-4" />
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 mt-3 justify-end flex-wrap">
+                                  {event.tags.slice(0, 2).map((tag) => (
+                                    <Badge key={tag} variant="secondary">
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                <Link href={`/events/${event.slug}`}>
+                                  <Button variant="outline" size="sm" className="mt-4 bg-transparent">
+                                    مشاهده جزئیات
+                                  </Button>
+                                </Link>
+                              </CardContent>
                             </div>
-                            <CardContent className="flex-1 p-4 text-right">
-                              <h3 className="font-semibold text-lg mb-2">{event.title}</h3>
-                              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end">
-                                <div className="flex items-center gap-1">
-                                  <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
-                                  <Calendar className="w-4 h-4" />
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span>{event.location}</span>
-                                  <MapPin className="w-4 h-4" />
-                                </div>
-                              </div>
-                              <div className="flex gap-2 mt-3 justify-end flex-wrap">
-                                {event.tags.slice(0, 2).map((tag) => (
-                                  <Badge key={tag} variant="secondary">
-                                    {tag}
-                                  </Badge>
-                                ))}
-                              </div>
-                              <Link href={`/events/${event.slug}`}>
-                                <Button variant="outline" size="sm" className="mt-4 bg-transparent">
-                                  مشاهده جزئیات
-                                </Button>
-                              </Link>
-                            </CardContent>
-                          </div>
-                        </Card>
-                      ))}
+                          </Card>
+                        )
+                      })}
                     </div>
                   )}
                 </CardContent>
@@ -435,30 +467,78 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {userCourses.map((course) => (
-                        <Card key={course.id} className="overflow-hidden">
-                          <div className="flex flex-col md:flex-row-reverse">
-                            <div className="w-full md:w-48 h-32 overflow-hidden">
-                              <img
-                                src={course.image || "/placeholder.svg"}
-                                alt={course.name}
-                                className="w-full h-full object-cover"
-                              />
+                      {userCourses.map((registration) => {
+                        const course = registration.course
+                        return (
+                          <Card key={course.slug} className="overflow-hidden">
+                            <div className="flex flex-col md:flex-row-reverse">
+                              <div className="w-full md:w-48 h-32 overflow-hidden">
+                                <img
+                                  src={course.image || "/placeholder.svg"}
+                                  alt={course.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <CardContent className="flex-1 p-4 text-right">
+                                <div className="flex items-start justify-between mb-2 flex-row-reverse">
+                                  <h3 className="font-semibold text-lg text-right">{course.title}</h3>
+                                </div>
+                                <p className="text-sm text-muted-foreground mb-2 text-right">
+                                  {course.instructors.length > 0 && (
+                                    <>
+                                      
+                                      {course.instructors.map((i) => `${i.first_name} ${i.last_name}`).join("، ")}
+                                      {" : "}اساتید  
+                                    </>
+                                  )}
+                                </p>
+                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end mb-2">
+                                  {course.start_date && (
+                                    <div className="flex items-center gap-1">
+                                      <span>{new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
+                                      <Calendar className="w-4 h-4" />
+                                    </div>
+                                  )}
+                                  </div>
+                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end mb-2">
+
+                                  {course.time_plans && course.time_plans.length > 0 && (
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    {course.time_plans.map((time_plan, index) => (
+                                      <span key={`${index}`}>
+                                        {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} {"ها"},{" "}
+                                        {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
+                                      </span>
+                                      
+                                    ))}
+                                  <Clock className="w-4 h-4" />
+
+                                  </div>
+                                )}
+                                  {course.location && (
+                                    <div className="flex items-center gap-1">
+                                      <span>{course.location}</span>
+                                      <MapPin className="w-4 h-4" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex gap-2 mt-3 justify-end flex-wrap">
+                                  {course.tags.slice(0, 2).map((tag) => (
+                                    <Badge key={tag} variant="secondary">
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                <Link href={`/courses/${course.slug}`}>
+                                  <Button variant="outline" size="sm" className="mt-2 bg-transparent">
+                                    مشاهده جزئیات
+                                  </Button>
+                                </Link>
+                              </CardContent>
                             </div>
-                            <CardContent className="flex-1 p-4 text-right">
-                              <h3 className="font-semibold text-lg mb-2">{course.name}</h3>
-                              <p className="text-sm text-muted-foreground mb-2">
-                                استاد: {course.instructors?.join("، ")}
-                              </p>
-                              <Link href={`/courses/${course.id}`}>
-                                <Button variant="outline" size="sm" className="mt-2 bg-transparent">
-                                  مشاهده جزئیات
-                                </Button>
-                              </Link>
-                            </CardContent>
-                          </div>
-                        </Card>
-                      ))}
+                          </Card>
+                        )
+                      })}
                     </div>
                   )}
                 </CardContent>
@@ -478,7 +558,7 @@ export default function ProfilePage() {
                       <Link href="/admin/dashboard">
                         <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
                           <CardContent className="p-6 flex flex-col items-center text-center">
-                            <Settings className="w-10 h-10 text-primary mb-4" />
+                            <LayoutDashboard className="w-10 h-10 text-primary mb-4" />
                             <h3 className="font-semibold">داشبورد</h3>
                             <p className="text-sm text-muted-foreground">مشاهده آمار کلی</p>
                           </CardContent>

@@ -1,5 +1,5 @@
 "use client"
-import { Github, Linkedin, Instagram as Telegram } from "lucide-react"
+import { Github, Linkedin } from "lucide-react"
 import Image from "next/image"
 import { useTheme } from "@/lib/theme-context"
 
@@ -91,12 +91,10 @@ export function Footer() {
               >
                 <Github className="w-5 h-5" />
               </a>
-              <a
-                href="https://t.me/ACMkhu"
-                className="p-2 rounded-lg hover:bg-muted transition-colors"
-                aria-label="Telegram"
-              >
-                <Telegram className="w-5 h-5" />
+              <a href="https://t.me/ACMkhu" className="p-2 rounded-lg hover:bg-muted transition-colors" aria-label="Telegram">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 240 240">
+                  <path fill="currentColor" d="M120 0C53.73 0 0 53.73 0 120s53.73 120 120 120 120-53.73 120-120S186.27 0 120 0zm55.07 80.73l-22.02 103.82c-1.66 7.21-6.01 8.97-12.21 5.61l-33.68-24.86-16.25 15.63c-1.8 1.8-3.32 3.32-6.79 3.32l2.44-34.56 62.99-56.96c2.73-2.44-.59-3.8-4.23-1.36l-77.72 48.85-33.45-10.44c-7.25-2.25-7.38-7.25 1.52-10.73l129.03-49.77c5.94-2.25 11.15 1.45 9.37 10.4z"/>
+                </svg>
               </a>
               <a
                 href="https://www.linkedin.com/company/acm-khu/"
