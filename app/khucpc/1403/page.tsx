@@ -1,408 +1,419 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Trophy, Users, Calendar, MapPin, Award, ImageIcon, Video, Download } from "lucide-react"
+import { Calendar, MapPin, Users, Trophy, Award } from "lucide-react"
 
 export default function KhuCPC1403Page() {
-  const [selectedMedia, setSelectedMedia] = useState<"photos" | "videos">("photos")
-
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary/10 via-background to-primary/5 py-20 md:py-32">
+      <section className="relative bg-gradient-to-br from-primary/10 via-background to-primary/5 py-12 md:py-20 border-b">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-3 mb-6">
             <Link href="/khucpc">
               <Button variant="ghost" size="sm">
-                → بازگشت به صفحه اصلی
+                ← بازگشت به KhuCPC
               </Button>
             </Link>
           </div>
 
-          <div className="max-w-4xl mx-auto text-center">
-            <Badge className="mb-4 text-lg px-6 py-2" variant="secondary">
-              سال 1403
+          <div className="max-w-4xl mx-auto">
+            <Badge className="mb-4" variant="secondary">
+              گزارش مسابقه
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance">مسابقات برنامه‌نویسی KhuCPC 1403</h1>
-            <p className="text-xl text-muted-foreground mb-8 text-pretty">
-              اولین دوره مسابقات الگوریتمی برنامه‌نویسی دانشگاه خوارزمی
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance text-right">
+              گزارش کامل مسابقات KhuCPC سال 1403
+            </h1>
+            <p className="text-lg text-muted-foreground mb-6 text-right text-pretty">
+              داستان اولین دوره مسابقات برنامه‌نویسی دانشگاه خوارزمی
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-right justify-end" dir="rtl">
               <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
                 <span>15 اردیبهشت 1403</span>
+                <Calendar className="h-4 w-4 text-primary" />
               </div>
               <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-primary" />
                 <span>سالن کنفرانس دانشگاه خوارزمی</span>
+                <MapPin className="h-4 w-4 text-primary" />
               </div>
               <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
                 <span>45 تیم شرکت‌کننده</span>
+                <Users className="h-4 w-4 text-primary" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Statistics */}
-      <section className="py-16 border-b">
+      {/* Blog Content */}
+      <article className="py-16" dir="rtl">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <Users className="h-10 w-10 mx-auto mb-3 text-primary" />
-                <div className="text-3xl font-bold mb-1">45</div>
-                <div className="text-sm text-muted-foreground">تیم شرکت‌کننده</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <Trophy className="h-10 w-10 mx-auto mb-3 text-primary" />
-                <div className="text-3xl font-bold mb-1">12</div>
-                <div className="text-sm text-muted-foreground">مسئله</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <Calendar className="h-10 w-10 mx-auto mb-3 text-primary" />
-                <div className="text-3xl font-bold mb-1">5</div>
-                <div className="text-sm text-muted-foreground">ساعت مسابقه</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <Award className="h-10 w-10 mx-auto mb-3 text-primary" />
-                <div className="text-3xl font-bold mb-1">3</div>
-                <div className="text-sm text-muted-foreground">تیم برنده</div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+          <div className="max-w-3xl mx-auto prose prose-lg text-right">
+            {/* Introduction */}
+            <h2 className="text-3xl font-bold mb-6 text-right">آغاز یک سنت جدید</h2>
+            <p className="text-lg leading-relaxed mb-6">
+              صبح روز پانزدهم اردیبهشت ماه سال 1403، سالن کنفرانس دانشگاه خوارزمی میزبان رویدادی خاص بود. اولین دوره
+              مسابقات برنامه‌نویسی الگوریتمی KhuCPC، رویایی که ماه‌ها برای تحقق آن تلاش شده بود، سرانجام به واقعیت پیوست.
+              این مسابقه نه تنها یک رقابت ساده بود، بلکه آغاز یک سنت جدید در دانشگاه خوارزمی محسوب می‌شد.
+            </p>
 
-      {/* Overview */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-6 text-right">درباره مسابقه</h2>
-            <Card>
-              <CardContent className="pt-6 prose prose-lg max-w-none text-right" dir="rtl">
-                <p>
-                  اولین دوره مسابقات برنامه‌نویسی KhuCPC در تاریخ 15 اردیبهشت 1403 با حضور 45 تیم از دانشجویان دانشگاه
-                  خوارزمی برگزار شد. این مسابقه با هدف ارتقای سطح مهارت‌های الگوریتمی و برنامه‌نویسی دانشجویان و ایجاد
-                  فضایی رقابتی و علمی برگزار گردید.
-                </p>
-                <p>
-                  مسابقه شامل 12 مسئله الگوریتمی با سطوح مختلف دشواری بود که تیم‌ها باید در مدت 5 ساعت به حل آن‌ها
-                  می‌پرداختند. مسائل طراحی شده توسط اساتید و دانشجویان برتر رشته علوم کامپیوتر بودند و طیف گسترده‌ای از
-                  موضوعات الگوریتمی را پوشش می‌دادند.
-                </p>
-                <p>
-                  جو رقابتی و در عین حال دوستانه این مسابقه، یکی از ویژگی‌های برجسته آن بود. دانشجویان علاوه بر رقابت،
-                  فرصتی برای یادگیری و تبادل تجربیات پیدا کردند.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-12 text-right">گزارش تصویری مسابقه</h2>
-            <div className="space-y-8" dir="rtl">
-              {/* Timeline Item 1 */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Badge variant="outline">08:00 - 09:00</Badge>
-                    <CardTitle className="text-right">ثبت نام و پذیرش تیم‌ها</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-right mb-4">
-                    تیم‌ها در سالن کنفرانس حضور یافته و پس از تکمیل فرآیند ثبت نام، به ایستگاه‌های خود هدایت شدند. فضای پر
-                    انرژی و هیجان قبل از شروع مسابقه در سالن حاکم بود.
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Timeline Item 2 */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Badge variant="outline">09:00 - 09:30</Badge>
-                    <CardTitle className="text-right">مراسم افتتاحیه</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-right mb-4">
-                    مراسم افتتاحیه با سخنرانی رئیس انجمن علمی ACM و معرفی قوانین مسابقه آغاز شد. همچنین اساتید برجسته
-                    رشته کامپیوتر حضور داشتند و با ارائه سخنرانی‌های انگیزشی، دانشجویان را به تلاش بیشتر تشویق کردند.
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <Video className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Timeline Item 3 */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Badge variant="outline">09:30 - 14:30</Badge>
-                    <CardTitle className="text-right">شروع مسابقه</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-right mb-4">
-                    مسابقه به طور رسمی آغاز شد. تیم‌ها با دریافت 12 مسئله الگوریتمی، شروع به تحلیل و حل مسائل کردند. جو
-                    رقابتی شدیدی در سالن حاکم بود و هر تیم تلاش می‌کرد تا بیشترین تعداد مسائل را در کمترین زمان حل کند.
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Timeline Item 4 */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Badge variant="outline">14:30 - 15:00</Badge>
-                    <CardTitle className="text-right">پایان مسابقه و اعلام نتایج</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-right mb-4">
-                    پس از پایان 5 ساعت مسابقه، نتایج نهایی محاسبه و اعلام شد. تیم‌های برتر مشخص شدند و آماده دریافت جوایز
-                    شدند.
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Timeline Item 5 */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Badge variant="outline">15:00 - 16:00</Badge>
-                    <CardTitle className="text-right">مراسم اختتامیه و اهدای جوایز</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-right mb-4">
-                    مراسم اختتامیه با حضور مسئولین دانشگاه و اساتید برگزار شد. جوایز نفرات برتر اهدا گردید و از تمامی
-                    شرکت‌کنندگان تقدیر شد. همچنین گواهی شرکت در مسابقه به تمامی تیم‌ها اعطا شد.
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <Video className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="my-8 rounded-lg overflow-hidden">
+              <div className="aspect-video bg-muted flex items-center justify-center">
+                <Image
+                  src="/placeholder.svg?height=400&width=600"
+                  alt="سالن مسابقه قبل از شروع"
+                  width={600}
+                  height={400}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <p className="text-sm text-muted-foreground text-center mt-2">سالن کنفرانس قبل از شروع مسابقه</p>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Winners */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-12 text-right">تیم‌های برتر</h2>
-            <div className="grid md:grid-cols-3 gap-6" dir="rtl">
-              {/* First Place */}
-              <Card className="relative overflow-hidden border-2 border-yellow-500">
-                <div className="absolute top-0 right-0 bg-yellow-500 text-white px-4 py-1 text-sm font-bold">
-                  🥇 مقام اول
+            {/* Registration */}
+            <h2 className="text-3xl font-bold mb-6 mt-12 text-right">ثبت‌نام و استقبال چشمگیر</h2>
+            <p className="leading-relaxed mb-4">
+              از ساعت 8 صبح، دانشجویان مشتاق شروع به حضور در سالن کردند. استقبال از این مسابقه فراتر از انتظارات بود؛ 45
+              تیم سه‌نفره متشکل از 135 دانشجوی برتر رشته کامپیوتر و مهندسی نرم‌افزار برای شرکت در این رویداد ثبت‌نام کرده
+              بودند. هر تیم با دریافت شماره میز و یک بسته شامل دفترچه قوانین، نقشه سالن و یک کیت خوش‌آمدگویی، به جایگاه
+              خود هدایت شد.
+            </p>
+
+            <div className="grid grid-cols-2 gap-4 my-8">
+              <div className="rounded-lg overflow-hidden">
+                <div className="aspect-square bg-muted flex items-center justify-center">
+                  <Image
+                    src="/placeholder.svg?height=300&width=300"
+                    alt="ثبت نام شرکت کنندگان"
+                    width={300}
+                    height={300}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
-                <CardHeader className="pt-12">
-                  <CardTitle className="text-right text-2xl">تیم الگوریتم</CardTitle>
-                  <CardDescription className="text-right">12 مسئله حل شده</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-right">
-                    <p className="font-semibold">اعضای تیم:</p>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• علی احمدی</li>
-                      <li>• محمد رضایی</li>
-                      <li>• سارا محمدی</li>
-                    </ul>
+              </div>
+              <div className="rounded-lg overflow-hidden">
+                <div className="aspect-square bg-muted flex items-center justify-center">
+                  <Image
+                    src="/placeholder.svg?height=300&width=300"
+                    alt="تیم ها در حال آماده شدن"
+                    width={300}
+                    height={300}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Opening Ceremony */}
+            <h2 className="text-3xl font-bold mb-6 mt-12 text-right">مراسم افتتاحیه و کلمات انگیزشی</h2>
+            <p className="leading-relaxed mb-4">
+              ساعت 9 صبح، مراسم افتتاحیه با سخنرانی آقای دکتر محمدی، رئیس انجمن علمی ACM دانشگاه خوارزمی، آغاز شد. ایشان
+              با اشاره به اهمیت برنامه‌نویسی رقابتی و نقش آن در توسعه مهارت‌های حل مسئله، همه شرکت‌کنندگان را به تلاش و
+              پشتکار تشویق کردند.
+            </p>
+            <p className="leading-relaxed mb-4">
+              سپس آقای دکتر احمدی، استاد برجسته رشته علوم کامپیوتر، با ارائه یک سخنرانی کوتاه اما تاثیرگذار، از اهمیت
+              یادگیری از شکست‌ها و ارزش رقابت سالم سخن گفتند. کلمات ایشان انگیزه و انرژی تازه‌ای به شرکت‌کنندگان بخشید.
+            </p>
+
+            <div className="my-8 rounded-lg overflow-hidden">
+              <div className="aspect-video bg-muted flex items-center justify-center">
+                <Image
+                  src="/placeholder.svg?height=400&width=600"
+                  alt="مراسم افتتاحیه"
+                  width={600}
+                  height={400}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <p className="text-sm text-muted-foreground text-center mt-2">
+                دکتر محمدی در حال سخنرانی در مراسم افتتاحیه
+              </p>
+            </div>
+
+            {/* Competition Start */}
+            <h2 className="text-3xl font-bold mb-6 mt-12 text-right">شروع نبرد با الگوریتم‌ها</h2>
+            <p className="leading-relaxed mb-4">
+              ساعت 9:30 دقیقاً، سیگنال شروع مسابقه به صدا درآمد. سکوت عمیقی بر سالن حاکم شد که تنها با صدای کلیک ماوس‌ها و
+              تایپ روی کیبوردها شکسته می‌شد. تیم‌ها با دریافت 12 مسئله الگوریتمی با سطوح مختلف دشواری، سفر 5 ساعته خود را
+              در دنیای الگوریتم‌ها آغاز کردند.
+            </p>
+            <p className="leading-relaxed mb-4">
+              مسائل این دوره طیف گسترده‌ای از موضوعات را پوشش می‌دادند: از مسائل ساده‌ای که با یک الگوریتم Greedy قابل حل
+              بودند، تا مسائل پیچیده‌تر که نیاز به استفاده از برنامه‌نویسی پویا، گراف‌ها و درخت‌ها داشتند. برخی مسائل نیز به
+              قدری چالش‌برانگیز بودند که تنها تیم‌های برتر توانستند آن‌ها را حل کنند.
+            </p>
+
+            <div className="bg-muted/50 p-6 rounded-lg my-8 border-r-4 border-primary">
+              <div className="flex items-start gap-3">
+                <Trophy className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-bold text-lg mb-2 text-right">آمار مسابقه</h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="text-right">
+                      <div className="font-semibold">تعداد مسائل:</div>
+                      <div className="text-muted-foreground">12 مسئله</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">مدت زمان:</div>
+                      <div className="text-muted-foreground">5 ساعت</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">تیم‌های شرکت‌کننده:</div>
+                      <div className="text-muted-foreground">45 تیم</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">کل ارسال‌ها:</div>
+                      <div className="text-muted-foreground">428 submission</div>
+                    </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t">
-                    <div className="text-sm text-muted-foreground text-right">زمان کل: 1250 دقیقه</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 my-8">
+              <div className="rounded-lg overflow-hidden">
+                <div className="aspect-square bg-muted flex items-center justify-center">
+                  <Image
+                    src="/placeholder.svg?height=300&width=300"
+                    alt="تیم ها در حال کد نویسی"
+                    width={300}
+                    height={300}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+              <div className="rounded-lg overflow-hidden">
+                <div className="aspect-square bg-muted flex items-center justify-center">
+                  <Image
+                    src="/placeholder.svg?height=300&width=300"
+                    alt="فضای مسابقه"
+                    width={300}
+                    height={300}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+              <div className="rounded-lg overflow-hidden">
+                <div className="aspect-square bg-muted flex items-center justify-center">
+                  <Image
+                    src="/placeholder.svg?height=300&width=300"
+                    alt="تمرکز شرکت کنندگان"
+                    width={300}
+                    height={300}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Competition Atmosphere */}
+            <h2 className="text-3xl font-bold mb-6 mt-12 text-right">فضای رقابتی و هیجان‌انگیز</h2>
+            <p className="leading-relaxed mb-4">
+              در طول مسابقه، جو رقابتی اما دوستانه‌ای بر سالن حاکم بود. هر بار که یک تیم موفق به حل یک مسئله می‌شد، پیام
+              "Accepted" روی صفحه scoreboard ظاهر می‌شد و شادی اعضای تیم پخش می‌گردید. برخی تیم‌ها با استراتژی تقسیم کار،
+              هر عضو را مسئول حل دسته‌ای از مسائل کرده بودند، در حالی که برخی دیگر ترجیح می‌دادند به صورت مشترک روی هر
+              مسئله کار کنند.
+            </p>
+            <p className="leading-relaxed mb-4">
+              یکی از لحظات هیجان‌انگیز مسابقه، رقابت نزدیک بین دو تیم برتر در ساعات پایانی بود. هر دو تیم 11 مسئله را حل
+              کرده بودند و در تلاش برای حل مسئله دوازدهم بودند. این رقابت تا لحظات پایانی ادامه یافت و سرانجام تیم
+              "الگوریتم" با حل مسئله آخر در 10 دقیقه مانده به پایان مسابقه، عنوان قهرمانی را کسب کرد.
+            </p>
+
+            {/* End and Results */}
+            <h2 className="text-3xl font-bold mb-6 mt-12 text-right">پایان مسابقه و اعلام نتایج</h2>
+            <p className="leading-relaxed mb-4">
+              ساعت 14:30، سیگنال پایان مسابقه به صدا درآمد. خستگی در چهره‌ها نمایان بود، اما رضایت و غرور از تلاش انجام
+              شده نیز در نگاه‌ها موج می‌زد. تیم برگزارکننده با سرعت شروع به محاسبه نتایج نهایی کرد. بعد از 30 دقیقه، نتایج
+              رسمی اعلام شد.
+            </p>
+
+            <div className="my-8 rounded-lg overflow-hidden">
+              <div className="aspect-video bg-muted flex items-center justify-center">
+                <Image
+                  src="/placeholder.svg?height=400&width=600"
+                  alt="لحظه اعلام نتایج"
+                  width={600}
+                  height={400}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <p className="text-sm text-muted-foreground text-center mt-2">لحظه اعلام نتایج نهایی</p>
+            </div>
+
+            {/* Winners */}
+            <h2 className="text-3xl font-bold mb-6 mt-12 text-right">قهرمانان دوره اول</h2>
+            <p className="leading-relaxed mb-6">
+              تیم "الگوریتم" با حل 12 مسئله و زمان کل 1250 دقیقه، عنوان قهرمانی را کسب کرد. این تیم متشکل از علی احمدی،
+              محمد رضایی و سارا محمدی بود که با هماهنگی عالی و استراتژی درست، توانستند تمامی مسائل را حل کنند.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-6 my-8">
+              {/* First Place */}
+              <div className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border-2 border-yellow-500 rounded-lg p-6">
+                <div className="text-5xl text-center mb-3">🥇</div>
+                <h3 className="text-xl font-bold text-center mb-2">تیم الگوریتم</h3>
+                <div className="text-center text-sm text-muted-foreground mb-4">مقام اول</div>
+                <div className="space-y-2 text-sm text-right">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">مسائل حل شده:</span>
+                    <span className="font-semibold">12</span>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">زمان کل:</span>
+                    <span className="font-semibold">1250 دقیقه</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t text-xs text-right space-y-1">
+                  <div>علی احمدی</div>
+                  <div>محمد رضایی</div>
+                  <div>سارا محمدی</div>
+                </div>
+              </div>
 
               {/* Second Place */}
-              <Card className="relative overflow-hidden border-2 border-gray-400">
-                <div className="absolute top-0 right-0 bg-gray-400 text-white px-4 py-1 text-sm font-bold">
-                  🥈 مقام دوم
+              <div className="bg-gradient-to-br from-gray-400/10 to-gray-500/10 border-2 border-gray-400 rounded-lg p-6">
+                <div className="text-5xl text-center mb-3">🥈</div>
+                <h3 className="text-xl font-bold text-center mb-2">تیم کدنویسان</h3>
+                <div className="text-center text-sm text-muted-foreground mb-4">مقام دوم</div>
+                <div className="space-y-2 text-sm text-right">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">مسائل حل شده:</span>
+                    <span className="font-semibold">11</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">زمان کل:</span>
+                    <span className="font-semibold">1320 دقیقه</span>
+                  </div>
                 </div>
-                <CardHeader className="pt-12">
-                  <CardTitle className="text-right text-2xl">تیم کدنویسان</CardTitle>
-                  <CardDescription className="text-right">11 مسئله حل شده</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-right">
-                    <p className="font-semibold">اعضای تیم:</p>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• رضا کریمی</li>
-                      <li>• فاطمه حسینی</li>
-                      <li>• امیر نوری</li>
-                    </ul>
-                  </div>
-                  <div className="mt-4 pt-4 border-t">
-                    <div className="text-sm text-muted-foreground text-right">زمان کل: 1320 دقیقه</div>
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="mt-4 pt-4 border-t text-xs text-right space-y-1">
+                  <div>رضا کریمی</div>
+                  <div>فاطمه حسینی</div>
+                  <div>امیر نوری</div>
+                </div>
+              </div>
 
               {/* Third Place */}
-              <Card className="relative overflow-hidden border-2 border-orange-600">
-                <div className="absolute top-0 right-0 bg-orange-600 text-white px-4 py-1 text-sm font-bold">
-                  🥉 مقام سوم
+              <div className="bg-gradient-to-br from-orange-600/10 to-orange-700/10 border-2 border-orange-600 rounded-lg p-6">
+                <div className="text-5xl text-center mb-3">🥉</div>
+                <h3 className="text-xl font-bold text-center mb-2">تیم برنامه‌نویسان</h3>
+                <div className="text-center text-sm text-muted-foreground mb-4">مقام سوم</div>
+                <div className="space-y-2 text-sm text-right">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">مسائل حل شده:</span>
+                    <span className="font-semibold">10</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">زمان کل:</span>
+                    <span className="font-semibold">1405 دقیقه</span>
+                  </div>
                 </div>
-                <CardHeader className="pt-12">
-                  <CardTitle className="text-right text-2xl">تیم برنامه‌نویسان</CardTitle>
-                  <CardDescription className="text-right">10 مسئله حل شده</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-right">
-                    <p className="font-semibold">اعضای تیم:</p>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• مهدی جعفری</li>
-                      <li>• زهرا اکبری</li>
-                      <li>• حسین موسوی</li>
-                    </ul>
-                  </div>
-                  <div className="mt-4 pt-4 border-t">
-                    <div className="text-sm text-muted-foreground text-right">زمان کل: 1405 دقیقه</div>
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="mt-4 pt-4 border-t text-xs text-right space-y-1">
+                  <div>مهدی جعفری</div>
+                  <div>زهرا اکبری</div>
+                  <div>حسین موسوی</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Closing Ceremony */}
+            <h2 className="text-3xl font-bold mb-6 mt-12 text-right">مراسم اختتامیه و اهدای جوایز</h2>
+            <p className="leading-relaxed mb-4">
+              مراسم اختتامیه با حضور معاون دانشکده و جمعی از اساتید برگزار شد. در این مراسم، علاوه بر اهدای جوایز به
+              تیم‌های برتر، از تمامی شرکت‌کنندگان و برگزارکنندگان تقدیر به عمل آمد. جوایز شامل جوایز نقدی، کتاب‌های تخصصی
+              برنامه‌نویسی، و گواهینامه‌های افتخار بود.
+            </p>
+            <p className="leading-relaxed mb-4">
+              آقای دکتر صادقی، معاون دانشکده، در سخنرانی پایانی خود از تلاش تیم برگزارکننده تقدیر کرد و وعده داد که
+              دانشکده از برگزاری دوره‌های بعدی این مسابقه با امکانات بهتر حمایت خواهد کرد. این اظهارات با استقبال گرم
+              حاضران مواجه شد.
+            </p>
+
+            <div className="grid grid-cols-2 gap-4 my-8">
+              <div className="rounded-lg overflow-hidden">
+                <div className="aspect-video bg-muted flex items-center justify-center">
+                  <Image
+                    src="/placeholder.svg?height=300&width=400"
+                    alt="اهدای جایزه به تیم اول"
+                    width={400}
+                    height={300}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+              <div className="rounded-lg overflow-hidden">
+                <div className="aspect-video bg-muted flex items-center justify-center">
+                  <Image
+                    src="/placeholder.svg?height=300&width=400"
+                    alt="عکس دسته جمعی شرکت کنندگان"
+                    width={400}
+                    height={300}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Conclusion */}
+            <h2 className="text-3xl font-bold mb-6 mt-12 text-right">پایان یک آغاز موفق</h2>
+            <p className="leading-relaxed mb-4">
+              اولین دوره KhuCPC با موفقیت به پایان رسید. این رویداد نه تنها یک مسابقه ساده بود، بلکه فرصتی برای یادگیری،
+              تبادل تجربه و ایجاد روحیه کار تیمی بود. بسیاری از شرکت‌کنندگان اعلام کردند که این تجربه به آن‌ها کمک کرد تا
+              نقاط ضعف خود را شناسایی کرده و برای بهبود مهارت‌هایشان برنامه‌ریزی کنند.
+            </p>
+            <p className="leading-relaxed mb-4">
+              با پایان این مسابقه، انتظارات برای دوره دوم شکل گرفت. تیم برگزارکننده با جمع‌آوری نظرات و پیشنهادات
+              شرکت‌کنندگان، شروع به برنامه‌ریزی برای دوره بعدی کرد تا تجربه‌ای بهتر و چالش‌برانگیزتر را ارائه دهد.
+            </p>
+
+            <div className="bg-primary/10 p-6 rounded-lg my-8 text-center">
+              <Award className="h-12 w-12 mx-auto mb-4 text-primary" />
+              <p className="font-semibold text-lg mb-2">با تشکر از تمامی شرکت‌کنندگان</p>
+              <p className="text-sm text-muted-foreground">امیدواریم در دوره‌های بعدی نیز شاهد حضور شما عزیزان باشیم</p>
             </div>
           </div>
         </div>
-      </section>
+      </article>
 
-      {/* Gallery */}
-      <section className="py-16 bg-muted/30">
+      {/* Gallery Section */}
+      <section className="py-16 bg-muted/30 border-t">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-right">گالری تصاویر و ویدیوها</h2>
-
-            <Tabs value={selectedMedia} onValueChange={(v) => setSelectedMedia(v as "photos" | "videos")} dir="rtl">
-              <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
-                <TabsTrigger value="photos">تصاویر</TabsTrigger>
-                <TabsTrigger value="videos">ویدیوها</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="photos">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {Array.from({ length: 12 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="aspect-square bg-muted rounded-lg flex items-center justify-center hover:bg-muted/70 transition-colors cursor-pointer"
-                    >
-                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  ))}
+            <h2 className="text-3xl font-bold mb-8 text-right">گالری تصاویر</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="aspect-square bg-muted rounded-lg overflow-hidden hover:opacity-80 transition-opacity cursor-pointer"
+                >
+                  <Image
+                    src={`/placeholder_photo.png?height=300&width=300&text=Photo ${i + 1}`}
+                    alt={`تصویر ${i + 1}`}
+                    width={300}
+                    height={300}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
-              </TabsContent>
-
-              <TabsContent value="videos">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="aspect-video bg-muted rounded-lg flex items-center justify-center hover:bg-muted/70 transition-colors cursor-pointer"
-                    >
-                      <Video className="h-16 w-16 text-muted-foreground" />
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Downloads */}
+      {/* CTA */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-right">فایل‌های قابل دانلود</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-right flex items-center justify-between">
-                    <span>مسائل مسابقه</span>
-                    <Download className="h-5 w-5" />
-                  </CardTitle>
-                  <CardDescription className="text-right">فایل PDF شامل تمامی مسائل مسابقه</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full">دانلود فایل</Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-right flex items-center justify-between">
-                    <span>نتایج نهایی</span>
-                    <Download className="h-5 w-5" />
-                  </CardTitle>
-                  <CardDescription className="text-right">جدول کامل نتایج تمامی تیم‌ها</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full">دانلود فایل</Button>
-                </CardContent>
-              </Card>
-            </div>
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-2xl font-bold mb-4">می‌خواهید در دوره بعدی شرکت کنید؟</h2>
+            <p className="text-muted-foreground mb-6">برای اطلاع از زمان برگزاری دوره بعدی، صفحه اصلی را دنبال کنید</p>
+            <Link href="/khucpc">
+              <Button size="lg">بازگشت به صفحه اصلی KhuCPC</Button>
+            </Link>
           </div>
         </div>
       </section>
