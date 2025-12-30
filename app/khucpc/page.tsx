@@ -40,50 +40,8 @@ export default function KhuCPCPage() {
   ]
 
   const gallery = {
-    "1404": [
-      {
-        type: "image",
-        url: "/programming-competition-opening-ceremony.jpg",
-        title: "مراسم افتتاحیه 1404",
-      },
-      {
-        type: "image",
-        url: "/students-coding-competition.jpg",
-        title: "تیم‌ها در حال رقابت",
-      },
-      {
-        type: "video",
-        url: "/programming-contest-video.jpg",
-        title: "ویدیو برگزاری مسابقه",
-      },
-      {
-        type: "image",
-        url: "/award-ceremony-winners.jpg",
-        title: "مراسم اختتامیه و اهدای جوایز",
-      },
-    ],
-    "1403": [
-      {
-        type: "image",
-        url: "/first-programming-competition.jpg",
-        title: "اولین دوره KhuCPC",
-      },
-      {
-        type: "image",
-        url: "/winners-trophy-ceremony.jpg",
-        title: "تیم‌های برنده",
-      },
-      {
-        type: "video",
-        url: "/competition-highlights.jpg",
-        title: "ویدیو گزارش مسابقه",
-      },
-      {
-        type: "image",
-        url: "/coding-competition-atmosphere.jpg",
-        title: "لحظات مسابقه",
-      },
-    ],
+    "1404": [],
+    "1403": [],
   }
 
   return (
@@ -271,32 +229,46 @@ export default function KhuCPCPage() {
 
             {Object.entries(gallery).map(([year, items]) => (
               <TabsContent key={year} value={year}>
-                <div className="grid md:grid-cols-2 gap-6">
-                  {items.map((item, index) => (
-                    <Card key={index} className="overflow-hidden group hover:shadow-lg transition-shadow">
-                      <CardContent className="p-0">
-                        <div className="relative aspect-video bg-muted">
-                          <Image
-                            src={item.url || "/placeholder.svg"}
-                            alt={item.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          {item.type === "video" && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
-                              <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
-                                <Play className="w-8 h-8 text-primary mr-1" />
+                {items.length === 0 ? (
+                  <div className="text-center py-20">
+                    <div className="max-w-md mx-auto">
+                      <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
+                        <Play className="w-12 h-12 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2">گالری خالی است</h3>
+                      <p className="text-muted-foreground mb-6">
+                        تصاویر و ویدیوهای مسابقات سال {year} به زودی اضافه خواهد شد
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {items.map((item, index) => (
+                      <Card key={index} className="overflow-hidden group hover:shadow-lg transition-shadow">
+                        <CardContent className="p-0">
+                          <div className="relative aspect-video bg-muted">
+                            <Image
+                              src={item.url || "/placeholder.svg"}
+                              alt={item.title}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            {item.type === "video" && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
+                                <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
+                                  <Play className="w-8 h-8 text-primary mr-1" />
+                                </div>
                               </div>
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-4 text-right">
-                          <h3 className="font-semibold text-lg">{item.title}</h3>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                            )}
+                          </div>
+                          <div className="p-4 text-right">
+                            <h3 className="font-semibold text-lg">{item.title}</h3>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
                 <div className="text-center mt-8">
                   <Link href={`/khucpc/${year}`}>
                     <Button size="lg" variant="outline">
