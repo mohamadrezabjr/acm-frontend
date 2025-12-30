@@ -6,21 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, ArrowRight, Users, GraduationCap } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { apiClient, type Person } from "@/lib/api-client"
+import { apiClient, type Person, type Course } from "@/lib/api-client"
 
-interface Course {
-  slug: string
-  title: string
-  description: string
-  start_date: string
-  registration_deadline: string
-  location: string
-  capacity: number
-  registered: number
-  price: number
-  image: string
-  instructors: Array<Person>
-}
 
 export function UpcomingCourses() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -77,7 +64,7 @@ export function UpcomingCourses() {
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {courses.map((course) => {
-            const isFull = course.registered >= course.capacity
+            const isFull = course.is_full
             const isDeadlinePassed = new Date(course.registration_deadline) < new Date()
             const isRegistrationClosed = isFull || isDeadlinePassed
 
@@ -118,12 +105,6 @@ export function UpcomingCourses() {
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="w-4 h-4" />
                     <span>{course.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4" />
-                    <span>
-                      {course.registered} / {course.capacity} نفر
-                    </span>
                   </div>
                   <Link href={`/courses/${course.slug}`}>
                     <Button variant="outline" className="w-full group/btn bg-transparent">

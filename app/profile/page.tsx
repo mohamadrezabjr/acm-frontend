@@ -492,7 +492,7 @@ export default function ProfilePage() {
                                     </>
                                   )}
                                 </p>
-                                                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end mb-2">
+                                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end mb-2">
                                   {course.start_date && (
                                     <div className="flex items-center gap-1">
                                       <span>{new Date(course.start_date).toLocaleDateString("fa-IR")}</span>

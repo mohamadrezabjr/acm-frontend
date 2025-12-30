@@ -6,22 +6,9 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, ArrowRight, Users } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { apiClient } from "@/lib/api-client"
+import { apiClient, type Event } from "@/lib/api-client"
 
-interface Event {
-  slug: string
-  title: string
-  description: string
-  start_date: string
-  end_date: string
-  registration_deadline: string
-  location: string
-  capacity: number
-  registered: number
-  price: number
-  image: string
-  tags: string[]
-}
+
 
 export function UpcomingEvents() {
   const [events, setEvents] = useState<Event[]>([])
@@ -78,7 +65,7 @@ export function UpcomingEvents() {
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {events.map((event) => {
-            const isFull = event.registered >= event.capacity
+            const isFull = event.is_full
             const isDeadlinePassed = new Date(event.registration_deadline) < new Date()
             const isRegistrationClosed = isFull || isDeadlinePassed
 
@@ -115,12 +102,6 @@ export function UpcomingEvents() {
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="w-4 h-4" />
                     <span>{event.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4" />
-                    <span>
-                      {event.registered} / {event.capacity} نفر
-                    </span>
                   </div>
                   <Link href={`/events/${event.slug}`}>
                     <Button variant="outline" className="w-full group/btn bg-transparent">
