@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -9,85 +10,78 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Trophy, Calendar, Users, Code, Award, Target, Clock, Play, ChevronRight, Star } from "lucide-react"
 
 export default function KhuCPCPage() {
-  const [activeYear, setActiveYear] = useState("2024")
+  const [activeYear, setActiveYear] = useState("1403")
 
   // Sample data - replace with real data later
   const stats = [
-    { icon: Trophy, label: "دوره‌های برگزار شده", value: "12" },
-    { icon: Users, label: "شرکت‌کنندگان", value: "500+" },
-    { icon: Award, label: "تیم‌های برتر", value: "36" },
-    { icon: Code, label: "مسائل حل شده", value: "1200+" },
+    { icon: Trophy, label: "دوره‌های برگزار شده", value: "2" },
+    { icon: Users, label: "شرکت‌کنندگان", value: "107" },
+    { icon: Award, label: "تیم‌های برتر", value: "6" },
+    { icon: Code, label: "مسائل حل شده", value: "26" },
   ]
 
   const timeline = [
     {
-      year: "2024",
-      title: "دوازدهمین دوره KhuCPC",
-      description: "بزرگترین دوره با حضور بیش از 80 تیم",
-      status: "آینده",
-      date: "آذر 1403",
+      year: "1404",
+      title: "دومین دوره KhuCPC",
+      description: "دومین دوره با حضور 62 تیم شرکت‌کننده",
+      status: "گذشته",
+      date: "20 اردیبهشت 1404",
+      link: "/khucpc/1404",
     },
     {
-      year: "2023",
-      title: "یازدهمین دوره KhuCPC",
-      description: "برگزاری به صورت حضوری و آنلاین",
+      year: "1403",
+      title: "اولین دوره KhuCPC",
+      description: "آغاز مسابقات با حضور 45 تیم",
       status: "گذشته",
-      date: "آذر 1402",
-    },
-    {
-      year: "2022",
-      title: "دهمین دوره KhuCPC",
-      description: "جشن ده سالگی مسابقات",
-      status: "گذشته",
-      date: "آذر 1401",
+      date: "15 اردیبهشت 1403",
+      link: "/khucpc/1403",
     },
   ]
 
   const gallery = {
-    "2024": [
+    "1404": [
       {
         type: "image",
-        url: "/placeholder.svg?height=400&width=600",
-        title: "مراسم افتتاحیه",
+        url: "/programming-competition-opening-ceremony.jpg",
+        title: "مراسم افتتاحیه 1404",
       },
       {
         type: "image",
-        url: "/placeholder.svg?height=400&width=600",
+        url: "/students-coding-competition.jpg",
         title: "تیم‌ها در حال رقابت",
       },
       {
         type: "video",
-        url: "/placeholder.svg?height=400&width=600",
-        title: "ویدیو برگزاری",
+        url: "/programming-contest-video.jpg",
+        title: "ویدیو برگزاری مسابقه",
       },
       {
         type: "image",
-        url: "/placeholder.svg?height=400&width=600",
-        title: "مراسم اختتامیه",
+        url: "/award-ceremony-winners.jpg",
+        title: "مراسم اختتامیه و اهدای جوایز",
       },
     ],
-    "2023": [
+    "1403": [
       {
         type: "image",
-        url: "/placeholder.svg?height=400&width=600",
-        title: "تیم برنده",
+        url: "/first-programming-competition.jpg",
+        title: "اولین دوره KhuCPC",
       },
       {
         type: "image",
-        url: "/placeholder.svg?height=400&width=600",
+        url: "/winners-trophy-ceremony.jpg",
+        title: "تیم‌های برنده",
+      },
+      {
+        type: "video",
+        url: "/competition-highlights.jpg",
+        title: "ویدیو گزارش مسابقه",
+      },
+      {
+        type: "image",
+        url: "/coding-competition-atmosphere.jpg",
         title: "لحظات مسابقه",
-      },
-    ],
-    "2022": [
-      {
-        type: "image",
-        url: "/placeholder.svg?height=400&width=600",
-        title: "جشن ده سالگی",
-      },
-      {
-        type: "image",
-        url: "/placeholder.svg?height=400&width=600",
-        title: "برندگان",
       },
     ],
   }
@@ -217,7 +211,7 @@ export default function KhuCPCPage() {
                       )}
                     </div>
                   </div>
-                  <Card className="mr-4">
+                  <Card className="mr-4 hover:shadow-lg transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-2">
                         <div className="text-right flex-1">
@@ -228,9 +222,19 @@ export default function KhuCPCPage() {
                           <p className="text-muted-foreground mb-3">{item.description}</p>
                         </div>
                       </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4 ml-2" />
-                        {item.date}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Calendar className="w-4 h-4 ml-2" />
+                          {item.date}
+                        </div>
+                        {item.link && (
+                          <Link href={item.link}>
+                            <Button variant="ghost" size="sm">
+                              مشاهده گزارش کامل
+                              <ChevronRight className="w-4 h-4 mr-2" />
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -250,11 +254,10 @@ export default function KhuCPCPage() {
             <p className="text-muted-foreground max-w-2xl mx-auto">خاطرات به‌یادماندنی از دوره‌های قبلی مسابقات</p>
           </div>
 
-          <Tabs defaultValue="2024" value={activeYear} onValueChange={setActiveYear} className="max-w-6xl mx-auto">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-8">
-              <TabsTrigger value="2024">1403</TabsTrigger>
-              <TabsTrigger value="2023">1402</TabsTrigger>
-              <TabsTrigger value="2022">1401</TabsTrigger>
+          <Tabs defaultValue="1404" value={activeYear} onValueChange={setActiveYear} className="max-w-6xl mx-auto">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+              <TabsTrigger value="1404">1404</TabsTrigger>
+              <TabsTrigger value="1403">1403</TabsTrigger>
             </TabsList>
 
             {Object.entries(gallery).map(([year, items]) => (
@@ -284,6 +287,14 @@ export default function KhuCPCPage() {
                       </CardContent>
                     </Card>
                   ))}
+                </div>
+                <div className="text-center mt-8">
+                  <Link href={`/khucpc/${year}`}>
+                    <Button size="lg" variant="outline">
+                      مشاهده گزارش کامل سال {year}
+                      <ChevronRight className="w-5 h-5 mr-2" />
+                    </Button>
+                  </Link>
                 </div>
               </TabsContent>
             ))}
@@ -343,7 +354,7 @@ export default function KhuCPCPage() {
             <Trophy className="w-16 h-16 text-primary mx-auto mb-6" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">آماده‌ای برای چالش؟</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              در دوازدهمین دوره مسابقات KhuCPC شرکت کن و مهارت‌هایت را به نمایش بگذار
+              در دومین دوره مسابقات KhuCPC شرکت کنید و مهارت‌های خود را به نمایش بگذارید
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button size="lg" className="text-lg px-8">
