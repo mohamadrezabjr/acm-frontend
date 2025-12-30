@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Trophy, Calendar, Users, Code, Award, Target, Clock, Play, ChevronRight, Star } from "lucide-react"
+import { Trophy, Calendar, Users, Code, Award, Target, Clock, Play, ChevronRight, Star, ArrowRight } from "lucide-react"
 
 export default function KhuCPCPage() {
   const [activeYear, setActiveYear] = useState("1403")
@@ -92,6 +92,15 @@ export default function KhuCPCPage() {
       <section className="relative bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10 py-20 md:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
         <div className="container relative z-10 mx-auto px-4">
+          <div className="flex justify-start mb-6">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <ArrowRight className="w-4 h-4" />
+                بازگشت به صفحه اصلی
+              </Button>
+            </Link>
+          </div>
+
           <div className="max-w-4xl mx-auto text-center">
             <Badge className="mb-4 text-lg px-4 py-2" variant="secondary">
               <Trophy className="w-4 h-4 ml-2 inline-block" />
