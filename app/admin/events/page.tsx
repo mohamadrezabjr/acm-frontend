@@ -181,13 +181,13 @@ export default function AdminEventsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="min-w-[200px]">عنوان</TableHead>
-                        <TableHead className="min-w-[120px]">تاریخ شروع</TableHead>
-                        <TableHead className="min-w-[150px]">مکان</TableHead>
+                        <TableHead className="min-w-[200px] text-right">عنوان</TableHead>
+                        <TableHead className="min-w-[120px] text-right">تاریخ شروع</TableHead>
+                        <TableHead className="min-w-[150px] text-right">مکان</TableHead>
                         <TableHead className="min-w-[100px] text-center">ظرفیت</TableHead>
-                        <TableHead className="min-w-[120px]">هزینه</TableHead>
-                        <TableHead className="min-w-[100px]">وضعیت</TableHead>
-                        <TableHead className="min-w-[180px] text-left">عملیات</TableHead>
+                        <TableHead className="min-w-[120px] text-right">هزینه</TableHead>
+                        <TableHead className="min-w-[100px] text-right">وضعیت</TableHead>
+                        <TableHead className="min-w-[180px] text-center">عملیات</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
