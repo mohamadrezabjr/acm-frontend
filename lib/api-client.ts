@@ -126,6 +126,95 @@ export interface UserCourseRegistration {
   status: string
 }
 
+export interface AdminEventRegistration {
+  id: number
+  event: {
+    id: number
+    title: string
+    slug: string
+    description: string
+    tags: string[]
+    start_date: string
+    end_date: string
+    registration_start_at: string
+    registration_deadline: string
+    location: string
+    price: number
+    organizer: string
+    registered: number
+    capacity: number
+    image: string
+    speakers: Person[]
+    is_active: boolean
+    dependencies: string[]
+    is_full: boolean
+  }
+  person: {
+    id: number
+    user: number
+    first_name: string
+    last_name: string
+    position: string
+    bio: string
+    student_id: string
+    avatar: string
+    phone: string
+    email: string
+  }
+  first_name_at_registration: string
+  last_name_at_registration: string
+  email_at_registration: string
+  phone_at_registration: string
+  student_id_at_registration: string
+  status: string
+  joined_at: string
+}
+
+export interface AdminCourseRegistration {
+  id: number
+  course: {
+    id: number
+    title: string
+    slug: string
+    description: string
+    tags: string[]
+    start_date: string
+    end_date: string
+    registration_start_at: string
+    registration_deadline: string
+    location: string
+    price: number
+    organizer: string
+    registered: number
+    capacity: number
+    image: string
+    instructors: Person[]
+    time_plans: TimePlan[]
+    is_active: boolean
+    dependencies: string[]
+    is_full: boolean
+  }
+  person: {
+    id: number
+    user: number
+    first_name: string
+    last_name: string
+    position: string
+    bio: string
+    student_id: string
+    avatar: string
+    phone: string
+    email: string
+  }
+  first_name_at_registration: string
+  last_name_at_registration: string
+  email_at_registration: string
+  phone_at_registration: string
+  student_id_at_registration: string
+  status: string
+  joined_at: string
+}
+
 function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null
   const value = `; ${document.cookie}`
@@ -280,6 +369,22 @@ export async function fetchUserCourses(): Promise<UserCourseRegistration[]> {
   const response = await apiRequest("/profile/courses/")
   if (!response.ok) {
     throw new Error("Failed to fetch user courses")
+  }
+  return response.json()
+}
+
+export async function fetchAdminEventRegistrations(): Promise<AdminEventRegistration[]> {
+  const response = await apiRequest("/admin/registrations/events/")
+  if (!response.ok) {
+    throw new Error("Failed to fetch event registrations")
+  }
+  return response.json()
+}
+
+export async function fetchAdminCourseRegistrations(): Promise<AdminCourseRegistration[]> {
+  const response = await apiRequest("/admin/registrations/courses/")
+  if (!response.ok) {
+    throw new Error("Failed to fetch course registrations")
   }
   return response.json()
 }
