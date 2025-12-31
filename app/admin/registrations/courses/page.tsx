@@ -11,20 +11,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowRight, Loader2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
-import { fetchAdminEventRegistrations, type AdminEventRegistration } from "@/lib/api-client"
+import { fetchAdminCourseRegistrations, type AdminCourseRegistration } from "@/lib/api-client"
 
-type SortField = "joined_at" | "event_title" | "user_name" | "status" | "phone_at_registration"
+type SortField = "joined_at" | "course_title" | "user_name" | "status"
 type SortOrder = "asc" | "desc"
 
-export default function AdminEventRegistrationsPage() {
+export default function AdminCourseRegistrationsPage() {
   const { user, loading, isCreator } = useAuth()
   const router = useRouter()
-  const [registrations, setRegistrations] = useState<AdminEventRegistration[]>([])
+  const [registrations, setRegistrations] = useState<AdminCourseRegistration[]>([])
   const [loadingRegistrations, setLoadingRegistrations] = useState(true)
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedEvent, setSelectedEvent] = useState<string>("all")
+  const [selectedCourse, setSelectedCourse] = useState<string>("all")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
 
   // Sort states
@@ -40,10 +40,10 @@ export default function AdminEventRegistrationsPage() {
   useEffect(() => {
     const loadRegistrations = async () => {
       try {
-        const data = await fetchAdminEventRegistrations()
+        const data = await fetchAdminCourseRegistrations()
         setRegistrations(data)
       } catch (error) {
-        console.error("Error fetching event registrations:", error)
+        console.error("Error fetching course registrations:", error)
       } finally {
         setLoadingRegistrations(false)
       }
@@ -54,13 +54,13 @@ export default function AdminEventRegistrationsPage() {
     }
   }, [user, isCreator])
 
-  // Get unique events for filter dropdown
-  const uniqueEvents = useMemo(() => {
-    const events = registrations.map((reg) => ({
-      id: reg.event.id,
-      title: reg.event.title,
+  // Get unique courses for filter dropdown
+  const uniqueCourses = useMemo(() => {
+    const courses = registrations.map((reg) => ({
+      id: reg.course.id,
+      title: reg.course.title,
     }))
-    const unique = Array.from(new Map(events.map((e) => [e.id, e])).values())
+    const unique = Array.from(new Map(courses.map((c) => [c.id, c])).values())
     return unique.sort((a, b) => a.title.localeCompare(b.title, "fa"))
   }, [registrations])
 
@@ -74,7 +74,7 @@ export default function AdminEventRegistrationsPage() {
   const filteredAndSortedRegistrations = useMemo(() => {
     let filtered = registrations
 
-    // Apply search filter (searches in user name, email, student ID, phone number, and event title)
+    // Apply search filter (searches in user name, email, student ID, and course title)
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(
@@ -82,16 +82,16 @@ export default function AdminEventRegistrationsPage() {
           reg.person.first_name.toLowerCase().includes(query) ||
           reg.person.last_name.toLowerCase().includes(query) ||
           reg.person.email.toLowerCase().includes(query) ||
+          reg.person.phone?.toLowerCase().includes(query) ||
           reg.person.student_id?.toLowerCase().includes(query) ||
           reg.student_id_at_registration?.toLowerCase().includes(query) ||
-          reg.person.phone?.toLowerCase().includes(query) ||
-          reg.event.title.toLowerCase().includes(query),
+          reg.course.title.toLowerCase().includes(query),
       )
     }
 
-    // Apply event filter
-    if (selectedEvent !== "all") {
-      filtered = filtered.filter((reg) => reg.event.id.toString() === selectedEvent)
+    // Apply course filter
+    if (selectedCourse !== "all") {
+      filtered = filtered.filter((reg) => reg.course.id.toString() === selectedCourse)
     }
 
     // Apply status filter
@@ -107,8 +107,8 @@ export default function AdminEventRegistrationsPage() {
         case "joined_at":
           compareValue = new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime()
           break
-        case "event_title":
-          compareValue = a.event.title.localeCompare(b.event.title, "fa")
+        case "course_title":
+          compareValue = a.course.title.localeCompare(b.course.title, "fa")
           break
         case "user_name":
           const nameA = `${a.person.first_name} ${a.person.last_name}`
@@ -118,16 +118,13 @@ export default function AdminEventRegistrationsPage() {
         case "status":
           compareValue = a.status.localeCompare(b.status)
           break
-        case "phone_at_registration":
-          compareValue = (a.phone_at_registration || "").localeCompare(b.phone_at_registration || "", "fa")
-          break
       }
 
       return sortOrder === "asc" ? compareValue : -compareValue
     })
 
     return filtered
-  }, [registrations, searchQuery, selectedEvent, selectedStatus, sortField, sortOrder])
+  }, [registrations, searchQuery, selectedCourse, selectedStatus, sortField, sortOrder])
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -190,7 +187,7 @@ export default function AdminEventRegistrationsPage() {
                 بازگشت
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold">ثبت‌نام‌های رویدادها</h1>
+            <h1 className="text-2xl font-bold">ثبت‌نام‌های دوره‌ها</h1>
           </div>
         </div>
       </header>
@@ -200,7 +197,7 @@ export default function AdminEventRegistrationsPage() {
           <CardHeader>
             <CardTitle>لیست ثبت‌نام‌ها</CardTitle>
             <CardDescription>
-              مشاهده و مدیریت ثبت‌نام‌های رویدادها ({filteredAndSortedRegistrations.length} مورد)
+              مشاهده و مدیریت ثبت‌نام‌های دوره‌ها ({filteredAndSortedRegistrations.length} مورد)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -209,23 +206,23 @@ export default function AdminEventRegistrationsPage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">جستجو</label>
                 <Input
-                  placeholder="نام، ایمیل، شماره دانشجویی، شماره موبایل یا رویداد..."
+                  placeholder="نام، ایمیل، شماره موبایل یا دوره..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">رویداد</label>
-                <Select value={selectedEvent} onValueChange={setSelectedEvent}>
+                <label className="text-sm font-medium">دوره</label>
+                <Select value={selectedCourse} onValueChange={setSelectedCourse}>
                   <SelectTrigger>
-                    <SelectValue placeholder="همه رویدادها" />
+                    <SelectValue placeholder="همه دوره‌ها" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">همه رویدادها</SelectItem>
-                    {uniqueEvents.map((event) => (
-                      <SelectItem key={event.id} value={event.id.toString()}>
-                        {event.title}
+                    <SelectItem value="all">همه دوره‌ها</SelectItem>
+                    {uniqueCourses.map((course) => (
+                      <SelectItem key={course.id} value={course.id.toString()}>
+                        {course.title}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -257,7 +254,7 @@ export default function AdminEventRegistrationsPage() {
             ) : filteredAndSortedRegistrations.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <p>
-                  {searchQuery || selectedEvent !== "all" || selectedStatus !== "all"
+                  {searchQuery || selectedCourse !== "all" || selectedStatus !== "all"
                     ? "هیچ ثبت‌نامی با این فیلترها یافت نشد"
                     : "هیچ ثبت‌نامی وجود ندارد"}
                 </p>
@@ -275,9 +272,9 @@ export default function AdminEventRegistrationsPage() {
                         </Button>
                       </TableHead>
                       <TableHead className="min-w-[200px] text-right">
-                        <Button variant="ghost" onClick={() => toggleSort("event_title")} className="h-8 px-2 -mr-2">
-                          {getSortIcon("event_title")}
-                          رویداد
+                        <Button variant="ghost" onClick={() => toggleSort("course_title")} className="h-8 px-2 -mr-2">
+                          {getSortIcon("course_title")}
+                          دوره
                         </Button>
                       </TableHead>
                       <TableHead className="min-w-[180px] text-center">ایمیل</TableHead>
@@ -312,8 +309,8 @@ export default function AdminEventRegistrationsPage() {
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="truncate max-w-[200px]" title={registration.event.title}>
-                            {registration.event.title}
+                          <div className="truncate max-w-[200px]" title={registration.course.title}>
+                            {registration.course.title}
                           </div>
                         </TableCell>
                         <TableCell className="text-right" dir = 'ltr'>
@@ -324,7 +321,7 @@ export default function AdminEventRegistrationsPage() {
                         <TableCell className="text-right" dir="ltr">
                           {registration.person.phone || "-"}
                         </TableCell>
-                        <TableCell className="text-right">{registration.person.student_id || registration.student_id_at_registration || "-"}</TableCell>
+                        <TableCell className="text-right">{registration.person.student_id || registration.student_id_at_registration || "-" }</TableCell>
                         <TableCell className="text-right">
                           <Badge variant={getStatusBadgeVariant(registration.status)}>
                             {getStatusLabel(registration.status)}
