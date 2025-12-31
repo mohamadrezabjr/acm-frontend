@@ -217,7 +217,9 @@ export default function CoursesPage() {
                 const regStatus = getRegistrationStatus(course)
 
                 return (
+                  <Link href={`/courses/${course.slug}`}>
                   <Card key={course.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
+                    
                     <div className="relative aspect-[1/1.414] overflow-hidden bg-muted">
                       <img
                         src={course.image || "/placeholder.svg"}
@@ -290,17 +292,12 @@ export default function CoursesPage() {
                         <User className="w-4 h-4" />
                         <span>{course.organizer}</span>
                       </div>
-                      <Link href={`/courses/${course.slug}`}>
-                        <Button
-                          variant="outline"
-                          className="w-full mt-4 bg-transparent"
-                          disabled={regStatus.status !== "open"}
-                        >
-                          مشاهده جزئیات
-                        </Button>
-                      </Link>
+                      
+
+                      
                     </CardContent>
                   </Card>
+                  </Link>
                 )
               })}
             </div>

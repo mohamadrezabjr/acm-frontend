@@ -216,6 +216,8 @@ export default function EventsPage() {
                 const regStatus = getRegistrationStatus(event)
 
                 return (
+                  <Link href={`/events/${event.slug}`}>
+
                   <Card key={event.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
                     {/* Image Section */}
                     <div className="relative aspect-[1/1.414] overflow-hidden bg-muted">
@@ -290,17 +292,9 @@ export default function EventsPage() {
                         <span>{event.organizer}</span>
                       </div>
 
-                      <Link href={`/events/${event.slug}`}>
-                        <Button
-                          variant="outline"
-                          className="w-full mt-4 bg-transparent"
-                          disabled={regStatus.status !== "open"}
-                        >
-                          مشاهده جزئیات
-                        </Button>
-                      </Link>
+                      
                     </CardContent>
-                  </Card>
+                  </Card></Link>
                 )
               })}
             </div>
