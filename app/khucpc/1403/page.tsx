@@ -5,8 +5,27 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Users, Trophy, Award } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 export default function KhuCPC1403Page() {
+  const router = useRouter()
+  const { user, loading, isCreator, logout } = useAuth()
+
+  useEffect(() => {
+    if (loading) return
+
+    if (!user) {
+      router.push("/auth/login")
+      return
+    }
+
+    if (!isCreator()) {
+      router.push("/")
+      return
+    }
+  }, [user, loading, isCreator, router])
   return (
     <div className="min-h-screen">
       {/* Hero Section */}

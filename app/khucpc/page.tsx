@@ -8,9 +8,28 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Trophy, Calendar, Users, Code, Award, Target, Clock, Play, ChevronRight, Star, ArrowRight } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 export default function KhuCPCPage() {
+  const router = useRouter()
   const [activeYear, setActiveYear] = useState("1403")
+  const { user, loading, isCreator, logout } = useAuth()
+
+  useEffect(() => {
+    if (loading) return
+
+    if (!user) {
+      router.push("/auth/login")
+      return
+    }
+
+    if (!isCreator()) {
+      router.push("/")
+      return
+    }
+  }, [user, loading, isCreator, router])
 
   // Sample data - replace with real data later
   const stats = [
