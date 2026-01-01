@@ -10,6 +10,7 @@ import Link from "next/link"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Header } from "@/components/header"
 import { useAuth } from "@/lib/auth-context"
+import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -25,29 +26,30 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const { register } = useAuth()
+  const router = useRouter()
 
   // تابع تبدیل اعداد فارسی به انگلیسی
   const convertPersianToEnglish = (str: string) => {
-    const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    
-    let result = str;
+    const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"]
+    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٢", "٢", "٢", "٢"]
+
+    let result = str
     for (let i = 0; i < 10; i++) {
-      result = result.replace(new RegExp(persianNumbers[i], 'g'), i.toString());
-      result = result.replace(new RegExp(arabicNumbers[i], 'g'), i.toString());
+      result = result.replace(new RegExp(persianNumbers[i], "g"), i.toString())
+      result = result.replace(new RegExp(arabicNumbers[i], "g"), i.toString())
     }
-    return result;
-  };
+    return result
+  }
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
     if (!formData.firstName) newErrors.firstName = "نام الزامی است"
-    
+
     // تبدیل اعداد فارسی به انگلیسی برای validation
-    const mobileEnglish = convertPersianToEnglish(formData.mobile);
-    const studentIdEnglish = convertPersianToEnglish(formData.studentId);
-    
+    const mobileEnglish = convertPersianToEnglish(formData.mobile)
+    const studentIdEnglish = convertPersianToEnglish(formData.studentId)
+
     if (!formData.mobile) {
       newErrors.mobile = "شماره موبایل الزامی است"
     } else if (!/^09[0-9]{9}$/.test(mobileEnglish)) {
@@ -90,6 +92,8 @@ export default function RegisterPage() {
           studentId: formData.studentId ? convertPersianToEnglish(formData.studentId) : undefined,
           password: formData.password,
         })
+
+        router.push("/auth/verify-email")
       } catch (err: any) {
         setErrors({ submit: err.message || "خطا در ثبت‌نام. لطفاً دوباره تلاش کنید." })
       } finally {
