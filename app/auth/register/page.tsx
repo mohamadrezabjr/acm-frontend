@@ -228,7 +228,7 @@ export default function RegisterPage() {
                     <Input
                       id="password"
                       name="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       autoComplete="new-password"
                       value={formData.password}
                       onChange={(e) => handleChange("password", e.target.value)}
@@ -255,7 +255,7 @@ export default function RegisterPage() {
                   <Input
                     id="confirmPassword"
                     name="confirm-password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleChange("confirmPassword", e.target.value)}

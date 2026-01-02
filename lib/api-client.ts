@@ -497,7 +497,7 @@ export async function verifyRegistrationOTP(otp: string): Promise<{
     } else if (response.status === 400) {
       return { success: false, error: "کد وارد شده اشتباه است" }
     } else if (response.status === 401) {
-      return { success: false, error: "زمان کد تمام شده است. لطفاً دوباره ثبت‌نام کنید" }
+      return { success: false, error: "زمان کد تمام شده است. لطفاً کد جدید دریافت کنید" }
     } else {
       return { success: false, error: "خطایی رخ داده است" }
     }

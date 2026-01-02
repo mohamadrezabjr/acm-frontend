@@ -71,13 +71,6 @@ export default function VerifyEmailPage() {
         router.push("/")
       } else if (result.error) {
         setError(result.error)
-        if (result.error.includes("زمان کد تمام شده")) {
-          // Redirect to register page if token expired
-          setTimeout(() => {
-            document.cookie = "registration_id=; path=/; max-age=0"
-            router.push("/auth/register")
-          }, 2000)
-        }
       }
     } catch (err) {
       setError("خطایی رخ داده است. لطفاً دوباره تلاش کنید")
