@@ -217,86 +217,82 @@ export default function CoursesPage() {
                 const regStatus = getRegistrationStatus(course)
 
                 return (
-                  <Link href={`/courses/${course.slug}`}>
-                  <Card key={course.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
-                    
-                    <div className="relative aspect-[1/1.414] overflow-hidden bg-muted">
-                      <img
-                        src={course.image || "/placeholder.svg"}
-                        alt={course.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-2 left-2">
-                        <Badge variant={course.price === 0 ? "default" : "secondary"} className="font-bold">
-                          {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
-                        </Badge>
-                      </div>
-                      {regStatus.status !== "open" && (
-                        <div className="absolute top-2 right-2 z-10">
-                          <Badge variant="destructive" className="font-bold">
-                            {regStatus.text}
+                  <Link href={`/courses/${course.slug}`} key={course.slug}>
+                    <Card className="overflow-hidden group hover:shadow-xl transition-shadow">
+                      <div className="relative w-full h-[280px] overflow-hidden bg-muted">
+                        <img
+                          src={course.image || "/placeholder.svg"}
+                          alt={course.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute top-2 left-2">
+                          <Badge variant={course.price === 0 ? "default" : "secondary"} className="font-bold">
+                            {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
                           </Badge>
                         </div>
-                      )}
+                        {regStatus.status !== "open" && (
+                          <div className="absolute top-2 right-2 z-10">
+                            <Badge variant="destructive" className="font-bold">
+                              {regStatus.text}
+                            </Badge>
+                          </div>
+                        )}
 
-                      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
+                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
-                      {/* Tags inside image */}
-                      <div className="absolute bottom-4 right-4 flex gap-2 flex-wrap z-10">
-                        {course.tags.slice(0, 2).map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="
-                            backdrop-blur-sm
-                            bg-secondary/80
-                            text-secondary-foreground
-                            border border-secondary/30
-                          "
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <CardHeader>
-                      <CardTitle className="text-xl">{course.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        <span>تاریخ شروع : {new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        <span>تاریخ پایان : {new Date(course.end_date).toLocaleDateString("fa-IR")}</span>
-                      </div>
-
-                      {course.time_plans && course.time_plans.length > 0 && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
-                          {course.time_plans.map((time_plan, index) => (
-                            <span key={`${index}`}>
-                              {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} ,{" "}
-                              {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
-                            </span>
+                        {/* Tags inside image */}
+                        <div className="absolute bottom-4 right-4 flex gap-2 flex-wrap z-10">
+                          {course.tags.slice(0, 2).map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="secondary"
+                              className="
+                                backdrop-blur-sm
+                                bg-secondary/80
+                                text-secondary-foreground
+                                border border-secondary/30
+                              "
+                            >
+                              {tag}
+                            </Badge>
                           ))}
                         </div>
-                      )}
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="w-4 h-4" />
-                        <span>{course.location}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <User className="w-4 h-4" />
-                        <span>{course.organizer}</span>
-                      </div>
-                      
+                      <CardHeader>
+                        <CardTitle className="text-xl">{course.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Calendar className="w-4 h-4" />
+                          <span>تاریخ شروع : {new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
+                        </div>
 
-                      
-                    </CardContent>
-                  </Card>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Calendar className="w-4 h-4" />
+                          <span>تاریخ پایان : {new Date(course.end_date).toLocaleDateString("fa-IR")}</span>
+                        </div>
+
+                        {course.time_plans && course.time_plans.length > 0 && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Clock className="w-4 h-4" />
+                            {course.time_plans.map((time_plan, index) => (
+                              <span key={`${index}`}>
+                                {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} ,{" "}
+                                {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <MapPin className="w-4 h-4" />
+                          <span>{course.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <User className="w-4 h-4" />
+                          <span>{course.organizer}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </Link>
                 )
               })}
