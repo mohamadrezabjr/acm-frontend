@@ -125,7 +125,7 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
               {/* نام و نام خانوادگی */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -134,6 +134,8 @@ export default function RegisterPage() {
                   </Label>
                   <Input
                     id="firstName"
+                    name="given-name"
+                    autoComplete="given-name"
                     value={formData.firstName}
                     onChange={(e) => handleChange("firstName", e.target.value)}
                     className={errors.firstName ? "border-destructive" : ""}
@@ -146,6 +148,8 @@ export default function RegisterPage() {
                   <Label htmlFor="lastName">نام خانوادگی (اختیاری)</Label>
                   <Input
                     id="lastName"
+                    name="family-name"
+                    autoComplete="family-name"
                     value={formData.lastName}
                     onChange={(e) => handleChange("lastName", e.target.value)}
                     className={errors.lastName ? "border-destructive" : ""}
@@ -164,6 +168,9 @@ export default function RegisterPage() {
                   <Input
                     id="mobile"
                     type="tel"
+                    autoComplete="tel"
+                    name="tel"
+                    dir="ltr"
                     placeholder="09123456789"
                     value={formData.mobile}
                     onChange={(e) => handleChange("mobile", e.target.value)}
@@ -179,7 +186,10 @@ export default function RegisterPage() {
                   </Label>
                   <Input
                     id="email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
+                    dir="ltr"
                     placeholder="example@email.com"
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
@@ -194,9 +204,11 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label htmlFor="studentId">شماره دانشجویی (اختیاری)</Label>
                 <Input
-                  id="studentId"
-                  type="text"
                   placeholder="1234567890"
+                  id="studentId"
+                  name="student-id"
+                  autoComplete="off"
+                  inputMode="numeric"
                   value={formData.studentId}
                   onChange={(e) => handleChange("studentId", e.target.value)}
                   className={errors.studentId ? "border-destructive" : ""}
@@ -215,7 +227,9 @@ export default function RegisterPage() {
                   <div className="relative">
                     <Input
                       id="password"
-                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      type="password"
+                      autoComplete="new-password"
                       value={formData.password}
                       onChange={(e) => handleChange("password", e.target.value)}
                       className={errors.password ? "border-destructive" : ""}
@@ -240,7 +254,9 @@ export default function RegisterPage() {
                   </Label>
                   <Input
                     id="confirmPassword"
-                    type={showPassword ? "text" : "password"}
+                    name="confirm-password"
+                    type="password"
+                    autoComplete="new-password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleChange("confirmPassword", e.target.value)}
                     className={errors.confirmPassword ? "border-destructive" : ""}
