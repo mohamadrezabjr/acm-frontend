@@ -14,19 +14,19 @@ import { useAuth } from "@/lib/auth-context"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
-  const [mobileData, setMobileData] = useState({ mobile: "", password: "" })
+  const [emailData, setEmailData] = useState({ email: "", password: "" })
   const [studentData, setStudentData] = useState({ studentId: "", password: "" })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const { login } = useAuth()
 
-  const handleMobileLogin = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
 
     try {
-      await login(mobileData.mobile, mobileData.password, false)
+      await login(emailData.email, emailData.password, false)
     } catch (err: any) {
       setError(err.message || "خطا در ورود. لطفاً دوباره تلاش کنید.")
     } finally {
@@ -64,36 +64,34 @@ export default function LoginPage() {
               </div>
             )}
 
-            <Tabs defaultValue="mobile" className="w-full">
+            <Tabs defaultValue="email" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="mobile">شماره موبایل</TabsTrigger>
+                <TabsTrigger value="email">ایمیل</TabsTrigger>
                 <TabsTrigger value="student">شماره دانشجویی</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="mobile">
-                <form onSubmit={handleMobileLogin} className="space-y-4 mt-4">
+              <TabsContent value="email">
+                <form onSubmit={handleEmailLogin} className="space-y-4 mt-4">
                   <div className="space-y-2">
-                    <Label htmlFor="mobile">شماره موبایل</Label>
+                    <Label htmlFor="email">ایمیل</Label>
                     <Input
-                      id="mobile"
-                      type="tel"
-                      placeholder="09123456789"
-                      value={mobileData.mobile}
-                      onChange={(e) => setMobileData({ ...mobileData, mobile: e.target.value })}
+                      id="email"
+                      type="email"
+                      placeholder="example@email.com"
+                      value={emailData.email}
+                      onChange={(e) => setEmailData({ ...emailData, email: e.target.value })}
                       required
-                      pattern="09[0-9]{9}"
-                      title="شماره موبایل باید با 09 شروع شود و 11 رقم باشد"
                       disabled={loading}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="mobile-password">رمز عبور</Label>
+                    <Label htmlFor="email-password">رمز عبور</Label>
                     <div className="relative">
                       <Input
-                        id="mobile-password"
+                        id="email-password"
                         type={showPassword ? "text" : "password"}
-                        value={mobileData.password}
-                        onChange={(e) => setMobileData({ ...mobileData, password: e.target.value })}
+                        value={emailData.password}
+                        onChange={(e) => setEmailData({ ...emailData, password: e.target.value })}
                         required
                         disabled={loading}
                       />
