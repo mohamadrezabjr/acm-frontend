@@ -100,7 +100,7 @@ export default function AdminDashboard() {
     <>
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <main className="container mx-auto px-4 py-8 space-y-8">
+        <main className="container mx-auto px-4 py-8 pt-24 space-y-8">
           {/* Welcome Header with Gradient */}
           <div className="flex flex-col gap-2">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -496,6 +496,7 @@ export default function AdminDashboard() {
             </Card>
           </div>
         </main>
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-background to-secondary/5" />
       </div>
     </>
   )
