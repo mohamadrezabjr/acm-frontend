@@ -53,7 +53,7 @@ export default function LoginPage() {
       <Header />
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4 pt-32">
         <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1 text-right">
+          <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-3xl font-bold">ورود</CardTitle>
             <CardDescription>برای ورود به حساب کاربری خود اطلاعات را وارد کنید</CardDescription>
           </CardHeader>
