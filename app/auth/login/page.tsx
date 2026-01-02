@@ -71,9 +71,11 @@ export default function LoginPage() {
               </TabsList>
 
               <TabsContent value="mobile">
-                <form onSubmit={handleMobileLogin} className="space-y-4 text-right">
+                <form onSubmit={handleMobileLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="mobile">شماره موبایل</Label>
+                    <Label htmlFor="mobile" className="text-right block">
+                      شماره موبایل
+                    </Label>
                     <Input
                       id="mobile"
                       type="tel"
@@ -84,11 +86,13 @@ export default function LoginPage() {
                       pattern="09[0-9]{9}"
                       title="شماره موبایل باید با 09 شروع شده و 11 رقم باشد"
                       disabled={loading}
-                      className="text-right"
+                      className="text-left"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="mobile-password">رمز عبور</Label>
+                    <Label htmlFor="mobile-password" className="text-right block">
+                      رمز عبور
+                    </Label>
                     <div className="relative">
                       <Input
                         id="mobile-password"
@@ -97,12 +101,12 @@ export default function LoginPage() {
                         onChange={(e) => setMobileData({ ...mobileData, password: e.target.value })}
                         required
                         disabled={loading}
-                        className="text-right pr-10"
+                        className="text-left pl-10"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         disabled={loading}
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -123,9 +127,11 @@ export default function LoginPage() {
               </TabsContent>
 
               <TabsContent value="email">
-                <form onSubmit={handleEmailLogin} className="space-y-4 text-right">
+                <form onSubmit={handleEmailLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">ایمیل</Label>
+                    <Label htmlFor="email" className="text-right block">
+                      ایمیل
+                    </Label>
                     <Input
                       id="email"
                       type="email"
@@ -134,11 +140,13 @@ export default function LoginPage() {
                       onChange={(e) => setEmailData({ ...emailData, email: e.target.value })}
                       required
                       disabled={loading}
-                      className="text-right"
+                      className="text-left"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email-password">رمز عبور</Label>
+                    <Label htmlFor="email-password" className="text-right block">
+                      رمز عبور
+                    </Label>
                     <div className="relative">
                       <Input
                         id="email-password"
@@ -147,12 +155,12 @@ export default function LoginPage() {
                         onChange={(e) => setEmailData({ ...emailData, password: e.target.value })}
                         required
                         disabled={loading}
-                        className="text-right pr-10"
+                        className="text-left pl-10"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         disabled={loading}
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -173,7 +181,7 @@ export default function LoginPage() {
               </TabsContent>
             </Tabs>
 
-            <div className="mt-6 text-right text-sm">
+            <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">حساب کاربری ندارید؟</span>{" "}
               <Link href="/auth/register" className="text-primary hover:underline font-medium">
                 ثبت‌نام کنید
