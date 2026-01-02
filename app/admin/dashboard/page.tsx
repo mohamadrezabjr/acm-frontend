@@ -4,7 +4,18 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Award, LogOut, Plus, BookOpen, Users, TrendingUp, Settings, FileText } from "lucide-react"
+import {
+  Calendar,
+  Award,
+  Plus,
+  BookOpen,
+  Users,
+  TrendingUp,
+  Settings,
+  FileText,
+  ArrowRight,
+  Activity,
+} from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { Header } from "@/components/header"
@@ -88,230 +99,273 @@ export default function AdminDashboard() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+        <main className="container mx-auto px-4 py-8 space-y-8">
+          {/* Welcome Header with Gradient */}
+          <div className="flex flex-col gap-2">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              داشبورد مدیریت
+            </h1>
+            <p className="text-muted-foreground">
+              خوش آمدید {user?.first_name} {user?.last_name}
+            </p>
+          </div>
 
-
-        <main className="container mx-auto px-4 py-8">
-          {/* Statistics Section */}
+          {/* Redesigned Statistics Cards with Better Visuals */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">آمار کلی</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <Activity className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-semibold">آمار و گزارش‌ها</h2>
+            </div>
             {loadingStats ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
+                <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">کاربران</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <div className="p-2 bg-blue-500/10 rounded-lg">
+                      <Users className="h-5 w-5 text-blue-500" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{stats?.total_users || 0}</div>
-                    <p className="text-xs text-muted-foreground">کل کاربران ثبت‌نام شده</p>
+                    <div className="text-3xl font-bold text-blue-500">{stats?.total_users || 0}</div>
+                    <p className="text-xs text-muted-foreground mt-1">کل کاربران ثبت‌نام شده</p>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">رویدادها</CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <div className="p-2 bg-green-500/10 rounded-lg">
+                      <Calendar className="h-5 w-5 text-green-500" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{stats?.total_events || 0}</div>
-                    <p className="text-xs text-muted-foreground">رویدادهای ایجاد شده</p>
+                    <div className="text-3xl font-bold text-green-500">{stats?.total_events || 0}</div>
+                    <p className="text-xs text-muted-foreground mt-1">رویدادهای ایجاد شده</p>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">دوره‌ها</CardTitle>
-                    <BookOpen className="h-4 w-4 text-muted-foreground" />
+                    <div className="p-2 bg-purple-500/10 rounded-lg">
+                      <BookOpen className="h-5 w-5 text-purple-500" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{stats?.total_courses || 0}</div>
-                    <p className="text-xs text-muted-foreground">دوره‌های آموزشی</p>
+                    <div className="text-3xl font-bold text-purple-500">{stats?.total_courses || 0}</div>
+                    <p className="text-xs text-muted-foreground mt-1">دوره‌های آموزشی</p>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-l-4 border-l-orange-500 hover:shadow-lg transition-shadow">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">ثبت‌نام‌ها</CardTitle>
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    <div className="p-2 bg-orange-500/10 rounded-lg">
+                      <TrendingUp className="h-5 w-5 text-orange-500" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{stats?.total_registrations || 0}</div>
-                    <p className="text-xs text-muted-foreground">کل ثبت‌نام‌های انجام شده</p>
+                    <div className="text-3xl font-bold text-orange-500">{stats?.total_registrations || 0}</div>
+                    <p className="text-xs text-muted-foreground mt-1">کل ثبت‌نام‌های انجام شده</p>
                   </CardContent>
                 </Card>
               </div>
             )}
           </div>
 
-          {/* Management Cards */}
+          {/* Redesigned Management Cards with Grouped Actions */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">مدیریت</h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Event Management */}
-              <Card className="hover:shadow-lg transition-shadow">
+            <h2 className="text-xl font-semibold mb-4">دسترسی سریع</h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <Card className="group hover:shadow-xl transition-all hover:border-primary/50">
                 <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <Calendar className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle>مدیریت رویدادها</CardTitle>
-                      <CardDescription>ایجاد و مدیریت رویدادهای انجمن</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-xl group-hover:from-green-500/30 group-hover:to-green-500/10 transition-colors">
+                        <Calendar className="h-6 w-6 text-green-500" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">رویدادها</CardTitle>
+                        <CardDescription className="text-xs">مدیریت رویدادهای انجمن</CardDescription>
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Link href="/admin/events/create">
-                    <Button className="w-full">
-                      <Plus className="ml-2 h-4 w-4" />
-                      ایجاد رویداد جدید
+                    <Button className="w-full justify-between group/btn" size="sm">
+                      <span className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        ایجاد رویداد جدید
+                      </span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                   <Link href="/admin/events">
-                    <Button variant="outline" className="w-full bg-transparent">
-                      مدیریت رویدادها
+                    <Button variant="outline" className="w-full justify-between group/btn bg-transparent" size="sm">
+                      <span>مشاهده همه رویدادها</span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
 
-              {/* Courses Management */}
-              <Card className="hover:shadow-lg transition-shadow">
+              <Card className="group hover:shadow-xl transition-all hover:border-primary/50">
                 <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-accent/10 rounded-lg">
-                      <BookOpen className="h-6 w-6 text-accent" />
-                    </div>
-                    <div>
-                      <CardTitle>مدیریت دوره‌ها</CardTitle>
-                      <CardDescription>ایجاد و مدیریت دوره‌های آموزشی</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-gradient-to-br from-purple-500/20 to-purple-500/5 rounded-xl group-hover:from-purple-500/30 group-hover:to-purple-500/10 transition-colors">
+                        <BookOpen className="h-6 w-6 text-purple-500" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">دوره‌ها</CardTitle>
+                        <CardDescription className="text-xs">مدیریت دوره‌های آموزشی</CardDescription>
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Link href="/admin/courses/create">
-                    <Button className="w-full" variant="default">
-                      <Plus className="ml-2 h-4 w-4" />
-                      ایجاد دوره جدید
+                    <Button className="w-full justify-between group/btn" size="sm">
+                      <span className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        ایجاد دوره جدید
+                      </span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                   <Link href="/admin/courses">
-                    <Button variant="outline" className="w-full bg-transparent">
-                      مدیریت دوره‌ها
+                    <Button variant="outline" className="w-full justify-between group/btn bg-transparent" size="sm">
+                      <span>مشاهده همه دوره‌ها</span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
 
-              {/* Registration Management */}
-              <Card className="hover:shadow-lg transition-shadow">
+              <Card className="group hover:shadow-xl transition-all hover:border-primary/50">
                 <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-blue-500/10 rounded-lg">
-                      <FileText className="h-6 w-6 text-blue-500" />
-                    </div>
-                    <div>
-                      <CardTitle>مدیریت ثبت‌نام‌ها</CardTitle>
-                      <CardDescription>مشاهده و مدیریت ثبت‌نام کاربران</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-xl group-hover:from-blue-500/30 group-hover:to-blue-500/10 transition-colors">
+                        <FileText className="h-6 w-6 text-blue-500" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">ثبت‌نام‌ها</CardTitle>
+                        <CardDescription className="text-xs">مدیریت ثبت‌نام کاربران</CardDescription>
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Link href="/admin/registrations/events">
-                    <Button className="w-full" variant="default">
-                      ثبت‌نام‌های رویدادها
+                    <Button className="w-full justify-between group/btn" size="sm">
+                      <span>ثبت‌نام‌های رویدادها</span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                   <Link href="/admin/registrations/courses">
-                    <Button variant="outline" className="w-full bg-transparent">
-                      ثبت‌نام‌های دوره‌ها
+                    <Button variant="outline" className="w-full justify-between group/btn bg-transparent" size="sm">
+                      <span>ثبت‌نام‌های دوره‌ها</span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
 
-              {/* Certificate Management */}
-              <Card className="hover:shadow-lg transition-shadow">
+              <Card className="group hover:shadow-xl transition-all hover:border-primary/50">
                 <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-secondary/10 rounded-lg">
-                      <Award className="h-6 w-6 text-secondary" />
-                    </div>
-                    <div>
-                      <CardTitle>مدیریت مدارک</CardTitle>
-                      <CardDescription>ایجاد و صدور گواهی‌نامه‌ها</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-gradient-to-br from-amber-500/20 to-amber-500/5 rounded-xl group-hover:from-amber-500/30 group-hover:to-amber-500/10 transition-colors">
+                        <Award className="h-6 w-6 text-amber-500" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">مدارک</CardTitle>
+                        <CardDescription className="text-xs">صدور گواهی‌نامه‌ها</CardDescription>
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Link href="/admin/certificates/create">
-                    <Button className="w-full" variant="secondary">
-                      <Plus className="ml-2 h-4 w-4" />
-                      ایجاد مدرک جدید
+                    <Button className="w-full justify-between group/btn" size="sm">
+                      <span className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        ایجاد مدرک جدید
+                      </span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                   <Link href="/admin/certificates">
-                    <Button variant="outline" className="w-full bg-transparent">
-                      مدیریت مدارک
+                    <Button variant="outline" className="w-full justify-between group/btn bg-transparent" size="sm">
+                      <span>مشاهده همه مدارک</span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
 
-              {/* User Management */}
-              <Card className="hover:shadow-lg transition-shadow">
+              <Card className="group hover:shadow-xl transition-all hover:border-primary/50">
                 <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-green-500/10 rounded-lg">
-                      <Users className="h-6 w-6 text-green-500" />
-                    </div>
-                    <div>
-                      <CardTitle>مدیریت کاربران</CardTitle>
-                      <CardDescription>مشاهده و مدیریت کاربران</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-xl group-hover:from-blue-500/30 group-hover:to-blue-500/10 transition-colors">
+                        <Users className="h-6 w-6 text-blue-500" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">کاربران</CardTitle>
+                        <CardDescription className="text-xs">مدیریت کاربران</CardDescription>
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Link href="/admin/users">
-                    <Button className="w-full" variant="default">
-                      مدیریت کاربران
+                    <Button className="w-full justify-between group/btn" size="sm">
+                      <span>مدیریت کاربران</span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                   <Link href="/admin/users/roles">
-                    <Button variant="outline" className="w-full bg-transparent">
-                      مدیریت نقش‌ها
+                    <Button variant="outline" className="w-full justify-between group/btn bg-transparent" size="sm">
+                      <span>مدیریت نقش‌ها</span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
 
-              {/* Settings */}
-              <Card className="hover:shadow-lg transition-shadow">
+              <Card className="group hover:shadow-xl transition-all hover:border-primary/50">
                 <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-purple-500/10 rounded-lg">
-                      <Settings className="h-6 w-6 text-purple-500" />
-                    </div>
-                    <div>
-                      <CardTitle>تنظیمات</CardTitle>
-                      <CardDescription>تنظیمات سیستم و پیکربندی</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-gradient-to-br from-gray-500/20 to-gray-500/5 rounded-xl group-hover:from-gray-500/30 group-hover:to-gray-500/10 transition-colors">
+                        <Settings className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">تنظیمات</CardTitle>
+                        <CardDescription className="text-xs">پیکربندی سیستم</CardDescription>
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Link href="/admin/settings">
-                    <Button className="w-full" variant="default">
-                      تنظیمات عمومی
+                    <Button className="w-full justify-between group/btn" size="sm">
+                      <span>تنظیمات عمومی</span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                   <Link href="/admin/settings/tags">
-                    <Button variant="outline" className="w-full bg-transparent">
-                      مدیریت تگ‌ها
+                    <Button variant="outline" className="w-full justify-between group/btn bg-transparent" size="sm">
+                      <span>مدیریت تگ‌ها</span>
+                      <ArrowRight className="h-4 w-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </CardContent>
@@ -319,13 +373,25 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Recent Activity */}
+          {/* Improved Recent Activity Section with Better Card Design */}
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Recent Events */}
-            <Card>
+            <Card className="border-t-4 border-t-green-500">
               <CardHeader>
-                <CardTitle>رویدادهای اخیر</CardTitle>
-                <CardDescription>آخرین رویدادهای ایجاد شده</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5 text-green-500" />
+                      رویدادهای اخیر
+                    </CardTitle>
+                    <CardDescription>آخرین رویدادهای ایجاد شده</CardDescription>
+                  </div>
+                  <Link href="/admin/events">
+                    <Button variant="ghost" size="sm">
+                      مشاهده همه
+                      <ArrowRight className="mr-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </CardHeader>
               <CardContent>
                 {loadingStats ? (
@@ -338,18 +404,21 @@ export default function AdminDashboard() {
                       <Link
                         key={event.slug}
                         href={`/admin/events/${event.slug}`}
-                        className="block p-3 rounded-lg border hover:bg-accent/50 transition-colors"
+                        className="block p-4 rounded-lg border bg-card hover:bg-accent/50 hover:border-primary/50 transition-all group"
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h4 className="font-medium text-sm">{event.title}</h4>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <h4 className="font-medium text-sm group-hover:text-primary transition-colors">
+                              {event.title}
+                            </h4>
+                            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
                               {new Date(event.start_date).toLocaleDateString("fa-IR")}
                             </p>
                           </div>
-                          <div className="text-left">
+                          <div className="text-left bg-primary/10 rounded-lg px-3 py-1">
                             <p className="text-xs text-muted-foreground">ثبت‌نام</p>
-                            <p className="text-sm font-semibold">
+                            <p className="text-sm font-bold text-primary">
                               {event.registered}/{event.capacity}
                             </p>
                           </div>
@@ -358,18 +427,31 @@ export default function AdminDashboard() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    رویدادی ثبت نشده است
-                  </p>
+                  <div className="text-center py-8">
+                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-2 opacity-50" />
+                    <p className="text-sm text-muted-foreground">رویدادی ثبت نشده است</p>
+                  </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Recent Courses */}
-            <Card>
+            <Card className="border-t-4 border-t-purple-500">
               <CardHeader>
-                <CardTitle>دوره‌های اخیر</CardTitle>
-                <CardDescription>آخرین دوره‌های ایجاد شده</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-purple-500" />
+                      دوره‌های اخیر
+                    </CardTitle>
+                    <CardDescription>آخرین دوره‌های ایجاد شده</CardDescription>
+                  </div>
+                  <Link href="/admin/courses">
+                    <Button variant="ghost" size="sm">
+                      مشاهده همه
+                      <ArrowRight className="mr-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </CardHeader>
               <CardContent>
                 {loadingStats ? (
@@ -382,18 +464,21 @@ export default function AdminDashboard() {
                       <Link
                         key={course.slug}
                         href={`/admin/courses/${course.slug}`}
-                        className="block p-3 rounded-lg border hover:bg-accent/50 transition-colors"
+                        className="block p-4 rounded-lg border bg-card hover:bg-accent/50 hover:border-primary/50 transition-all group"
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h4 className="font-medium text-sm">{course.title}</h4>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <h4 className="font-medium text-sm group-hover:text-primary transition-colors">
+                              {course.title}
+                            </h4>
+                            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
                               {new Date(course.start_date).toLocaleDateString("fa-IR")}
                             </p>
                           </div>
-                          <div className="text-left">
+                          <div className="text-left bg-primary/10 rounded-lg px-3 py-1">
                             <p className="text-xs text-muted-foreground">ثبت‌نام</p>
-                            <p className="text-sm font-semibold">
+                            <p className="text-sm font-bold text-primary">
                               {course.registered}/{course.capacity}
                             </p>
                           </div>
@@ -402,9 +487,10 @@ export default function AdminDashboard() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    دوره‌ای ثبت نشده است
-                  </p>
+                  <div className="text-center py-8">
+                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-2 opacity-50" />
+                    <p className="text-sm text-muted-foreground">دوره‌ای ثبت نشده است</p>
+                  </div>
                 )}
               </CardContent>
             </Card>
