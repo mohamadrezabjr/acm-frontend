@@ -217,17 +217,17 @@ export default function EventsPage() {
 
                 return (
                   <Link href={`/events/${event.slug}`} key={event.slug}>
-                    <Card className="overflow-hidden group hover:shadow-xl transition-shadow">
-                      {/* Image Section */}
-                      <div className="relative w-full h-[280px] overflow-hidden bg-muted">
+                    <Card className="overflow-hidden group hover:shadow-xl transition-shadow h-full flex flex-col">
+                      {/* Image Section with A4 aspect ratio */}
+                      <div className="relative w-full aspect-[1/1.414] overflow-hidden bg-muted shrink-0">
                         <img
                           src={event.image || "/placeholder.svg"}
                           alt={event.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
 
                         {/* Price Badge */}
-                        <div className="absolute top-2 left-2 z-10">
+                        <div className="absolute top-3 left-3 z-10">
                           <Badge variant={event.price === 0 ? "default" : "secondary"} className="font-bold">
                             {event.price === 0 ? "رایگان" : `${event.price.toLocaleString("fa-IR")} تومان`}
                           </Badge>
@@ -235,28 +235,23 @@ export default function EventsPage() {
 
                         {/* Registration Status */}
                         {regStatus.status !== "open" && (
-                          <div className="absolute top-2 right-2 z-10">
+                          <div className="absolute top-3 right-3 z-10">
                             <Badge variant="destructive" className="font-bold">
                               {regStatus.text}
                             </Badge>
                           </div>
                         )}
 
-                        {/* Bottom Fade */}
-                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
+                        {/* Bottom Gradient Overlay */}
+                        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
-                        {/* Tags inside image */}
-                        <div className="absolute bottom-4 right-4 flex gap-2 flex-wrap z-10">
+                        {/* Tags Overlay */}
+                        <div className="absolute bottom-3 right-3 flex gap-2 flex-wrap z-10 max-w-[calc(100%-24px)]">
                           {event.tags.slice(0, 2).map((tag) => (
                             <Badge
                               key={tag}
                               variant="secondary"
-                              className="
-                                backdrop-blur-sm
-                                bg-secondary/80
-                                text-secondary-foreground
-                                border border-secondary/30
-                              "
+                              className="backdrop-blur-sm bg-white/90 dark:bg-black/80 text-foreground border-0 text-xs"
                             >
                               {tag}
                             </Badge>
@@ -264,33 +259,34 @@ export default function EventsPage() {
                         </div>
                       </div>
 
-                      {/* Title */}
-                      <CardHeader className="pt-2">
-                        <CardTitle className="text-xl">{event.title}</CardTitle>
-                      </CardHeader>
+                      {/* Content Section */}
+                      <div className="flex flex-col flex-1">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-lg leading-tight line-clamp-2">{event.title}</CardTitle>
+                        </CardHeader>
 
-                      {/* Details */}
-                      <CardContent className="space-y-3">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
-                          <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
-                        </div>
+                        <CardContent className="space-y-2 pt-0">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
+                          </div>
 
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
-                          <span>{formatTime(event.start_date)}</span>
-                        </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Clock className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{formatTime(event.start_date)}</span>
+                          </div>
 
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <MapPin className="w-4 h-4" />
-                          <span>{event.location}</span>
-                        </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <MapPin className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{event.location}</span>
+                          </div>
 
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <User className="w-4 h-4" />
-                          <span>{event.organizer}</span>
-                        </div>
-                      </CardContent>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <User className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{event.organizer}</span>
+                          </div>
+                        </CardContent>
+                      </div>
                     </Card>
                   </Link>
                 )
