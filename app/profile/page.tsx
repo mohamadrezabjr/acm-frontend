@@ -208,21 +208,21 @@ export default function ProfilePage() {
           </div>
 
           <Tabs defaultValue="info" className="w-full" dir="rtl">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
-              <TabsTrigger value="info" className="gap-2">
+            <TabsList className="flex w-full">
+              <TabsTrigger value="info" className="gap-2 flex-1">
                 <User className="w-4 h-4" />
                 <span className="hidden sm:inline">اطلاعات کاربری</span>
               </TabsTrigger>
-              <TabsTrigger value="events" className="gap-2">
+              <TabsTrigger value="events" className="gap-2 flex-1">
                 <Calendar className="w-4 h-4" />
                 <span className="hidden sm:inline">رویدادهای ثبت نام شده</span>
               </TabsTrigger>
-              <TabsTrigger value="courses" className="gap-2">
+              <TabsTrigger value="courses" className="gap-2 flex-1">
                 <BookOpen className="w-4 h-4" />
                 <span className="hidden sm:inline">دوره های ثبت نام شده</span>
               </TabsTrigger>
               {isCreator() && (
-                <TabsTrigger value="admin" className="gap-2">
+                <TabsTrigger value="admin" className="gap-2 flex-1">
                   <Settings className="w-4 h-4" />
                   <span className="hidden sm:inline">مدیریت</span>
                 </TabsTrigger>
