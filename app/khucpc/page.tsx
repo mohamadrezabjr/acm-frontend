@@ -6,8 +6,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Trophy, Calendar, Users, Code, Award, Target, Clock, Play, ChevronRight, Star, ArrowRight } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
+import { Trophy, Calendar, Users, Code, Award, Target, Clock, Play, ChevronRight, Star, ArrowRight, Loader2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -62,7 +62,13 @@ export default function KhuCPCPage() {
     "1404": [],
     "1403": [],
   }
-
+  if (loading || !user) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  )
+}
   return (
     <div className="min-h-screen">
       {/* Hero Section */}

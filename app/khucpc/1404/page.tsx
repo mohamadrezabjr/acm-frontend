@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Users, Trophy, Award } from "lucide-react"
+import { Calendar, MapPin, Users, Trophy, Award, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { useEffect } from "react"
@@ -27,6 +27,14 @@ export default function KhuCPC1404Page() {
       return
     }
   }, [user, loading, isCreator, router])
+
+  if (loading || !user) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  )
+}
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
