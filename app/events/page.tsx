@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Clock, ArrowLeft, Filter, ArrowUpDown, User, Loader2 } from "lucide-react"
@@ -217,9 +217,9 @@ export default function EventsPage() {
 
                 return (
                   <Link href={`/events/${event.slug}`} key={event.slug}>
-                    <Card className="overflow-hidden group hover:shadow-xl transition-shadow h-full flex flex-col">
-                      {/* Image Section with A4 aspect ratio */}
-                      <div className="relative w-full aspect-[1/1.414] overflow-hidden bg-muted shrink-0">
+                    <Card className="overflow-hidden group hover:shadow-xl transition-shadow h-full flex flex-col p-0">
+                      {/* Image Section - No padding, starts from card edge */}
+                      <div className="relative w-full aspect-[1/1.414] overflow-hidden bg-muted">
                         <img
                           src={event.image || "/placeholder.svg"}
                           alt={event.title}
@@ -259,13 +259,11 @@ export default function EventsPage() {
                         </div>
                       </div>
 
-                      {/* Content Section */}
-                      <div className="flex flex-col flex-1">
-                        <CardHeader className="pb-3">
-                          <CardTitle className="text-lg leading-tight line-clamp-2">{event.title}</CardTitle>
-                        </CardHeader>
+                      {/* Content Section with padding */}
+                      <div className="flex flex-col flex-1 p-6">
+                        <h3 className="text-lg font-bold leading-tight line-clamp-2 mb-4">{event.title}</h3>
 
-                        <CardContent className="space-y-2 pt-0">
+                        <div className="space-y-2">
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Calendar className="w-4 h-4 shrink-0" />
                             <span className="truncate">{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
@@ -285,7 +283,7 @@ export default function EventsPage() {
                             <User className="w-4 h-4 shrink-0" />
                             <span className="truncate">{event.organizer}</span>
                           </div>
-                        </CardContent>
+                        </div>
                       </div>
                     </Card>
                   </Link>

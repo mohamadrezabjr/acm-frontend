@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Clock, ArrowLeft, Filter, ArrowUpDown, User, Loader2 } from "lucide-react"
@@ -218,7 +218,7 @@ export default function CoursesPage() {
 
                 return (
                   <Link href={`/courses/${course.slug}`} key={course.slug}>
-                    <Card className="overflow-hidden group hover:shadow-xl transition-shadow h-full flex flex-col">
+                    <Card className="overflow-hidden group hover:shadow-xl transition-shadow h-full flex flex-col p-0">
                       {/* Image Section with A4 aspect ratio */}
                       <div className="relative w-full aspect-[1/1.414] overflow-hidden bg-muted shrink-0">
                         <img
@@ -261,12 +261,10 @@ export default function CoursesPage() {
                       </div>
 
                       {/* Content Section */}
-                      <div className="flex flex-col flex-1">
-                        <CardHeader className="pb-3">
-                          <CardTitle className="text-lg leading-tight line-clamp-2">{course.title}</CardTitle>
-                        </CardHeader>
+                      <div className="flex flex-col flex-1 p-6">
+                        <h3 className="text-lg font-bold leading-tight line-clamp-2 mb-4">{course.title}</h3>
 
-                        <CardContent className="space-y-2 pt-0">
+                        <div className="space-y-2">
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Calendar className="w-4 h-4 shrink-0" />
                             <span className="truncate">
@@ -304,7 +302,7 @@ export default function CoursesPage() {
                             <User className="w-4 h-4 shrink-0" />
                             <span className="truncate">{course.organizer}</span>
                           </div>
-                        </CardContent>
+                        </div>
                       </div>
                     </Card>
                   </Link>
