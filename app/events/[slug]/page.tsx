@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,8 +14,8 @@ import { fetchEventBySlug, type Event, eventRegitserBySlug, apiRequest } from "@
 import { useAuth } from "@/lib/auth-context"
 import ShareCard from "@/components/sharecard"
 
-export default function EventPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default function EventDetailPage() {
+  const { slug } = useParams<{ slug: string }>()
   const { user } = useAuth()
 
   const router = useRouter()
@@ -368,25 +368,6 @@ export default function EventPage({ params }: { params: { slug: string } }) {
                         <div className="font-medium">{event.location}</div>
                       </div>
                     </div>
-                    {/* <div className="flex items-start gap-3">
-                      <Users className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">ظرفیت</div>
-                        <div className="font-medium">
-                          {event.registered} / {event.capacity} نفر
-                        </div>
-                        {isAlmostFull && registrationStatus.canRegister && (
-                          <Badge variant="destructive" className="mt-1">
-                            ظرفیت محدود!
-                          </Badge>
-                        )}
-                        {!registrationStatus.canRegister && event.is_full && (
-                          <Badge variant="destructive" className="mt-1">
-                            ظرفیت تکمیل است
-                          </Badge>
-                        )}
-                      </div>
-                    </div> */}
                     <div className="flex items-start gap-3">
                       <User className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
