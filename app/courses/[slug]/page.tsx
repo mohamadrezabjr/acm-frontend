@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,8 +14,8 @@ import { useAuth } from "@/lib/auth-context"
 import { Header } from "@/components/header"
 import ShareCard from "@/components/sharecard"
 
-export default function CoursePage({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default function CourseDetailPage() {
+  const { slug } = useParams<{ slug: string }>()
   const { user } = useAuth()
   const router = useRouter()
 
