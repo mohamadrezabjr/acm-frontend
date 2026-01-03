@@ -263,7 +263,7 @@ export default function EventsPage() {
                       <div className="flex flex-col flex-1 p-6">
                         <h3 className="text-lg font-bold leading-tight line-clamp-2 mb-4">{event.title}</h3>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 mb-4">
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Calendar className="w-4 h-4 shrink-0" />
                             <span className="truncate">{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
@@ -283,6 +283,12 @@ export default function EventsPage() {
                             <User className="w-4 h-4 shrink-0" />
                             <span className="truncate">{event.organizer}</span>
                           </div>
+                        </div>
+
+                        <div className="mt-auto">
+                          <Button className="w-full bg-transparent" variant="outline">
+                            مشاهده جزئیات
+                          </Button>
                         </div>
                       </div>
                     </Card>

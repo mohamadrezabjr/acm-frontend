@@ -1,14 +1,12 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, ArrowRight, Users } from "lucide-react"
+import { Calendar, MapPin, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { apiClient, type Event } from "@/lib/api-client"
-
-
 
 export function UpcomingEvents() {
   const [events, setEvents] = useState<Event[]>([])
@@ -70,12 +68,15 @@ export function UpcomingEvents() {
             const isRegistrationClosed = isFull || isDeadlinePassed
 
             return (
-              <Card key={event.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
+              <Card
+                key={event.slug}
+                className="overflow-hidden group hover:shadow-xl transition-shadow p-0 flex flex-col"
+              >
                 <div className="relative aspect-[1/1.414] overflow-hidden bg-muted">
                   <img
                     src={event.image || "/placeholder.svg?height=200&width=400"}
                     alt={event.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {event.price === 0 ? (
                     <Badge className="absolute top-2 left-2 bg-green-500">رایگان</Badge>
@@ -90,26 +91,28 @@ export function UpcomingEvents() {
                     </Badge>
                   )}
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-xl">{event.title}</CardTitle>
-                  <CardDescription className="line-clamp-2">{event.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="w-4 h-4" />
-                    <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
+                <div className="flex flex-col flex-1 p-6">
+                  <div className="mb-4">
+                    <h3 className="text-xl font-bold mb-2 text-right">{event.title}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2 text-right">{event.description}</p>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
-                    <span>{event.location}</span>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="w-4 h-4" />
+                      <span>{new Date(event.start_date).toLocaleDateString("fa-IR")}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="w-4 h-4" />
+                      <span>{event.location}</span>
+                    </div>
                   </div>
-                  <Link href={`/events/${event.slug}`}>
+                  <Link href={`/events/${event.slug}`} className="mt-auto">
                     <Button variant="outline" className="w-full group/btn bg-transparent">
                       مشاهده جزئیات
                       <ArrowRight className="mr-2 w-4 h-4 group-hover/btn:-translate-x-1 transition-transform" />
                     </Button>
                   </Link>
-                </CardContent>
+                </div>
               </Card>
             )
           })}

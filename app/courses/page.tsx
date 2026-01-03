@@ -264,7 +264,7 @@ export default function CoursesPage() {
                       <div className="flex flex-col flex-1 p-6">
                         <h3 className="text-lg font-bold leading-tight line-clamp-2 mb-4">{course.title}</h3>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 mb-4">
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Calendar className="w-4 h-4 shrink-0" />
                             <span className="truncate">
@@ -302,6 +302,13 @@ export default function CoursesPage() {
                             <User className="w-4 h-4 shrink-0" />
                             <span className="truncate">{course.organizer}</span>
                           </div>
+                        </div>
+
+                        {/* View Details Button */}
+                        <div className="mt-auto">
+                          <Button className="w-full bg-transparent" variant="outline">
+                            مشاهده جزئیات
+                          </Button>
                         </div>
                       </div>
                     </Card>
