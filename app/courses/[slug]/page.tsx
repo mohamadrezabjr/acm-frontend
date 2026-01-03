@@ -208,7 +208,7 @@ export default function CoursePage({ params }: { params: { slug: string } }) {
 
   const convertPersianToEnglish = (str: string) => {
     const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"]
-    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٢", "٩"]
+    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٤", "٥", "٢", "٩"]
 
     let result = str
     for (let i = 0; i < 10; i++) {
