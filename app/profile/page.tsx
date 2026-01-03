@@ -48,6 +48,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [removeImage, setRemoveImage] = useState<boolean>(false)
 
   const [editForm, setEditForm] = useState({
     firstName: "",
@@ -114,6 +115,7 @@ export default function ProfilePage() {
     const file = e.target.files?.[0]
     if (file) {
       setSelectedImage(file)
+      setRemoveImage(false)
       const reader = new FileReader()
       reader.onloadend = () => {
         setImagePreview(reader.result as string)
@@ -122,12 +124,17 @@ export default function ProfilePage() {
     }
   }
 
+  const handleRemoveImage = () => {
+    setImagePreview(null)
+    setSelectedImage(null)
+    setRemoveImage(true)
+  }
+
   const handleSaveProfile = async () => {
     setSaving(true)
     try {
       const formData = new FormData()
 
-      // Add profile data as JSON
       const profileData = {
         first_name: editForm.firstName,
         last_name: editForm.lastName,
@@ -135,9 +142,12 @@ export default function ProfilePage() {
       }
       formData.append("data", JSON.stringify(profileData))
 
-      // Add image if selected
       if (selectedImage) {
         formData.append("avatar", selectedImage)
+      }
+
+      if (removeImage) {
+        formData.append("remove-image", "true")
       }
 
       const response = await apiRequest("/profile/update/", {
@@ -271,19 +281,31 @@ export default function ProfilePage() {
                         )}
                       </div>
                       {isEditing && (
-                        <label
-                          htmlFor="profileImage"
-                          className="absolute bottom-0 left-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 shadow-lg"
-                        >
-                          <Edit className="w-4 h-4" />
-                          <input
-                            id="profileImage"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageSelect}
-                            className="hidden"
-                          />
-                        </label>
+                        <>
+                          <label
+                            htmlFor="profileImage"
+                            className="absolute bottom-0 left-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 shadow-lg"
+                          >
+                            <Edit className="w-4 h-4" />
+                            <input
+                              id="profileImage"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageSelect}
+                              className="hidden"
+                            />
+                          </label>
+                          {imagePreview && (
+                            <button
+                              type="button"
+                              onClick={handleRemoveImage}
+                              className="absolute bottom-0 right-0 p-2 bg-destructive text-destructive-foreground rounded-full cursor-pointer hover:bg-destructive/90 shadow-lg"
+                              title="حذف عکس"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                     <div className="flex-1 text-right">
