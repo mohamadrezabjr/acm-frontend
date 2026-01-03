@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,8 +14,8 @@ import { fetchEventBySlug, type Event, eventRegitserBySlug, apiRequest } from "@
 import { useAuth } from "@/lib/auth-context"
 import ShareCard from "@/components/sharecard"
 
-export default function EventDetailPage() {
-  const { slug } = useParams<{ slug: string }>()
+export default function EventPage({ params }: { params: { slug: string } }) {
+  const { slug } = params
   const { user } = useAuth()
 
   const router = useRouter()
@@ -208,6 +208,18 @@ export default function EventDetailPage() {
       // فرم تکمیل اطلاعات را نمایش بده
       setShowRegistrationForm(true)
     }
+  }
+
+  const convertPersianToEnglish = (str: string) => {
+    const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"]
+    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٢", "٩"]
+
+    let result = str
+    for (let i = 0; i < 10; i++) {
+      result = result.replace(new RegExp(persianNumbers[i], "g"), i.toString())
+      result = result.replace(new RegExp(arabicNumbers[i], "g"), i.toString())
+    }
+    return result
   }
 
   if (loading) {
@@ -501,7 +513,8 @@ export default function EventDetailPage() {
                       type={field === "email" ? "email" : "text"}
                       value={formData[field as keyof typeof formData]}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+                        const value = field === "student_id" ? convertPersianToEnglish(e.target.value) : e.target.value
+                        setFormData((prev) => ({ ...prev, [field]: value }))
                         if (formErrors[field]) {
                           setFormErrors((prev) => {
                             const newErrors = { ...prev }
