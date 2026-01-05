@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth-context"
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [mobileData, setMobileData] = useState({ mobile: "", password: "" })
-  const [studentData, setStudentData] = useState({ studentId: "", password: "" })
+  const [emailData, setEmailData] = useState({ email: "", password: "" })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const { login } = useAuth()
@@ -34,13 +34,13 @@ export default function LoginPage() {
     }
   }
 
-  const handleStudentLogin = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
 
     try {
-      await login(studentData.studentId, studentData.password, true)
+      await login(emailData.email, emailData.password, false)
     } catch (err: any) {
       setError(err.message || "خطا در ورود. لطفاً دوباره تلاش کنید.")
     } finally {
@@ -60,20 +60,22 @@ export default function LoginPage() {
           <CardContent>
             {error && (
               <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <p className="text-sm text-destructive text-center">{error}</p>
+                <p className="text-sm text-destructive text-right">{error}</p>
               </div>
             )}
 
             <Tabs defaultValue="mobile" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="mobile">شماره موبایل</TabsTrigger>
-                <TabsTrigger value="student">شماره دانشجویی</TabsTrigger>
+                <TabsTrigger value="email">ایمیل</TabsTrigger>
               </TabsList>
 
               <TabsContent value="mobile">
-                <form onSubmit={handleMobileLogin} className="space-y-4 mt-4">
+                <form onSubmit={handleMobileLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="mobile">شماره موبایل</Label>
+                    <Label htmlFor="mobile" className="text-right block">
+                      شماره موبایل
+                    </Label>
                     <Input
                       id="mobile"
                       type="tel"
@@ -82,12 +84,15 @@ export default function LoginPage() {
                       onChange={(e) => setMobileData({ ...mobileData, mobile: e.target.value })}
                       required
                       pattern="09[0-9]{9}"
-                      title="شماره موبایل باید با 09 شروع شود و 11 رقم باشد"
+                      title="شماره موبایل باید با 09 شروع شده و 11 رقم باشد"
                       disabled={loading}
+                      className="text-left"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="mobile-password">رمز عبور</Label>
+                    <Label htmlFor="mobile-password" className="text-right block">
+                      رمز عبور
+                    </Label>
                     <div className="relative">
                       <Input
                         id="mobile-password"
@@ -96,6 +101,7 @@ export default function LoginPage() {
                         onChange={(e) => setMobileData({ ...mobileData, password: e.target.value })}
                         required
                         disabled={loading}
+                        className="text-left pl-10"
                       />
                       <button
                         type="button"
@@ -120,32 +126,36 @@ export default function LoginPage() {
                 </form>
               </TabsContent>
 
-              <TabsContent value="student">
-                <form onSubmit={handleStudentLogin} className="space-y-4 mt-4">
+              <TabsContent value="email">
+                <form onSubmit={handleEmailLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="student-id">شماره دانشجویی</Label>
+                    <Label htmlFor="email" className="text-right block">
+                      ایمیل
+                    </Label>
                     <Input
-                      id="student-id"
-                      type="text"
-                      placeholder="1234567890"
-                      value={studentData.studentId}
-                      onChange={(e) => setStudentData({ ...studentData, studentId: e.target.value })}
+                      id="email"
+                      type="email"
+                      placeholder="example@email.com"
+                      value={emailData.email}
+                      onChange={(e) => setEmailData({ ...emailData, email: e.target.value })}
                       required
-                      pattern="[0-9]{10}"
-                      title="شماره دانشجویی باید 10 رقم باشد"
                       disabled={loading}
+                      className="text-left"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="student-password">رمز عبور</Label>
+                    <Label htmlFor="email-password" className="text-right block">
+                      رمز عبور
+                    </Label>
                     <div className="relative">
                       <Input
-                        id="student-password"
+                        id="email-password"
                         type={showPassword ? "text" : "password"}
-                        value={studentData.password}
-                        onChange={(e) => setStudentData({ ...studentData, password: e.target.value })}
+                        value={emailData.password}
+                        onChange={(e) => setEmailData({ ...emailData, password: e.target.value })}
                         required
                         disabled={loading}
+                        className="text-left pl-10"
                       />
                       <button
                         type="button"

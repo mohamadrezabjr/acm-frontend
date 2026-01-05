@@ -476,6 +476,69 @@ export async function courseRegitserBySlug(slug: string): Promise<any> {
   }
 }
 
+export async function verifyRegistrationOTP(otp: string): Promise<{
+  success: boolean
+  tokens?: { access: string; refresh: string }
+  error?: string
+}> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/register/verify/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ otp }),
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      return { success: true, tokens: data.tokens }
+    } else if (response.status === 400) {
+      return { success: false, error: "کد وارد شده اشتباه است" }
+    } else if (response.status === 401) {
+      return { success: false, error: "زمان کد تمام شده است. لطفاً کد جدید دریافت کنید" }
+    } else {
+      return { success: false, error: "خطایی رخ داده است" }
+    }
+  } catch (error) {
+    console.error("OTP verification error:", error)
+    return { success: false, error: "خطا در اتصال به سرور" }
+  }
+}
+
+export async function resendRegistrationOTP(): Promise<{
+  success: boolean
+  remainingTime?: number
+  error?: string
+}> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/register/revalidate/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+
+    if (response.status === 201) {
+      return { success: true }
+    } else if (response.status === 400) {
+      const data = await response.json()
+      return {
+        success: false,
+        remainingTime: data.remaining_revalidation,
+        error: "هنوز نمی‌توانید کد جدید دریافت کنید",
+      }
+    } else {
+      return { success: false, error: "خطایی رخ داده است" }
+    }
+  } catch (error) {
+    console.error("OTP resend error:", error)
+    return { success: false, error: "خطا در اتصال به سرور" }
+  }
+}
+
 export const apiClient = {
   get: async (endpoint: string) => {
     const response = await apiRequest(endpoint, { method: "GET" })

@@ -210,6 +210,18 @@ export default function EventDetailPage() {
     }
   }
 
+  const convertPersianToEnglish = (str: string) => {
+    const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"]
+    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٤", "٥", "٢", "٩"]
+
+    let result = str
+    for (let i = 0; i < 10; i++) {
+      result = result.replace(new RegExp(persianNumbers[i], "g"), i.toString())
+      result = result.replace(new RegExp(arabicNumbers[i], "g"), i.toString())
+    }
+    return result
+  }
+
   if (loading) {
     return (
       <>
@@ -356,25 +368,6 @@ export default function EventDetailPage() {
                         <div className="font-medium">{event.location}</div>
                       </div>
                     </div>
-                    {/* <div className="flex items-start gap-3">
-                      <Users className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">ظرفیت</div>
-                        <div className="font-medium">
-                          {event.registered} / {event.capacity} نفر
-                        </div>
-                        {isAlmostFull && registrationStatus.canRegister && (
-                          <Badge variant="destructive" className="mt-1">
-                            ظرفیت محدود!
-                          </Badge>
-                        )}
-                        {!registrationStatus.canRegister && event.is_full && (
-                          <Badge variant="destructive" className="mt-1">
-                            ظرفیت تکمیل است
-                          </Badge>
-                        )}
-                      </div>
-                    </div> */}
                     <div className="flex items-start gap-3">
                       <User className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
@@ -501,7 +494,8 @@ export default function EventDetailPage() {
                       type={field === "email" ? "email" : "text"}
                       value={formData[field as keyof typeof formData]}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+                        const value = field === "student_id" ? convertPersianToEnglish(e.target.value) : e.target.value
+                        setFormData((prev) => ({ ...prev, [field]: value }))
                         if (formErrors[field]) {
                           setFormErrors((prev) => {
                             const newErrors = { ...prev }

@@ -206,6 +206,18 @@ export default function CourseDetailPage() {
     }
   }
 
+  const convertPersianToEnglish = (str: string) => {
+    const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"]
+    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٤", "٥", "٢", "٩"]
+
+    let result = str
+    for (let i = 0; i < 10; i++) {
+      result = result.replace(new RegExp(persianNumbers[i], "g"), i.toString())
+      result = result.replace(new RegExp(arabicNumbers[i], "g"), i.toString())
+    }
+    return result
+  }
+
   if (loading) {
     return (
       <>
@@ -492,7 +504,8 @@ export default function CourseDetailPage() {
                       type={field === "email" ? "email" : "text"}
                       value={formData[field as keyof typeof formData]}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+                        const value = field === "student_id" ? convertPersianToEnglish(e.target.value) : e.target.value
+                        setFormData((prev) => ({ ...prev, [field]: value }))
                         if (formErrors[field]) {
                           setFormErrors((prev) => {
                             const newErrors = { ...prev }

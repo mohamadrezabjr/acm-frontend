@@ -83,7 +83,7 @@ export function About() {
               <div className="text-muted-foreground">شرکای صنعتی</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">۵</div>
+              <div className="text-4xl font-bold text-primary mb-2">۱۷</div>
               <div className="text-muted-foreground">سال فعالیت</div>
             </div>
           </div>

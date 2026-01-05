@@ -14,7 +14,7 @@ interface User {
   email?: string
   studentId?: string
   role: UserRole
-  bio? : string
+  bio?: string
   position?: string
   avatar?: string
 }
@@ -23,8 +23,9 @@ interface AuthContextType {
   user: User | null
   loading: boolean
   login: (identifier: string, password: string, isStudentId: boolean) => Promise<void>
-  register: (data: RegisterData) => Promise<void>
+  register: (data: RegisterData) => Promise<{ registrationId: string }> // Updated to return registration ID
   logout: () => void
+  checkAuth: () => Promise<void> // Added checkAuth to context type
   isAdmin: () => boolean
   isCreator: () => boolean
 }
@@ -54,7 +55,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAuth = async () => {
     try {
       const response = await apiRequest("/auth/me/", {
-      method: "GET",})
+        method: "GET",
+      })
 
       if (response.ok) {
         const userData = await response.json()
@@ -66,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: userData.email,
           studentId: userData.student_id,
           role: userData.role || "user",
-          bio : userData.bio || "",
+          bio: userData.bio || "",
           avatar: `${userData.avatar}` || "",
           position: userData.position || "",
         })
@@ -138,7 +140,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(error.message || "خطا در ثبت‌نام")
       }
 
-      await login(data.phone, data.password, false)
+      const result = await response.json()
+
+      if (result.registration_id) {
+        document.cookie = `registration_id=${result.registration_id}; path=/; max-age=600; samesite=strict; ${
+          process.env.NODE_ENV === "production" ? "secure;" : ""
+        }`
+        return { registrationId: result.registration_id }
+      }
+
+      throw new Error("Registration ID not received")
     } catch (error) {
       console.error("Register error:", error)
       throw error
@@ -157,7 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isCreator = () => user?.role === "creator" || user?.role === "admin"
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, isAdmin, isCreator }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, checkAuth, isAdmin, isCreator }}>
       {children}
     </AuthContext.Provider>
   )

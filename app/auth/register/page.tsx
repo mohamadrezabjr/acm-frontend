@@ -10,6 +10,7 @@ import Link from "next/link"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Header } from "@/components/header"
 import { useAuth } from "@/lib/auth-context"
+import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -25,29 +26,30 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const { register } = useAuth()
+  const router = useRouter()
 
   // تابع تبدیل اعداد فارسی به انگلیسی
   const convertPersianToEnglish = (str: string) => {
-    const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    
-    let result = str;
+    const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"]
+    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٢", "٢", "٢", "٢"]
+
+    let result = str
     for (let i = 0; i < 10; i++) {
-      result = result.replace(new RegExp(persianNumbers[i], 'g'), i.toString());
-      result = result.replace(new RegExp(arabicNumbers[i], 'g'), i.toString());
+      result = result.replace(new RegExp(persianNumbers[i], "g"), i.toString())
+      result = result.replace(new RegExp(arabicNumbers[i], "g"), i.toString())
     }
-    return result;
-  };
+    return result
+  }
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
     if (!formData.firstName) newErrors.firstName = "نام الزامی است"
-    
+
     // تبدیل اعداد فارسی به انگلیسی برای validation
-    const mobileEnglish = convertPersianToEnglish(formData.mobile);
-    const studentIdEnglish = convertPersianToEnglish(formData.studentId);
-    
+    const mobileEnglish = convertPersianToEnglish(formData.mobile)
+    const studentIdEnglish = convertPersianToEnglish(formData.studentId)
+
     if (!formData.mobile) {
       newErrors.mobile = "شماره موبایل الزامی است"
     } else if (!/^09[0-9]{9}$/.test(mobileEnglish)) {
@@ -90,6 +92,8 @@ export default function RegisterPage() {
           studentId: formData.studentId ? convertPersianToEnglish(formData.studentId) : undefined,
           password: formData.password,
         })
+
+        router.push("/auth/verify-email")
       } catch (err: any) {
         setErrors({ submit: err.message || "خطا در ثبت‌نام. لطفاً دوباره تلاش کنید." })
       } finally {
@@ -121,7 +125,7 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
               {/* نام و نام خانوادگی */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -130,6 +134,8 @@ export default function RegisterPage() {
                   </Label>
                   <Input
                     id="firstName"
+                    name="given-name"
+                    autoComplete="given-name"
                     value={formData.firstName}
                     onChange={(e) => handleChange("firstName", e.target.value)}
                     className={errors.firstName ? "border-destructive" : ""}
@@ -142,6 +148,8 @@ export default function RegisterPage() {
                   <Label htmlFor="lastName">نام خانوادگی (اختیاری)</Label>
                   <Input
                     id="lastName"
+                    name="family-name"
+                    autoComplete="family-name"
                     value={formData.lastName}
                     onChange={(e) => handleChange("lastName", e.target.value)}
                     className={errors.lastName ? "border-destructive" : ""}
@@ -160,6 +168,9 @@ export default function RegisterPage() {
                   <Input
                     id="mobile"
                     type="tel"
+                    autoComplete="tel"
+                    name="tel"
+                    dir="ltr"
                     placeholder="09123456789"
                     value={formData.mobile}
                     onChange={(e) => handleChange("mobile", e.target.value)}
@@ -175,7 +186,10 @@ export default function RegisterPage() {
                   </Label>
                   <Input
                     id="email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
+                    dir="ltr"
                     placeholder="example@email.com"
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
@@ -190,9 +204,11 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label htmlFor="studentId">شماره دانشجویی (اختیاری)</Label>
                 <Input
-                  id="studentId"
-                  type="text"
                   placeholder="1234567890"
+                  id="studentId"
+                  name="student-id"
+                  autoComplete="off"
+                  inputMode="numeric"
                   value={formData.studentId}
                   onChange={(e) => handleChange("studentId", e.target.value)}
                   className={errors.studentId ? "border-destructive" : ""}
@@ -211,7 +227,9 @@ export default function RegisterPage() {
                   <div className="relative">
                     <Input
                       id="password"
+                      name="password"
                       type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
                       value={formData.password}
                       onChange={(e) => handleChange("password", e.target.value)}
                       className={errors.password ? "border-destructive" : ""}
@@ -236,7 +254,9 @@ export default function RegisterPage() {
                   </Label>
                   <Input
                     id="confirmPassword"
+                    name="confirm-password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleChange("confirmPassword", e.target.value)}
                     className={errors.confirmPassword ? "border-destructive" : ""}

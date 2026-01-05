@@ -12,18 +12,30 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, MapPin, User, Settings, BookOpen, CalendarDays, Edit, Save, X, Loader2 , Clock, LayoutDashboard} from "lucide-react"
+import {
+  Calendar,
+  MapPin,
+  User,
+  Settings,
+  BookOpen,
+  CalendarDays,
+  Edit,
+  Save,
+  X,
+  Loader2,
+  Clock,
+  LayoutDashboard,
+} from "lucide-react"
 import Link from "next/link"
 import {
   fetchUserEvents,
   fetchUserCourses,
-  apiRequest, 
-  type UserEventRegistration, 
+  apiRequest,
+  type UserEventRegistration,
   type UserCourseRegistration,
-  WeekdayFa
-  } from "@/lib/api-client"
+  WeekdayFa,
+} from "@/lib/api-client"
 import { toast } from "@/hooks/use-toast"
-
 
 export default function ProfilePage() {
   const { user, loading, isCreator } = useAuth()
@@ -36,6 +48,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [removeImage, setRemoveImage] = useState<boolean>(false)
 
   const [editForm, setEditForm] = useState({
     firstName: "",
@@ -45,18 +58,18 @@ export default function ProfilePage() {
 
   // تابع تبدیل اعداد فارسی به انگلیسی
   const convertPersianToEnglish = (str: string) => {
-    const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    
-    let result = str;
+    const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"]
+    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٢", "٢", "٢", "٢"]
+
+    let result = str
     for (let i = 0; i < 10; i++) {
-      result = result.replace(new RegExp(persianNumbers[i], 'g'), i.toString());
-      result = result.replace(new RegExp(arabicNumbers[i], 'g'), i.toString());
+      result = result.replace(new RegExp(persianNumbers[i], "g"), i.toString())
+      result = result.replace(new RegExp(arabicNumbers[i], "g"), i.toString())
     }
-    return result;
-  };
+    return result
+  }
   const formatTime = (dateString: string) => {
-  return new Date(dateString).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })
+    return new Date(dateString).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })
   }
   const formatJustTime = (time: string) => toPersianNumber(time.slice(0, 5))
   const toPersianNumber = (value: string | number) =>
@@ -102,6 +115,7 @@ export default function ProfilePage() {
     const file = e.target.files?.[0]
     if (file) {
       setSelectedImage(file)
+      setRemoveImage(false)
       const reader = new FileReader()
       reader.onloadend = () => {
         setImagePreview(reader.result as string)
@@ -110,22 +124,30 @@ export default function ProfilePage() {
     }
   }
 
+  const handleRemoveImage = () => {
+    setImagePreview(null)
+    setSelectedImage(null)
+    setRemoveImage(true)
+  }
+
   const handleSaveProfile = async () => {
     setSaving(true)
     try {
       const formData = new FormData()
-      
-      // Add profile data as JSON
+
       const profileData = {
         first_name: editForm.firstName,
         last_name: editForm.lastName,
         student_id: editForm.studentId ? convertPersianToEnglish(editForm.studentId) : undefined,
       }
       formData.append("data", JSON.stringify(profileData))
-      
-      // Add image if selected
+
       if (selectedImage) {
         formData.append("avatar", selectedImage)
+      }
+
+      if (removeImage) {
+        formData.append("remove-image", "true")
       }
 
       const response = await apiRequest("/profile/update/", {
@@ -144,7 +166,7 @@ export default function ProfilePage() {
       })
       setIsEditing(false)
       setSelectedImage(null)
-      window.location.reload()      
+      window.location.reload()
     } catch (error) {
       console.error("Failed to update profile:", error)
       toast({
@@ -195,22 +217,22 @@ export default function ProfilePage() {
             <p className="text-muted-foreground mt-2">مدیریت اطلاعات و فعالیت‌های خود</p>
           </div>
 
-          <Tabs defaultValue="info" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
-              <TabsTrigger value="info" className="gap-2">
+          <Tabs defaultValue="info" className="w-full" dir="rtl">
+            <TabsList className="flex w-full">
+              <TabsTrigger value="info" className="gap-2 flex-1">
                 <User className="w-4 h-4" />
-                <span className="hidden sm:inline">اطلاعات</span>
+                <span className="hidden sm:inline">اطلاعات کاربری</span>
               </TabsTrigger>
-              <TabsTrigger value="events" className="gap-2">
-                <CalendarDays className="w-4 h-4" />
-                <span className="hidden sm:inline">رویدادها</span>
+              <TabsTrigger value="events" className="gap-2 flex-1">
+                <Calendar className="w-4 h-4" />
+                <span className="hidden sm:inline">رویدادهای ثبت نام شده</span>
               </TabsTrigger>
-              <TabsTrigger value="courses" className="gap-2">
+              <TabsTrigger value="courses" className="gap-2 flex-1">
                 <BookOpen className="w-4 h-4" />
-                <span className="hidden sm:inline">دوره‌ها</span>
+                <span className="hidden sm:inline">دوره های ثبت نام شده</span>
               </TabsTrigger>
               {isCreator() && (
-                <TabsTrigger value="admin" className="gap-2">
+                <TabsTrigger value="admin" className="gap-2 flex-1">
                   <Settings className="w-4 h-4" />
                   <span className="hidden sm:inline">مدیریت</span>
                 </TabsTrigger>
@@ -237,11 +259,7 @@ export default function ProfilePage() {
                         انصراف
                       </Button>
                       <Button size="sm" onClick={handleSaveProfile} disabled={saving}>
-                        {saving ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <Save className="w-4 h-4 mr-2" />
-                        )}
+                        {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                         ذخیره
                       </Button>
                     </div>
@@ -254,7 +272,7 @@ export default function ProfilePage() {
                       <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg ring-4 ring-primary/20">
                         {imagePreview ? (
                           <img
-                            src={imagePreview}
+                            src={imagePreview || "/placeholder.svg"}
                             alt={user.firstName}
                             className="w-full h-full rounded-full object-cover"
                           />
@@ -263,19 +281,31 @@ export default function ProfilePage() {
                         )}
                       </div>
                       {isEditing && (
-                        <label
-                          htmlFor="profileImage"
-                          className="absolute bottom-0 left-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 shadow-lg"
-                        >
-                          <Edit className="w-4 h-4" />
-                          <input
-                            id="profileImage"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageSelect}
-                            className="hidden"
-                          />
-                        </label>
+                        <>
+                          <label
+                            htmlFor="profileImage"
+                            className="absolute bottom-0 left-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 shadow-lg"
+                          >
+                            <Edit className="w-4 h-4" />
+                            <input
+                              id="profileImage"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageSelect}
+                              className="hidden"
+                            />
+                          </label>
+                          {imagePreview && (
+                            <button
+                              type="button"
+                              onClick={handleRemoveImage}
+                              className="absolute bottom-0 right-0 p-2 bg-destructive text-destructive-foreground rounded-full cursor-pointer hover:bg-destructive/90 shadow-lg"
+                              title="حذف عکس"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                     <div className="flex-1 text-right">
@@ -293,8 +323,6 @@ export default function ProfilePage() {
 
                   {/* Form Fields */}
                   <div className="grid gap-6 md:grid-cols-2">
-
-
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-muted-foreground text-right block">
                         نام خانوادگی
@@ -310,7 +338,7 @@ export default function ProfilePage() {
                         <p className="text-lg font-medium text-right">{user.lastName || "-"}</p>
                       )}
                     </div>
-                                        <div className="space-y-2">
+                    <div className="space-y-2">
                       <Label className="text-sm font-semibold text-muted-foreground text-right block">
                         نام <span className="text-destructive">*</span>
                       </Label>
@@ -340,9 +368,7 @@ export default function ProfilePage() {
                         ایمیل <span className="text-destructive">*</span>
                       </Label>
                       <div className="flex items-center gap-2" dir="ltr">
-                        <p className="text-lg font-medium text-left flex-1">
-                          {user.email || "-"}
-                        </p>
+                        <p className="text-lg font-medium text-left flex-1">{user.email || "-"}</p>
                       </div>
                     </div>
 
@@ -374,7 +400,7 @@ export default function ProfilePage() {
               </Card>
             </TabsContent>
 
-                        {/* Events Tab */}
+            {/* Events Tab */}
             <TabsContent value="events">
               <Card className="border-2 shadow-lg">
                 <CardHeader>
@@ -486,9 +512,8 @@ export default function ProfilePage() {
                                 <p className="text-sm text-muted-foreground mb-2 text-right">
                                   {course.instructors.length > 0 && (
                                     <>
-                                      
                                       {course.instructors.map((i) => `${i.first_name} ${i.last_name}`).join("، ")}
-                                      {" : "}اساتید  
+                                      {" : "}اساتید
                                     </>
                                   )}
                                 </p>
@@ -499,22 +524,19 @@ export default function ProfilePage() {
                                       <Calendar className="w-4 h-4" />
                                     </div>
                                   )}
-                                  </div>
+                                </div>
                                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground justify-end mb-2">
-
                                   {course.time_plans && course.time_plans.length > 0 && (
-                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    {course.time_plans.map((time_plan, index) => (
-                                      <span key={`${index}`}>
-                                        {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} {"ها"},{" "}
-                                        {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
-                                      </span>
-                                      
-                                    ))}
-                                  <Clock className="w-4 h-4" />
-
-                                  </div>
-                                )}
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                      {course.time_plans.map((time_plan, index) => (
+                                        <span key={`${index}`}>
+                                          {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} {"ها"},{" "}
+                                          {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
+                                        </span>
+                                      ))}
+                                      <Clock className="w-4 h-4" />
+                                    </div>
+                                  )}
                                   {course.location && (
                                     <div className="flex items-center gap-1">
                                       <span>{course.location}</span>

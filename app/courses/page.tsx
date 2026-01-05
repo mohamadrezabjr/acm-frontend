@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Clock, ArrowLeft, Filter, ArrowUpDown, User, Loader2 } from "lucide-react"
@@ -190,7 +190,7 @@ export default function CoursesPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center justify-between text-sm text-muted-foreground mb-6">
             <span>{filteredAndSortedCourses.length} دوره یافت شد</span>
             <span className="text-xs">ترتیب: {sortOrder === "asc" ? "صعودی ↑" : "نزولی ↓"}</span>
           </div>
@@ -217,86 +217,101 @@ export default function CoursesPage() {
                 const regStatus = getRegistrationStatus(course)
 
                 return (
-                  <Link href={`/courses/${course.slug}`}>
-                  <Card key={course.slug} className="overflow-hidden group hover:shadow-xl transition-shadow">
-                    
-                    <div className="relative aspect-[1/1.414] overflow-hidden bg-muted">
-                      <img
-                        src={course.image || "/placeholder.svg"}
-                        alt={course.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-2 left-2">
-                        <Badge variant={course.price === 0 ? "default" : "secondary"} className="font-bold">
-                          {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
-                        </Badge>
-                      </div>
-                      {regStatus.status !== "open" && (
-                        <div className="absolute top-2 right-2 z-10">
-                          <Badge variant="destructive" className="font-bold">
-                            {regStatus.text}
+                  <Link href={`/courses/${course.slug}`} key={course.slug}>
+                    <Card className="overflow-hidden group hover:shadow-xl transition-shadow h-full flex flex-col p-0">
+                      {/* Image Section with A4 aspect ratio */}
+                      <div className="relative w-full aspect-[1/1.414] overflow-hidden bg-muted shrink-0">
+                        <img
+                          src={course.image || "/placeholder.svg"}
+                          alt={course.title}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+
+                        {/* Price Badge */}
+                        <div className="absolute top-3 left-3 z-10">
+                          <Badge variant={course.price === 0 ? "default" : "secondary"} className="font-bold">
+                            {course.price === 0 ? "رایگان" : `${course.price.toLocaleString("fa-IR")} تومان`}
                           </Badge>
                         </div>
-                      )}
 
-                      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
+                        {/* Registration Status */}
+                        {regStatus.status !== "open" && (
+                          <div className="absolute top-3 right-3 z-10">
+                            <Badge variant="destructive" className="font-bold">
+                              {regStatus.text}
+                            </Badge>
+                          </div>
+                        )}
 
-                      {/* Tags inside image */}
-                      <div className="absolute bottom-4 right-4 flex gap-2 flex-wrap z-10">
-                        {course.tags.slice(0, 2).map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="
-                            backdrop-blur-sm
-                            bg-secondary/80
-                            text-secondary-foreground
-                            border border-secondary/30
-                          "
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <CardHeader>
-                      <CardTitle className="text-xl">{course.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        <span>تاریخ شروع : {new Date(course.start_date).toLocaleDateString("fa-IR")}</span>
-                      </div>
+                        {/* Bottom Gradient Overlay */}
+                        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        <span>تاریخ پایان : {new Date(course.end_date).toLocaleDateString("fa-IR")}</span>
-                      </div>
-
-                      {course.time_plans && course.time_plans.length > 0 && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
-                          {course.time_plans.map((time_plan, index) => (
-                            <span key={`${index}`}>
-                              {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]} ,{" "}
-                              {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
-                            </span>
+                        {/* Tags Overlay */}
+                        <div className="absolute bottom-3 right-3 flex gap-2 flex-wrap z-10 max-w-[calc(100%-24px)]">
+                          {course.tags.slice(0, 2).map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="secondary"
+                              className="backdrop-blur-sm bg-white/90 dark:bg-black/80 text-foreground border-0 text-xs"
+                            >
+                              {tag}
+                            </Badge>
                           ))}
                         </div>
-                      )}
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="w-4 h-4" />
-                        <span>{course.location}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <User className="w-4 h-4" />
-                        <span>{course.organizer}</span>
-                      </div>
-                      
 
-                      
-                    </CardContent>
-                  </Card>
+                      {/* Content Section */}
+                      <div className="flex flex-col flex-1 p-6">
+                        <h3 className="text-lg font-bold leading-tight line-clamp-2 mb-4">{course.title}</h3>
+
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="w-4 h-4 shrink-0" />
+                            <span className="truncate">
+                              تاریخ شروع: {new Date(course.start_date).toLocaleDateString("fa-IR")}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="w-4 h-4 shrink-0" />
+                            <span className="truncate">
+                              تاریخ پایان: {new Date(course.end_date).toLocaleDateString("fa-IR")}
+                            </span>
+                          </div>
+
+                          {course.time_plans && course.time_plans.length > 0 && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Clock className="w-4 h-4 shrink-0" />
+                              <span className="truncate">
+                                {course.time_plans.map((time_plan, index) => (
+                                  <span key={index}>
+                                    {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]},{" "}
+                                    {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
+                                  </span>
+                                ))}
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <MapPin className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{course.location}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <User className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{course.organizer}</span>
+                          </div>
+                        </div>
+
+                        {/* View Details Button */}
+                        <div className="mt-auto">
+                          <Button className="w-full bg-transparent" variant="outline">
+                            مشاهده جزئیات
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
                   </Link>
                 )
               })}
