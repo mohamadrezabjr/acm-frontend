@@ -1,1 +1,1 @@
-# University ACM website
+# University ACM-KhU Website
