@@ -567,6 +567,7 @@ export default function ChallengePage() {
                 theme="vs-dark"
                 onMount={() => setEditorMounted(true)}
                 options={{
+                  readOnly: false,
                   fontSize: 14,
                   fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Monaco, monospace",
                   minimap: { enabled: false },
@@ -583,6 +584,8 @@ export default function ChallengePage() {
                   cursorSmoothCaretAnimation: "on",
                   formatOnPaste: true,
                   suggestOnTriggerCharacters: true,
+                  quickSuggestions: true,
+                  acceptSuggestionOnEnter: "on",
                 }}
               />
             </div>
