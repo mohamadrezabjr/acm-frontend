@@ -558,7 +558,7 @@ export default function ChallengePage() {
             </div>
 
             {/* Monaco Editor */}
-            <div className="flex-1 min-h-0 relative overflow-auto" style={{ minHeight: "300px" }}>
+            <div className="flex-1 min-h-0 relative overflow-auto" style={{ minHeight: "300px" }} dir="ltr">
               <MonacoEditor
                 height="100%"
                 width="100%"
@@ -602,7 +602,7 @@ export default function ChallengePage() {
             <div className="hidden lg:block border-t">
               <div className="flex items-center justify-between px-3 py-1.5 bg-card/50">
                 <div className="flex items-center gap-2">
-                  <Code2 className="w-3.5 h-3.5 text-muted-foreground" />
+                  <Code2 className="w-3.5 h-3.5 text-muted-foreground" />/
                   <span className="text-xs font-medium text-muted-foreground">خروجی</span>
                 </div>
                 {getStatusDisplay()}
