@@ -513,7 +513,7 @@ export default function ChallengePage() {
           </div>
 
           {/* Right Panel - Editor & Output */}
-          <div className="flex-1 flex flex-col overflow-hidden h-[60vh] lg:h-full">
+          <div className="flex-1 flex flex-col h-[60vh] lg:h-full">
             {/* Editor Toolbar */}
             <div className="flex items-center justify-between px-3 py-2 border-b bg-card/50">
               <div className="flex items-center gap-2">
@@ -558,14 +558,22 @@ export default function ChallengePage() {
             </div>
 
             {/* Monaco Editor */}
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 relative overflow-auto" style={{ minHeight: "300px" }}>
               <MonacoEditor
                 height="100%"
+                width="100%"
                 language={monacoLang}
                 value={code}
-                onChange={(val) => setCode(val || "")}
+                onChange={(val) => {
+                  console.log("[v0] Monaco onChange triggered:", val?.substring(0, 50))
+                  setCode(val || "")
+                }}
                 theme="vs-dark"
-                onMount={() => setEditorMounted(true)}
+                onMount={(editor) => {
+                  console.log("[v0] Monaco editor mounted")
+                  setEditorMounted(true)
+                  editor.focus()
+                }}
                 options={{
                   readOnly: false,
                   fontSize: 14,
