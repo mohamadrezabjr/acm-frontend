@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (identifier: string, password: string, isStudentId: boolean) => {
     try {
-      const loginData = isStudentId ? { student_id: identifier, password } : { phone: identifier, password }
+      const loginData =  {email : identifier, password }
 
       const response = await fetch(`${API_BASE_URL}/auth/login/`, {
         method: "POST",
