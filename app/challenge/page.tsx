@@ -34,6 +34,8 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { useAuth } from "@/lib/auth-context"
 import { apiRequest } from "@/lib/api-client"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
@@ -176,7 +178,8 @@ const difficultyConfig = {
 }
 
 export default function ChallengePage() {
-  const { user } = useAuth()
+  const router = useRouter()
+  const { user, loading, isCreator, logout } = useAuth()
   const [language, setLanguage] = useState<string>("python")
   const [code, setCode] = useState(DEFAULT_CODE.python)
   const [status, setStatus] = useState<SubmissionStatus>("idle")
@@ -310,6 +313,27 @@ export default function ChallengePage() {
 
   const monacoLang = LANGUAGES.find((l) => l.id === language)?.monacoId || "python"
 
+  useEffect(() => {
+    if (loading) return
+
+    if (!user) {
+      router.push("/auth/login")
+      return
+    }
+
+    if (!isCreator()) {
+      router.push("/")
+      return
+    }
+  }, [user, loading, isCreator, router])
+
+  if (loading || !user) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  )
+}
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
