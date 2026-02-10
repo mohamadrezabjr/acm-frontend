@@ -137,7 +137,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.message || "خطا در ثبت‌نام")
+        
+        let error_message = "خطا در ثبت نام"
+        
+        if (error.email){
+          error_message = "این ایمیل در سیستم وجود دارد"; 
+        }
+        else if (error.phone){
+          error_message = "این شماره موبایل در سیستم وجود دارد";
+        }
+
+        throw new Error(error_message || "خطا در ثبت‌نام")
       }
 
       const result = await response.json()
