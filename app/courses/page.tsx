@@ -285,9 +285,10 @@ export default function CoursesPage() {
                               <span className="truncate">
                                 {course.time_plans.map((time_plan, index) => (
                                   <span key={index}>
-                                    {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]},{" "}
-                                    {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)}
+                                    {WeekdayFa[time_plan.weekday as keyof typeof WeekdayFa]}{" : "}
+                                    {formatJustTime(time_plan.time_start)} - {formatJustTime(time_plan.time_end)} {" "}
                                   </span>
+                                  
                                 ))}
                               </span>
                             </div>

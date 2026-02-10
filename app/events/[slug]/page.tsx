@@ -30,6 +30,7 @@ export default function EventDetailPage() {
     first_name: "",
     last_name: "",
     student_id: "",
+    phone: "",
   })
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -89,6 +90,8 @@ export default function EventDetailPage() {
         missing.push("last_name")
       } else if (field === "student_id" && !user.studentId) {
         missing.push("student_id")
+      } else if (field === "phone" && !user.phone) {
+        missing.push("phone")
       }
     })
 
@@ -101,6 +104,7 @@ export default function EventDetailPage() {
       first_name: "نام",
       last_name: "نام خانوادگی",
       student_id: "شماره دانشجویی",
+      phone: "شماره موبایل",
     }
     return labels[field] || field
   }
@@ -129,6 +133,14 @@ export default function EventDetailPage() {
           errors[field] = "شماره دانشجویی باید 10 رقم باشد"
         }
       }
+      
+      if (field === "phone"){
+        const phoneRegex = /^09[0-9]{9}$/
+        if (!phoneRegex.test(value)) {
+          errors[field] = "فرمت شماره موبایل صحیح نیست"
+        }
+      }
+
     })
 
     setFormErrors(errors)
@@ -161,8 +173,18 @@ export default function EventDetailPage() {
       })
 
       if (!response.ok) {
-        throw new Error("خطا در به‌روزرسانی اطلاعات")
-      }
+        const error = await response.json()
+        if (error.phone){
+
+          setShowRegistrationForm(false)
+          throw new Error ("این شماره موبایل در سیستم وجود دارد")
+        } 
+        else {
+          
+          setShowRegistrationForm(false)
+          throw new Error("خطا در به‌روزرسانی اطلاعات")
+        }
+        }
 
       // بستن فرم
       setShowRegistrationForm(false)
@@ -179,7 +201,7 @@ export default function EventDetailPage() {
     } catch (error) {
       console.error("Error updating profile:", error)
       setPopupType("error")
-      setPopupMessage("خطا در به‌روزرسانی اطلاعات. لطفاً دوباره تلاش کنید")
+      setPopupMessage(error.message)
     } finally {
       setIsSubmitting(false)
     }
@@ -192,7 +214,7 @@ export default function EventDetailPage() {
       setPopupMessage("لطفاً ابتدا وارد حساب کاربری خود شوید یا ثبت‌نام کنید")
       setTimeout(() => {
         router.push("/auth/login")
-      }, 2000)
+      }, 1200)
       return
     }
 
@@ -494,7 +516,7 @@ export default function EventDetailPage() {
                       type={field === "email" ? "email" : "text"}
                       value={formData[field as keyof typeof formData]}
                       onChange={(e) => {
-                        const value = field === "student_id" ? convertPersianToEnglish(e.target.value) : e.target.value
+                        const value = field === "student_id" || field ==="phone" ? convertPersianToEnglish(e.target.value) : e.target.value
                         setFormData((prev) => ({ ...prev, [field]: value }))
                         if (formErrors[field]) {
                           setFormErrors((prev) => {
@@ -522,7 +544,7 @@ export default function EventDetailPage() {
                     onClick={() => {
                       setShowRegistrationForm(false)
                       setFormErrors({})
-                      setFormData({ email: "", first_name: "", last_name: "", student_id: "" })
+                      setFormData({ email: "", first_name: "", last_name: "", student_id: "", phone : "" })
                     }}
                     disabled={isSubmitting}
                   >

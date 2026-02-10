@@ -41,6 +41,9 @@ export default function ProfilePage() {
   const { user, loading, isCreator } = useAuth()
   const router = useRouter()
 
+  const [popupMessage, setPopupMessage] = useState<string | null>(null)
+  const [popupType, setPopupType] = useState<"success" | "error" | "info">("info")
+
   const [userEvents, setUserEvents] = useState<UserEventRegistration[]>([])
   const [userCourses, setUserCourses] = useState<UserCourseRegistration[]>([])
   const [loadingData, setLoadingData] = useState(true)
@@ -54,6 +57,7 @@ export default function ProfilePage() {
     firstName: "",
     lastName: "",
     studentId: "",
+    phone: "",
   })
 
   // تابع تبدیل اعداد فارسی به انگلیسی
@@ -81,12 +85,20 @@ export default function ProfilePage() {
     }
   }, [loading, user, router])
 
+    useEffect(() => {
+      if (popupMessage) {
+        const timer = setTimeout(() => setPopupMessage(null), 5000)
+        return () => clearTimeout(timer)
+      }
+    }, [popupMessage])
+
   useEffect(() => {
     if (user) {
       setEditForm({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
         studentId: user.studentId || "",
+        phone: user.phone || "",
       })
       setImagePreview(user.avatar || null)
       loadUserData()
@@ -139,6 +151,7 @@ export default function ProfilePage() {
         first_name: editForm.firstName,
         last_name: editForm.lastName,
         student_id: editForm.studentId ? convertPersianToEnglish(editForm.studentId) : undefined,
+        phone: editForm.phone ? convertPersianToEnglish(editForm.phone) : undefined,
       }
       formData.append("data", JSON.stringify(profileData))
 
@@ -156,24 +169,21 @@ export default function ProfilePage() {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to update profile")
+        const error = await response.json()
+
+        if (error.phone) {
+          throw new Error ("شماره موبایل در سیستم وجود دارد")
+        }
+        else {
+          throw new Error("خطا در به‌روزرسانی پروفایل")
+        }
       }
 
-      toast({
-        title: "موفقیت",
-        description: "پروفایل با موفقیت به‌روزرسانی شد",
-        variant: "default",
-      })
       setIsEditing(false)
       setSelectedImage(null)
-      window.location.reload()
     } catch (error) {
-      console.error("Failed to update profile:", error)
-      toast({
-        title: "خطا",
-        description: "خطا در به‌روزرسانی پروفایل",
-        variant: "destructive",
-      })
+        setPopupType("error");
+        setPopupMessage(error.message)
     } finally {
       setSaving(false)
     }
@@ -187,6 +197,7 @@ export default function ProfilePage() {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       studentId: user?.studentId || "",
+      phone: user?.phone || "",
     })
   }
 
@@ -310,7 +321,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex-1 text-right">
                       <h2 className="text-2xl font-bold">
-                        {user.firstName} {user.lastName}
+                        {editForm.firstName} {editForm.lastName}
                       </h2>
                       {user.position && <p className="text-primary font-medium mt-1">{user.position}</p>}
                       <div className="flex gap-2 mt-2 justify-end">
@@ -323,21 +334,7 @@ export default function ProfilePage() {
 
                   {/* Form Fields */}
                   <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
-                        نام خانوادگی
-                      </Label>
-                      {isEditing ? (
-                        <Input
-                          value={editForm.lastName}
-                          onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
-                          className="border-2 focus:border-primary text-right"
-                          placeholder="نام خانوادگی خود را وارد کنید"
-                        />
-                      ) : (
-                        <p className="text-lg font-medium text-right">{user.lastName || "-"}</p>
-                      )}
-                    </div>
+                    
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-muted-foreground text-right block">
                         نام <span className="text-destructive">*</span>
@@ -350,25 +347,51 @@ export default function ProfilePage() {
                           placeholder="نام خود را وارد کنید"
                         />
                       ) : (
-                        <p className="text-lg font-medium text-right">{user.firstName || "-"}</p>
+                        <p className="text-lg font-medium text-right">{editForm.firstName || "-"}</p>
                       )}
                     </div>
-
+                    
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-muted-foreground text-right block">
-                        شماره موبایل <span className="text-destructive">*</span>
+                        نام خانوادگی
                       </Label>
-                      <div className="flex items-center gap-2">
-                        <p className="text-lg font-medium text-right flex-1">{user.phone}</p>
-                      </div>
+                      {isEditing ? (
+                        <Input
+                          value={editForm.lastName}
+                          onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                          className="border-2 focus:border-primary text-right"
+                          placeholder="نام خانوادگی خود را وارد کنید"
+                        />
+                      ) : (
+                        <p className="text-lg font-medium text-right">{editForm.lastName || "-"}</p>
+                      )}
                     </div>
-
+                    
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-muted-foreground text-right block">
                         ایمیل <span className="text-destructive">*</span>
                       </Label>
                       <div className="flex items-center gap-2" dir="ltr">
                         <p className="text-lg font-medium text-left flex-1">{user.email || "-"}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-muted-foreground text-right block">
+
+                        شماره موبایل <span className="text-destructive"></span>
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          value={editForm.phone}
+                          onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                          maxLength={11}
+                          className="border-2 focus:border-primary text-right"
+                          placeholder="09123456789"
+                        />
+                      ) : (
+                        <p className="text-lg font-medium text-right flex-1">{editForm.phone || "-"}</p>
+                      )}
+                      <div className="flex items-center gap-2">
                       </div>
                     </div>
 
@@ -385,7 +408,7 @@ export default function ProfilePage() {
                           placeholder="1234567890"
                         />
                       ) : (
-                        <p className="text-lg font-medium text-right">{user.studentId || "-"}</p>
+                        <p className="text-lg font-medium text-right">{editForm.studentId || "-"}</p>
                       )}
                     </div>
 
@@ -566,6 +589,75 @@ export default function ProfilePage() {
                 </CardContent>
               </Card>
             </TabsContent>
+                  {/* Popup */}
+      {popupMessage && (
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+          <div
+            className={`
+            flex items-start gap-4 p-4 rounded-2xl shadow-2xl backdrop-blur-sm
+            border-2 max-w-md w-full mx-4
+            ${popupType === "success" ? "bg-green-50/95 border-green-200" : ""}
+            ${popupType === "error" ? "bg-red-50/95 border-red-200" : ""}
+            ${popupType === "info" ? "bg-blue-50/95 border-blue-200" : ""}
+          `}
+          >
+            <div
+              className={`
+              flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
+              ${popupType === "success" ? "bg-green-100" : ""}
+              ${popupType === "error" ? "bg-red-100" : ""}
+              ${popupType === "info" ? "bg-blue-100" : ""}
+            `}
+            >
+              {popupType === "success" && (
+                <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+              {popupType === "error" && (
+                <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+              {popupType === "info" && (
+                <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              )}
+            </div>
+            <div className="flex-1 pt-1">
+              <p
+                className={`
+                font-medium leading-relaxed
+                ${popupType === "success" ? "text-green-900" : ""}
+                ${popupType === "error" ? "text-red-900" : ""}
+                ${popupType === "info" ? "text-blue-900" : ""}
+              `}
+              >
+                {popupMessage}
+              </p>
+            </div>
+            <button
+              onClick={() => setPopupMessage(null)}
+              className={`
+                flex-shrink-0 p-1 rounded-lg transition-colors
+                ${popupType === "success" ? "hover:bg-green-100 text-green-600" : ""}
+                ${popupType === "error" ? "hover:bg-red-100 text-red-600" : ""}
+                ${popupType === "info" ? "hover:bg-blue-100 text-blue-600" : ""}
+              `}
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
 
             {/* Admin Tab */}
             {isCreator() && (

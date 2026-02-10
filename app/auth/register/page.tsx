@@ -50,16 +50,18 @@ export default function RegisterPage() {
     const mobileEnglish = convertPersianToEnglish(formData.mobile)
     const studentIdEnglish = convertPersianToEnglish(formData.studentId)
 
-    if (!formData.mobile) {
-      newErrors.mobile = "شماره موبایل الزامی است"
-    } else if (!/^09[0-9]{9}$/.test(mobileEnglish)) {
-      newErrors.mobile = "شماره موبایل نامعتبر است"
-    }
+    // ایمیل فیلد اصلی و الزامی است
     if (!formData.email) {
       newErrors.email = "ایمیل الزامی است"
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "ایمیل نامعتبر است"
     }
+
+    // شماره موبایل اختیاری است اما اگر وارد شده باید معتبر باشد
+    if (formData.mobile && !/^09[0-9]{9}$/.test(mobileEnglish)) {
+      newErrors.mobile = "شماره موبایل نامعتبر است"
+    }
+
     if (formData.studentId && !/^[0-9]{10}$/.test(studentIdEnglish)) {
       newErrors.studentId = "شماره دانشجویی باید 10 رقم باشد"
     }
@@ -87,7 +89,7 @@ export default function RegisterPage() {
         await register({
           firstName: formData.firstName,
           lastName: formData.lastName || undefined,
-          phone: convertPersianToEnglish(formData.mobile),
+          phone: formData.mobile ? convertPersianToEnglish(formData.mobile) : undefined,
           email: formData.email,
           studentId: formData.studentId ? convertPersianToEnglish(formData.studentId) : undefined,
           password: formData.password,
@@ -159,45 +161,42 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* شماره موبایل و ایمیل */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="mobile">
-                    شماره موبایل <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="mobile"
-                    type="tel"
-                    autoComplete="tel"
-                    name="tel"
-                    dir="ltr"
-                    placeholder="09123456789"
-                    value={formData.mobile}
-                    onChange={(e) => handleChange("mobile", e.target.value)}
-                    className={errors.mobile ? "border-destructive" : ""}
-                    disabled={loading}
-                  />
-                  {errors.mobile && <p className="text-xs text-destructive">{errors.mobile}</p>}
-                </div>
+              {/* ایمیل - فیلد اصلی */}
+              <div className="space-y-2">
+                <Label htmlFor="email">
+                  ایمیل <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  dir="ltr"
+                  placeholder="example@email.com"
+                  value={formData.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  className={errors.email ? "border-destructive" : ""}
+                  disabled={loading}
+                />
+                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">
-                    ایمیل <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    dir="ltr"
-                    placeholder="example@email.com"
-                    value={formData.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                    className={errors.email ? "border-destructive" : ""}
-                    disabled={loading}
-                  />
-                  {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-                </div>
+              {/* شماره موبایل - اختیاری */}
+              <div className="space-y-2">
+                <Label htmlFor="mobile">شماره موبایل (اختیاری)</Label>
+                <Input
+                  id="mobile"
+                  type="tel"
+                  autoComplete="tel"
+                  name="tel"
+                  dir="ltr"
+                  placeholder="09123456789"
+                  value={formData.mobile}
+                  onChange={(e) => handleChange("mobile", e.target.value)}
+                  className={errors.mobile ? "border-destructive" : ""}
+                  disabled={loading}
+                />
+                {errors.mobile && <p className="text-xs text-destructive">{errors.mobile}</p>}
               </div>
 
               {/* شماره دانشجویی */}

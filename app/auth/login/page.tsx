@@ -64,12 +64,11 @@ export default function LoginPage() {
               </div>
             )}
 
-            <Tabs defaultValue="mobile" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="mobile">شماره موبایل</TabsTrigger>
-                <TabsTrigger value="email">ایمیل</TabsTrigger>
+            <Tabs defaultValue="email" className="w-full">
+              <TabsList className="grid w-full grid-cols-1 mb-6">
+                <TabsTrigger value="email"> ورود با ایمیل</TabsTrigger>
               </TabsList>
-
+{/* 
               <TabsContent value="mobile">
                 <form onSubmit={handleMobileLogin} className="space-y-4">
                   <div className="space-y-2">
@@ -124,7 +123,7 @@ export default function LoginPage() {
                     )}
                   </Button>
                 </form>
-              </TabsContent>
+              </TabsContent> */}
 
               <TabsContent value="email">
                 <form onSubmit={handleEmailLogin} className="space-y-4">
