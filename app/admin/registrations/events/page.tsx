@@ -79,13 +79,13 @@ export default function AdminEventRegistrationsPage() {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(
         (reg) =>
-          reg.person.first_name.toLowerCase().includes(query) ||
-          reg.person.last_name.toLowerCase().includes(query) ||
-          reg.person.email.toLowerCase().includes(query) ||
+          reg.person.first_name?.toLowerCase().includes(query) ||
+          reg.person.last_name?.toLowerCase().includes(query) ||
+          reg.person.email?.toLowerCase().includes(query) ||
           reg.person.student_id?.toLowerCase().includes(query) ||
           reg.student_id_at_registration?.toLowerCase().includes(query) ||
           reg.person.phone?.toLowerCase().includes(query) ||
-          reg.event.title.toLowerCase().includes(query),
+          reg.event.title?.toLowerCase().includes(query),
       )
     }
 
