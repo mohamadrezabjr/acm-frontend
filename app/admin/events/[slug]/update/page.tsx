@@ -39,9 +39,10 @@ export default function EditEventPage() {
   const slug = params?.slug as string
   const [dependencies, setDependencies] = useState<string[]>([])
   const dependencyOptions = [
+    { key: "phone", label: "شماره موبایل"},
     { key: "student_id", label: "شماره دانشجویی" },
     { key: "first_name", label: "نام" },
-    { key: "last_name", label: "نام خانوادگی" },
+    { key: "last_name", label: "نام خانوادگی" }, 
   ]
 
   const [speakers, setSpeakers] = useState<Speaker[]>([])
