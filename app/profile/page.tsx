@@ -100,8 +100,12 @@ export default function ProfilePage() {
         studentId: user.studentId || "",
         phone: user.phone || "",
       })
-      setImagePreview(user.avatar || null)
-      loadUserData()
+      if (user.avatar === "null"){
+        setImagePreview(null)
+      } else {
+        setImagePreview(user.avatar || null)
+      }      
+loadUserData()
     }
   }, [user])
 

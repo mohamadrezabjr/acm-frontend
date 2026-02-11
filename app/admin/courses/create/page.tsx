@@ -51,6 +51,7 @@ export default function CreateCoursePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [dependencies, setDependencies] = useState<string[]>([])
   const dependencyOptions = [
+    { key: "phone", label: "شماره موبایل"},
     { key: "student_id", label: "شماره دانشجویی" },
     { key: "first_name", label: "نام" },
     { key: "last_name", label: "نام خانوادگی" },

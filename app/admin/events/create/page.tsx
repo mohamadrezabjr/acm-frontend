@@ -42,6 +42,7 @@ export default function CreateEventPage() {
   const [newTagName, setNewTagName] = useState("")
   const [dependencies, setDependencies] = useState<string[]>([])
   const dependencyOptions = [
+    { key: "phone", label: "شماره موبایل"},
     { key: "student_id", label: "شماره دانشجویی" },
     { key: "first_name", label: "نام" },
     { key: "last_name", label: "نام خانوادگی" },
