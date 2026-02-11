@@ -71,7 +71,14 @@ export default function VerifyEmailPage() {
         router.push("/")
       } else if (result.error) {
         setError(result.error)
-      }
+
+        if (result.push) {
+          setTimeout(() => {
+            router.push("/auth/register")
+          }, 1200)
+  }
+}
+
     } catch (err) {
       setError("خطایی رخ داده است. لطفاً دوباره تلاش کنید")
     } finally {
@@ -96,7 +103,14 @@ export default function VerifyEmailPage() {
         setResendTimer(result.remainingTime)
         setCanResend(false)
         setError(result.error || "")
-      } else {
+      } else if (result.push) {
+        setCanResend(false)
+        setError(result.error || "")
+        setTimeout(() => {
+            router.push("/auth/register")
+          }, 1200)
+      }
+        else {
         setError(result.error || "خطا در ارسال مجدد کد")
       }
     } catch (err) {

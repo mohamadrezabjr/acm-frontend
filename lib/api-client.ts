@@ -478,6 +478,7 @@ export async function courseRegitserBySlug(slug: string): Promise<any> {
 
 export async function verifyRegistrationOTP(otp: string): Promise<{
   success: boolean
+  push: boolean
   tokens?: { access: string; refresh: string }
   error?: string
 }> {
@@ -493,23 +494,33 @@ export async function verifyRegistrationOTP(otp: string): Promise<{
 
     if (response.ok) {
       const data = await response.json()
-      return { success: true, tokens: data.tokens }
-    } else if (response.status === 400) {
-      return { success: false, error: "کد وارد شده اشتباه است" }
-    } else if (response.status === 401) {
-      return { success: false, error: "زمان کد تمام شده است. لطفاً کد جدید دریافت کنید" }
+      return { success: true, tokens: data.tokens, push: false }
     } else {
-      return { success: false, error: "خطایی رخ داده است" }
+      const error = await response.json()
+      if (error.invalid_otp) {
+      return { success: false, error: "کد وارد شده اشتباه است", push: false }
+    } else if (error.expired) {
+      return { success: false, error: "زمان کد تمام شده است. لطفاً کد جدید دریافت کنید", push: false }
+    } else if (error.reg_id) {
+      return { success: false, error: "لطفا دوباره اطلاعات رو وارد کنید", push: true}
+    } else if (error.email) {
+      return { success: false, error: "ایمیلی که وارد کرده اید در سیستم وجود دارد", push: true}
+    } else if (error.phone) {
+      return { success: false, error: "شماره ای که وارد کرده اید در سیسیتم وجود دارد", push: true}
+    } else {
+      return { success: false, error: "خطایی رخ داده است", push: true}
+    }
     }
   } catch (error) {
     console.error("OTP verification error:", error)
-    return { success: false, error: "خطا در اتصال به سرور" }
+    return { success: false, error: "خطا در اتصال به سرور", push: false }
   }
 }
 
 export async function resendRegistrationOTP(): Promise<{
   success: boolean
   remainingTime?: number
+  push: boolean
   error?: string
 }> {
   try {
@@ -520,22 +531,29 @@ export async function resendRegistrationOTP(): Promise<{
       },
       credentials: "include",
     })
-
+    
     if (response.status === 201) {
-      return { success: true }
-    } else if (response.status === 400) {
-      const data = await response.json()
+      return { success: true, push: false }
+    } else {
+      const error = await response.json()
+      if (error.revalidation_time) {
+      
       return {
         success: false,
-        remainingTime: data.remaining_revalidation,
+        remainingTime: error.remaining_revalidation,
         error: "هنوز نمی‌توانید کد جدید دریافت کنید",
+        push: false
       }
-    } else {
-      return { success: false, error: "خطایی رخ داده است" }
+    } else if (error.reg_id) {
+      return { success: false, error: "لطفا اطلاعات را دویاره وارد کنید", push: true}
+    } 
+    else {
+      return { success: false, error: "خطایی رخ داده است", push: false }
     }
-  } catch (error) {
+  } 
+ }catch (error) {
     console.error("OTP resend error:", error)
-    return { success: false, error: "خطا در اتصال به سرور" }
+    return { success: false, error: "خطا در اتصال به سرور", push: false }
   }
 }
 
