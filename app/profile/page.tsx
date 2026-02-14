@@ -249,7 +249,16 @@ loadUserData()
         })
       } else {
         const error = await response.json()
-        setPasswordError(error.detail || "خطا در ارسال کد")
+        let error_message = "خطا در ارسال کد"
+        if (error.revalidation_time) {
+          setOtpSent(true)
+          setPasswordStep("verify")
+          setResendTimer(parseInt(error.remaining_revalidation))
+          error_message = "کد قبلا برای شما ارسال شده است"
+        } else if (error.cant_change_password){
+          error_message = "شما به تازگی رمز خود را عوض کرده اید. لطفا دقایقی بعد تلاش کنید"
+        }
+        setPasswordError(error_message || "خطا در ارسال کد")
       }
     } catch (error) {
       setPasswordError("خطا در اتصال به سرور")
@@ -276,9 +285,9 @@ loadUserData()
         })
       } else {
         const error = await response.json()
-        if (error.wait_time) {
-          setPasswordError(`لطفاً ${error.wait_time} ثانیه دیگر صبر کنید`)
-          setResendTimer(error.wait_time)
+        if (error.remaining_revalidation) {
+          setPasswordError(`لطفاً ${parseInt(error.remaining_revalidation)} ثانیه دیگر صبر کنید`)
+          setResendTimer(parseInt(error.remaining_revalidation))
         } else {
           setPasswordError(error.detail || "خطا در ارسال مجدد کد")
         }
@@ -361,8 +370,37 @@ loadUserData()
         setResendTimer(0)
       } else {
         const error = await response.json()
-        setPasswordError(error.detail || "خطا در تغییر رمز عبور")
-      }
+        if (error.expired) {
+          setPasswordError("کد منقضی شده است. کد جدید دریافت کنید.")
+          setPasswordStep("request")
+          setOtpSent(false)
+          setOtpCode("")
+          setOtpVerified(false)
+          setNewPassword("")
+          setConfirmNewPassword("")
+          setResendTimer(0)
+        } else if (error.invalid_otp) {
+          setPasswordError("کد وارد شده اشتباه است")
+          setPasswordStep("request")
+          setOtpSent(false)
+          setOtpCode("")
+          setOtpVerified(false)
+          setNewPassword("")
+          setConfirmNewPassword("")
+          setResendTimer(0)
+        }else if (error.cant_change_password){
+          setPasswordError("شما به تازگی رمز عبور خود را عوض کرده اید. لطفا دقایقی بعد تلاش کنید")
+          setPasswordStep("request")
+          setOtpSent(false)
+          setOtpCode("")
+          setOtpVerified(false)
+          setNewPassword("")
+          setConfirmNewPassword("")
+          setResendTimer(0)
+        } else {
+          setPasswordError("خطا در تغییر رمز عبور")
+        }
+    }
     } catch (error) {
       setPasswordError("خطا در اتصال به سرور")
     } finally {
