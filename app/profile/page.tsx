@@ -25,6 +25,9 @@ import {
   Loader2,
   Clock,
   LayoutDashboard,
+  Key,
+  Send,
+  Lock,
 } from "lucide-react"
 import Link from "next/link"
 import {
@@ -36,6 +39,7 @@ import {
   WeekdayFa,
 } from "@/lib/api-client"
 import { toast } from "@/hooks/use-toast"
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 
 export default function ProfilePage() {
   const { user, loading, isCreator } = useAuth()
@@ -59,6 +63,20 @@ export default function ProfilePage() {
     studentId: "",
     phone: "",
   })
+
+  // Password change states
+  const [showPasswordChange, setShowPasswordChange] = useState(false)
+  const [passwordStep, setPasswordStep] = useState<"request" | "verify" | "change">("request")
+  const [otpSent, setOtpSent] = useState(false)
+  const [otpCode, setOtpCode] = useState("")
+  const [otpVerified, setOtpVerified] = useState(false)
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmNewPassword, setConfirmNewPassword] = useState("")
+  const [sendingOtp, setSendingOtp] = useState(false)
+  const [verifyingOtp, setVerifyingOtp] = useState(false)
+  const [changingPassword, setChangingPassword] = useState(false)
+  const [resendTimer, setResendTimer] = useState(0)
+  const [passwordError, setPasswordError] = useState("")
 
   // تابع تبدیل اعداد فارسی به انگلیسی
   const convertPersianToEnglish = (str: string) => {
@@ -91,6 +109,14 @@ export default function ProfilePage() {
         return () => clearTimeout(timer)
       }
     }, [popupMessage])
+
+  // Timer countdown for resend OTP
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [resendTimer])
 
   useEffect(() => {
     if (user) {
@@ -203,6 +229,157 @@ loadUserData()
       studentId: user?.studentId || "",
       phone: user?.phone || "",
     })
+  }
+
+  const handleRequestOtp = async () => {
+    setSendingOtp(true)
+    setPasswordError("")
+    try {
+      const response = await apiRequest("/auth/change-password/send-otp/", {
+        method: "POST",
+      })
+
+      if (response.ok) {
+        setOtpSent(true)
+        setPasswordStep("verify")
+        setResendTimer(120) // 2 minutes
+        toast({
+          title: "موفق",
+          description: "کد تایید به ایمیل شما ارسال شد",
+        })
+      } else {
+        const error = await response.json()
+        setPasswordError(error.detail || "خطا در ارسال کد")
+      }
+    } catch (error) {
+      setPasswordError("خطا در اتصال به سرور")
+    } finally {
+      setSendingOtp(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) return
+    
+    setSendingOtp(true)
+    setPasswordError("")
+    try {
+      const response = await apiRequest("/auth/change-password/send-otp/", {
+        method: "POST",
+      })
+
+      if (response.ok) {
+        setResendTimer(120)
+        toast({
+          title: "موفق",
+          description: "کد تایید مجدداً ارسال شد",
+        })
+      } else {
+        const error = await response.json()
+        if (error.wait_time) {
+          setPasswordError(`لطفاً ${error.wait_time} ثانیه دیگر صبر کنید`)
+          setResendTimer(error.wait_time)
+        } else {
+          setPasswordError(error.detail || "خطا در ارسال مجدد کد")
+        }
+      }
+    } catch (error) {
+      setPasswordError("خطا در اتصال به سرور")
+    } finally {
+      setSendingOtp(false)
+    }
+  }
+
+  const handleVerifyOtp = async () => {
+    if (otpCode.length !== 6) {
+      setPasswordError("کد باید 6 رقم باشد")
+      return
+    }
+
+    setVerifyingOtp(true)
+    setPasswordError("")
+    try {
+      const response = await apiRequest("/auth/change-password/verify/", {
+        method: "POST",
+        body: JSON.stringify({ otp: otpCode }),
+      })
+
+      if (response.ok) {
+        setOtpVerified(true)
+        setPasswordStep("change")
+        toast({
+          title: "موفق",
+          description: "کد تایید با موفقیت تایید شد",
+        })
+      } else {
+        const error = await response.json()
+        setPasswordError(error.detail || "کد وارد شده اشتباه است")
+      }
+    } catch (error) {
+      setPasswordError("خطا در اتصال به سرور")
+    } finally {
+      setVerifyingOtp(false)
+    }
+  }
+
+  const handleChangePassword = async () => {
+    setPasswordError("")
+
+    if (!newPassword || newPassword.length < 8) {
+      setPasswordError("رمز عبور باید حداقل 8 کاراکتر باشد")
+      return
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError("رمز عبور و تکرار آن یکسان نیستند")
+      return
+    }
+
+    setChangingPassword(true)
+    try {
+      const response = await apiRequest("/auth/change-password/", {
+        method: "POST",
+        body: JSON.stringify({
+          otp: otpCode,
+          new_password: newPassword,
+        }),
+      })
+
+      if (response.ok) {
+        toast({
+          title: "موفق",
+          description: "رمز عبور با موفقیت تغییر یافت",
+        })
+        // Reset all states
+        setShowPasswordChange(false)
+        setPasswordStep("request")
+        setOtpSent(false)
+        setOtpCode("")
+        setOtpVerified(false)
+        setNewPassword("")
+        setConfirmNewPassword("")
+        setResendTimer(0)
+      } else {
+        const error = await response.json()
+        setPasswordError(error.detail || "خطا در تغییر رمز عبور")
+      }
+    } catch (error) {
+      setPasswordError("خطا در اتصال به سرور")
+    } finally {
+      setChangingPassword(false)
+    }
+  }
+
+  const handleCancelPasswordChange = () => {
+    setShowPasswordChange(false)
+    setPasswordStep("request")
+    setOtpSent(false)
+    setOtpCode("")
+    setOtpVerified(false)
+    setNewPassword("")
+    setConfirmNewPassword("")
+    setPasswordError("")
+    setResendTimer(0)
   }
 
   if (loading) {
@@ -420,6 +597,215 @@ loadUserData()
                       <div className="space-y-2">
                         <Label className="text-sm font-semibold text-muted-foreground text-right block">سمت</Label>
                         <p className="text-lg font-medium text-right">{user.position}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Password Change Section */}
+                  <div className="border-t pt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <Button
+                        variant={showPasswordChange ? "outline" : "default"}
+                        onClick={() => {
+                          if (showPasswordChange) {
+                            handleCancelPasswordChange()
+                          } else {
+                            setShowPasswordChange(true)
+                          }
+                        }}
+                        className="gap-2"
+                      >
+                        <Key className="w-4 h-4" />
+                        {showPasswordChange ? "لغو تغییر رمز" : "تغییر رمز عبور"}
+                      </Button>
+                    </div>
+
+                    {showPasswordChange && (
+                      <div className="space-y-6 bg-muted/30 p-6 rounded-lg">
+                        {/* Step 1: Request OTP */}
+                        {passwordStep === "request" && (
+                          <div className="space-y-4">
+                            <div className="text-right space-y-2">
+                              <h3 className="font-semibold text-lg">درخواست کد تایید</h3>
+                              <p className="text-sm text-muted-foreground">
+                                برای تغییر رمز عبور، کد تایید 6 رقمی به ایمیل شما ارسال می‌شود
+                              </p>
+                            </div>
+                            <Button
+                              onClick={handleRequestOtp}
+                              disabled={sendingOtp}
+                              className="w-full sm:w-auto gap-2"
+                            >
+                              {sendingOtp ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  در حال ارسال...
+                                </>
+                              ) : (
+                                <>
+                                  <Send className="w-4 h-4" />
+                                  ارسال کد تایید
+                                </>
+                              )}
+                            </Button>
+                            {passwordError && (
+                              <p className="text-sm text-destructive text-right">{passwordError}</p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Step 2: Verify OTP */}
+                        {passwordStep === "verify" && !otpVerified && (
+                          <div className="space-y-4">
+                            <div className="text-right space-y-2">
+                              <h3 className="font-semibold text-lg">تایید کد</h3>
+                              <p className="text-sm text-muted-foreground">
+                                کد 6 رقمی ارسال شده به ایمیل خود را وارد کنید
+                              </p>
+                            </div>
+
+                            <div className="flex flex-col items-center gap-4" dir="ltr">
+                              <InputOTP
+                                maxLength={6}
+                                value={otpCode}
+                                onChange={(value) => setOtpCode(value)}
+                                disabled={verifyingOtp}
+                              >
+                                <InputOTPGroup>
+                                  <InputOTPSlot index={0} />
+                                  <InputOTPSlot index={1} />
+                                  <InputOTPSlot index={2} />
+                                  <InputOTPSlot index={3} />
+                                  <InputOTPSlot index={4} />
+                                  <InputOTPSlot index={5} />
+                                </InputOTPGroup>
+                              </InputOTP>
+                            </div>
+
+                            <div className="flex gap-2 flex-wrap justify-end">
+                              <Button
+                                variant="outline"
+                                onClick={handleResendOtp}
+                                disabled={resendTimer > 0 || sendingOtp}
+                                size="sm"
+                              >
+                                {sendingOtp ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                                    در حال ارسال...
+                                  </>
+                                ) : resendTimer > 0 ? (
+                                  <>
+                                    ارسال مجدد ({Math.floor(resendTimer / 60)}:{(resendTimer % 60).toString().padStart(2, "0")})
+                                  </>
+                                ) : (
+                                  "ارسال مجدد کد"
+                                )}
+                              </Button>
+                              <Button
+                                onClick={handleVerifyOtp}
+                                disabled={verifyingOtp || otpCode.length !== 6}
+                                size="sm"
+                              >
+                                {verifyingOtp ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                                    در حال تایید...
+                                  </>
+                                ) : (
+                                  "تایید کد"
+                                )}
+                              </Button>
+                            </div>
+
+                            {passwordError && (
+                              <p className="text-sm text-destructive text-right">{passwordError}</p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Step 3: Change Password */}
+                        {passwordStep === "change" && otpVerified && (
+                          <div className="space-y-4">
+                            <div className="text-right space-y-2">
+                              <h3 className="font-semibold text-lg">تعیین رمز عبور جدید</h3>
+                              <p className="text-sm text-muted-foreground">
+                                رمز عبور جدید خود را وارد کنید (حداقل 8 کاراکتر)
+                              </p>
+                            </div>
+
+                            {/* Display verified OTP (read-only) */}
+                            <div className="space-y-2">
+                              <Label className="text-sm font-semibold text-right block">
+                                کد تایید
+                              </Label>
+                              <div className="flex justify-center" dir="ltr">
+                                <InputOTP maxLength={6} value={otpCode} disabled>
+                                  <InputOTPGroup>
+                                    <InputOTPSlot index={0} />
+                                    <InputOTPSlot index={1} />
+                                    <InputOTPSlot index={2} />
+                                    <InputOTPSlot index={3} />
+                                    <InputOTPSlot index={4} />
+                                    <InputOTPSlot index={5} />
+                                  </InputOTPGroup>
+                                </InputOTP>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="newPassword" className="text-right block">
+                                رمز عبور جدید
+                              </Label>
+                              <Input
+                                id="newPassword"
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="حداقل 8 کاراکتر"
+                                className="text-right"
+                                dir="ltr"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="confirmNewPassword" className="text-right block">
+                                تکرار رمز عبور جدید
+                              </Label>
+                              <Input
+                                id="confirmNewPassword"
+                                type="password"
+                                value={confirmNewPassword}
+                                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                placeholder="تکرار رمز عبور"
+                                className="text-right"
+                                dir="ltr"
+                              />
+                            </div>
+
+                            <Button
+                              onClick={handleChangePassword}
+                              disabled={changingPassword}
+                              className="w-full sm:w-auto gap-2"
+                            >
+                              {changingPassword ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  در حال تغییر رمز...
+                                </>
+                              ) : (
+                                <>
+                                  <Lock className="w-4 h-4" />
+                                  تغییر رمز عبور
+                                </>
+                              )}
+                            </Button>
+
+                            {passwordError && (
+                              <p className="text-sm text-destructive text-right">{passwordError}</p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
