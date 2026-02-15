@@ -222,7 +222,7 @@ loadUserData()
   const handleCancelEdit = () => {
     setIsEditing(false)
     setSelectedImage(null)
-    if (user.avatar == "null") {
+    if (user?.avatar == "null") {
       setImagePreview(null)
     } else {
     setImagePreview(user?.avatar || null)
