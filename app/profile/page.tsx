@@ -353,8 +353,8 @@ loadUserData()
           new_password: newPassword,
         }),
       })
-
-      if (response.ok) {
+      const result = await response.json()
+      if (result.success) {
         toast({
           title: "موفق",
           description: "رمز عبور با موفقیت تغییر یافت",
@@ -368,9 +368,17 @@ loadUserData()
         setNewPassword("")
         setConfirmNewPassword("")
         setResendTimer(0)
+
+        // Store tokens in cookies
+        document.cookie = `access_token=${result.tokens.access}; path=/; max-age=86400; samesite=strict; ${
+          process.env.NODE_ENV === "production" ? "secure;" : ""
+        }`
+        document.cookie = `refresh_token=${result.tokens.refresh}; path=/; max-age=604800; samesite=strict; ${
+          process.env.NODE_ENV === "production" ? "secure;" : ""
+        }`
+
       } else {
-        const error = await response.json()
-        if (error.expired) {
+        if (result.expired) {
           setPasswordError("کد منقضی شده است. کد جدید دریافت کنید.")
           setPasswordStep("request")
           setOtpSent(false)
@@ -379,7 +387,7 @@ loadUserData()
           setNewPassword("")
           setConfirmNewPassword("")
           setResendTimer(0)
-        } else if (error.invalid_otp) {
+        } else if (result.invalid_otp) {
           setPasswordError("کد وارد شده اشتباه است")
           setPasswordStep("request")
           setOtpSent(false)
@@ -388,7 +396,7 @@ loadUserData()
           setNewPassword("")
           setConfirmNewPassword("")
           setResendTimer(0)
-        }else if (error.cant_change_password){
+        }else if (result.cant_change_password){
           setPasswordError("شما به تازگی رمز عبور خود را عوض کرده اید. لطفا دقایقی بعد تلاش کنید")
           setPasswordStep("request")
           setOtpSent(false)
