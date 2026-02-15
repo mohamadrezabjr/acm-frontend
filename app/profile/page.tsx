@@ -222,7 +222,11 @@ loadUserData()
   const handleCancelEdit = () => {
     setIsEditing(false)
     setSelectedImage(null)
+    if (user.avatar == "null") {
+      setImagePreview(null)
+    } else {
     setImagePreview(user?.avatar || null)
+    }
     setEditForm({
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
