@@ -29,7 +29,7 @@ type SortField = "email" | "first_name" | "phone" | "student_id"
 type SortOrder = "asc" | "desc"
 
 export default function AdminUsersPage() {
-  const { user, loading, isCreator } = useAuth()
+  const { user, loading, isAdmin } = useAuth()
   const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
   const [loadingUsers, setLoadingUsers] = useState(true)
@@ -43,10 +43,10 @@ export default function AdminUsersPage() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc")
 
   useEffect(() => {
-    if (!loading && (!user || !isCreator())) {
+    if (!loading && (!user || !isAdmin())) {
       router.push("/auth/login")
     }
-  }, [loading, user, router, isCreator])
+  }, [loading, user, router, isAdmin])
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -64,10 +64,10 @@ export default function AdminUsersPage() {
       }
     }
 
-    if (user && isCreator()) {
+    if (user && isAdmin()) {
       loadUsers()
     }
-  }, [user, isCreator])
+  }, [user, isAdmin])
 
   // Filter and sort users
   const filteredAndSortedUsers = useMemo(() => {
