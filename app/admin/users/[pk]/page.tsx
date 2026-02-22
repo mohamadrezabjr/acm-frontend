@@ -478,24 +478,24 @@ export default function UserDetailPage() {
                             <CardContent>
                               <div className="space-y-3">
                                 <div>
-                                  <p className="text-sm font-semibold mb-2">اطلاعات ثبت‌نام:</p>
+                                  <p className="text-sm font-semibold mb-2 text-right">اطلاعات ثبت‌نام:</p>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm bg-muted/30 p-3 rounded-lg">
-                                    <div>
+                                    <div className="text-right">
                                       <span className="text-muted-foreground">نام: </span>
                                       <span className="font-medium">
                                         {registration.first_name_at_registration} {registration.last_name_at_registration}
                                       </span>
                                     </div>
-                                    <div dir="ltr">
+                                    <div className="text-right">
                                       <span className="text-muted-foreground">ایمیل: </span>
-                                      <span className="font-medium">{registration.email_at_registration}</span>
+                                      <span className="font-medium" dir="ltr">{registration.email_at_registration}</span>
                                     </div>
-                                    <div dir="ltr">
+                                    <div className="text-right">
                                       <span className="text-muted-foreground">موبایل: </span>
-                                      <span className="font-medium">{registration.phone_at_registration}</span>
+                                      <span className="font-medium" dir="ltr">{registration.phone_at_registration}</span>
                                     </div>
                                     {registration.student_id_at_registration && (
-                                      <div>
+                                      <div className="text-right">
                                         <span className="text-muted-foreground">شماره دانشجویی: </span>
                                         <span className="font-medium">{registration.student_id_at_registration}</span>
                                       </div>
@@ -553,10 +553,10 @@ export default function UserDetailPage() {
                             <CardContent>
                               <div className="space-y-3">
                                 <div>
-                                  <p className="text-sm font-semibold mb-2">اطلاعات ثبت‌نام:</p>
+                                  <p className="text-sm font-semibold mb-2 text-right">اطلاعات ثبت‌نام:</p>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm bg-muted/30 p-3 rounded-lg">
                                     {registration.first_name_at_registration && (
-                                      <div>
+                                      <div className="text-right">
                                         <span className="text-muted-foreground">نام: </span>
                                         <span className="font-medium">
                                           {registration.first_name_at_registration} {registration.last_name_at_registration}
@@ -564,19 +564,19 @@ export default function UserDetailPage() {
                                       </div>
                                     )}
                                     {registration.email_at_registration && (
-                                      <div dir="ltr">
+                                      <div className="text-right">
                                         <span className="text-muted-foreground">ایمیل: </span>
-                                        <span className="font-medium">{registration.email_at_registration}</span>
+                                        <span className="font-medium" dir="ltr">{registration.email_at_registration}</span>
                                       </div>
                                     )}
                                     {registration.phone_at_registration && (
-                                      <div dir="ltr">
+                                      <div className="text-right">
                                         <span className="text-muted-foreground">موبایل: </span>
-                                        <span className="font-medium">{registration.phone_at_registration}</span>
+                                        <span className="font-medium" dir="ltr">{registration.phone_at_registration}</span>
                                       </div>
                                     )}
                                     {registration.student_id_at_registration && (
-                                      <div>
+                                      <div className="text-right">
                                         <span className="text-muted-foreground">شماره دانشجویی: </span>
                                         <span className="font-medium">{registration.student_id_at_registration}</span>
                                       </div>
