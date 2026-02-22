@@ -16,6 +16,7 @@ import { apiRequest } from "@/lib/api-client"
 import Image from "next/image"
 
 interface User {
+  pk: number
   phone: string
   email: string
   first_name: string
@@ -310,7 +311,7 @@ export default function AdminUsersPage() {
                             </div>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Link href={`/admin/users/${usr.email}`}>
+                            <Link href={`/admin/users/${usr.pk}`}>
                               <Button variant="outline" size="sm" className="gap-2">
                                 <Eye className="h-4 w-4" />
                                 مشاهده
