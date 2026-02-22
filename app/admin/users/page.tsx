@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowRight, Loader2, ArrowUpDown, ArrowUp, ArrowDown, User as UserIcon, Mail, Phone, IdCard } from "lucide-react"
+import { ArrowRight, Loader2, ArrowUpDown, ArrowUp, ArrowDown, User as UserIcon, Mail, Phone, IdCard, Eye } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { Header } from "@/components/header"
@@ -256,6 +256,7 @@ export default function AdminUsersPage() {
                             شماره دانشجویی
                           </Button>
                         </TableHead>
+                        <TableHead className="min-w-[100px] text-right">عملیات</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -307,6 +308,14 @@ export default function AdminUsersPage() {
                               <IdCard className="h-4 w-4 text-muted-foreground" />
                               <span>{usr.student_id || "-"}</span>
                             </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Link href={`/admin/users/${usr.email}`}>
+                              <Button variant="outline" size="sm" className="gap-2">
+                                <Eye className="h-4 w-4" />
+                                مشاهده
+                              </Button>
+                            </Link>
                           </TableCell>
                         </TableRow>
                       ))}
