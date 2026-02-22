@@ -52,8 +52,14 @@ export default function ForgotPasswordPage() {
         setResendTimer(120) // 2 minutes
       } else {
         const errorData = await response.json()
-        setError(errorData.detail || "خطا در ارسال کد. لطفاً دوباره تلاش کنید.")
-      }
+        if (errorData.revalidation_time){
+          setStep("verify")
+          setError(`کد قبلا برای شما ارسال شده است`)
+          setResendTimer(parseInt(errorData.revalidation_time))
+        } else {
+          setError(errorData.detail || "خطا در ارسال کد. لطفاً دوباره تلاش کنید.")
+        }
+        }
     } catch (err: any) {
       setError("خطا در اتصال به سرور")
     } finally {
@@ -77,11 +83,11 @@ export default function ForgotPasswordPage() {
         setResendTimer(120)
       } else {
         const errorData = await response.json()
-        if (errorData.wait_time) {
-          setError(`لطفاً ${errorData.wait_time} ثانیه دیگر صبر کنید`)
-          setResendTimer(errorData.wait_time)
+        if (errorData.revalidation_time) {
+          setError(`لطفاً ${parseInt(errorData.revalidation_time)} ثانیه دیگر صبر کنید`)
+          setResendTimer(parseInt(errorData.revalidation_time))
         } else {
-          setError(errorData.detail || "خطا در ارسال مجدد کد")
+          setError("خطا در ارسال مجدد کد")
         }
       }
     } catch (err: any) {
@@ -114,10 +120,10 @@ export default function ForgotPasswordPage() {
         const data = await response.json()
 
         // Save JWT tokens
-        document.cookie = `access_token=${data.access}; path=/; max-age=86400; samesite=strict; ${
+        document.cookie = `access_token=${data.tokens.access}; path=/; max-age=86400; samesite=strict; ${
           process.env.NODE_ENV === "production" ? "secure;" : ""
         }`
-        document.cookie = `refresh_token=${data.refresh}; path=/; max-age=604800; samesite=strict; ${
+        document.cookie = `refresh_token=${data.tokens.refresh}; path=/; max-age=604800; samesite=strict; ${
           process.env.NODE_ENV === "production" ? "secure;" : ""
         }`
 
@@ -154,20 +160,33 @@ export default function ForgotPasswordPage() {
     setLoading(true)
 
     try {
-      const response = await apiRequest("/auth/forgot-password/reset/", {
+      const response = await apiRequest("/auth/change-password/", {
         method: "POST",
         body: JSON.stringify({
-          email,
           otp: otpCode,
           new_password: newPassword,
         }),
       })
-
-      if (response.ok) {
+      const result = await response.json()
+      if (result.success) {
         router.push("/")
       } else {
-        const errorData = await response.json()
-        setError(errorData.detail || "خطا در تغییر رمز عبور")
+        if (result.expired) {
+          setError("کد منقضی شده است. کد جدید دریافت کنید.")
+          setResendTimer(0)
+        } else if (result.invalid_otp) {
+          setError("کد وارد شده اشتباه است")
+          setOtpCode("")
+          setNewPassword("")
+          setResendTimer(0)
+        }else if (result.cant_change_password){
+          setError("شما به تازگی رمز عبور خود را عوض کرده اید. لطفا دقایقی بعد تلاش کنید")
+          setOtpCode("")
+          setNewPassword("")
+          setResendTimer(0)
+        } else {
+          setError("خطا در تغییر رمز عبور")
+        }
       }
     } catch (err: any) {
       setError("خطا در اتصال به سرور")
