@@ -439,7 +439,7 @@ export default function UserDetailPage() {
                     </TabsList>
 
                     {/* Events Tab */}
-                    <TabsContent value="events" className="space-y-4 mt-4">
+                    <TabsContent value="events" dir="rtl" className="space-y-4 mt-4">
                       {userDetail.events.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
                           <CalendarDays className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -478,7 +478,7 @@ export default function UserDetailPage() {
                             <CardContent>
                               <div className="space-y-3">
                                 <div>
-                                  <p className="text-sm font-semibold mb-2 text-right">اطلاعات ثبت‌نام:</p>
+                                  <p className="text-sm font-semibold mb-2 text-right">اطلاعات ثبت‌نام‌ : </p>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm bg-muted/30 p-3 rounded-lg">
                                     <div className="text-right">
                                       <span className="text-muted-foreground">نام: </span>
@@ -514,7 +514,7 @@ export default function UserDetailPage() {
                     </TabsContent>
 
                     {/* Courses Tab */}
-                    <TabsContent value="courses" className="space-y-4 mt-4">
+                    <TabsContent value="courses" dir="rtl" className="space-y-4 mt-4">
                       {userDetail.courses.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
                           <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -553,7 +553,7 @@ export default function UserDetailPage() {
                             <CardContent>
                               <div className="space-y-3">
                                 <div>
-                                  <p className="text-sm font-semibold mb-2 text-right">اطلاعات ثبت‌نام:</p>
+                                  <p className="text-sm font-semibold mb-2 text-right">اطلاعات ثبت‌نام‌ :</p>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm bg-muted/30 p-3 rounded-lg">
                                     {registration.first_name_at_registration && (
                                       <div className="text-right">
