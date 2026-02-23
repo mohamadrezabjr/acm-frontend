@@ -119,18 +119,20 @@ interface UserDetail {
   last_name: string
   avatar: string | null
   student_id: string
+  role: "superuser" | "admin" | "creator" | "user"
   events: EventRegistration[]
   courses: CourseRegistration[]
 }
 
 export default function UserDetailPage() {
   const { pk } = useParams<{ pk: string }>()
-  const { user, loading, isAdmin } = useAuth()
+  const { user, loading, isAdmin, isSuperuser } = useAuth()
   const router = useRouter()
   const [userDetail, setUserDetail] = useState<UserDetail | null>(null)
   const [loadingUser, setLoadingUser] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [canEdit, setCanEdit] = useState(false)
 
   const [editForm, setEditForm] = useState({
     first_name: "",
@@ -162,6 +164,19 @@ export default function UserDetailPage() {
           phone: data.phone,
           student_id: data.student_id,
         })
+
+        // Check if current user can edit this user
+        // superuser can edit anyone
+        // admin can edit creator and user roles only
+        if (user) {
+          if (isSuperuser()) {
+            setCanEdit(true)
+          } else if (isAdmin() && (data.role === "creator" || data.role === "user")) {
+            setCanEdit(true)
+          } else {
+            setCanEdit(false)
+          }
+        }
       } catch (error) {
         console.error("Error fetching user details:", error)
         toast({
@@ -177,7 +192,7 @@ export default function UserDetailPage() {
     if (user && isAdmin() && pk) {
       loadUserDetail()
     }
-  }, [user, isAdmin, pk])
+  }, [user, isAdmin, isSuperuser, pk])
 
   const handleSave = async () => {
     setSaving(true)
@@ -282,10 +297,12 @@ export default function UserDetailPage() {
                       اطلاعات کاربر
                     </CardTitle>
                     {!isEditing ? (
-                      <Button onClick={() => setIsEditing(true)} size="sm" variant="outline">
-                        <Edit className="ml-2 h-4 w-4" />
-                        ویرایش
-                      </Button>
+                      canEdit && (
+                        <Button onClick={() => setIsEditing(true)} size="sm" variant="outline">
+                          <Edit className="ml-2 h-4 w-4" />
+                          ویرایش
+                        </Button>
+                      )
                     ) : (
                       <div className="flex gap-2">
                         <Button onClick={handleSave} size="sm" disabled={saving}>
@@ -409,6 +426,33 @@ export default function UserDetailPage() {
                               شماره دانشجویی
                             </p>
                             <p className="font-medium">{userDetail.student_id || "-"}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                              <Users className="h-4 w-4" />
+                              نقش
+                            </p>
+                            <div>
+                              <Badge
+                                variant={
+                                  userDetail.role === "superuser"
+                                    ? "destructive"
+                                    : userDetail.role === "admin"
+                                      ? "default"
+                                      : userDetail.role === "creator"
+                                        ? "secondary"
+                                        : "outline"
+                                }
+                              >
+                                {userDetail.role === "superuser"
+                                  ? "سوپر ادمین"
+                                  : userDetail.role === "admin"
+                                    ? "ادمین"
+                                    : userDetail.role === "creator"
+                                      ? "سازنده محتوا"
+                                      : "کاربر"}
+                              </Badge>
+                            </div>
                           </div>
                         </>
                       )}

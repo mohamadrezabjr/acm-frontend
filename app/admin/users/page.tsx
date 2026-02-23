@@ -23,6 +23,7 @@ interface User {
   last_name: string
   avatar: string | null
   student_id: string
+  role: "superuser" | "admin" | "creator" | "user"
   position?: string
 }
 
@@ -257,6 +258,7 @@ export default function AdminUsersPage() {
                             شماره دانشجویی
                           </Button>
                         </TableHead>
+                        <TableHead className="min-w-[120px] text-right">نقش</TableHead>
                         <TableHead className="min-w-[100px] text-right">عملیات</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -309,6 +311,27 @@ export default function AdminUsersPage() {
                               <IdCard className="h-4 w-4 text-muted-foreground" />
                               <span>{usr.student_id || "-"}</span>
                             </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Badge
+                              variant={
+                                usr.role === "superuser"
+                                  ? "destructive"
+                                  : usr.role === "admin"
+                                    ? "default"
+                                    : usr.role === "creator"
+                                      ? "secondary"
+                                      : "outline"
+                              }
+                            >
+                              {usr.role === "superuser"
+                                ? "سوپر ادمین"
+                                : usr.role === "admin"
+                                  ? "ادمین"
+                                  : usr.role === "creator"
+                                    ? "سازنده"
+                                    : "کاربر"}
+                            </Badge>
                           </TableCell>
                           <TableCell className="text-right">
                             <Link href={`/admin/users/${usr.pk}`}>

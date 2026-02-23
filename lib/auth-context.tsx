@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { useRouter } from "next/navigation"
 import { apiRequest } from "./api-client"
 
-type UserRole = "user" | "creator" | "admin"
+type UserRole = "user" | "creator" | "admin" | "superuser"
 
 interface User {
   id: string
@@ -28,6 +28,7 @@ interface AuthContextType {
   checkAuth: () => Promise<void> // Added checkAuth to context type
   isAdmin: () => boolean
   isCreator: () => boolean
+  isSuperuser: () => boolean
 }
 
 interface RegisterData {
@@ -174,11 +175,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/")
   }
 
-  const isAdmin = () => user?.role === "admin"
-  const isCreator = () => user?.role === "creator" || user?.role === "admin"
+  const isAdmin = () => user?.role === "admin" || user?.role === "superuser"
+  const isCreator = () => user?.role === "creator" || user?.role === "admin" || user?.role === "superuser"
+  const isSuperuser = () => user?.role === "superuser"
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, checkAuth, isAdmin, isCreator }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, checkAuth, isAdmin, isCreator, isSuperuser }}>
       {children}
     </AuthContext.Provider>
   )
