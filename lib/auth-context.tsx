@@ -174,8 +174,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/")
   }
 
-  const isAdmin = () => user?.role === "admin"
-  const isCreator = () => user?.role === "creator" || user?.role === "admin"
+  const isSuperUser = () => user?.role == "superuser"
+  const isAdmin = () => user?.role === "admin" || isSuperUser
+  const isCreator = () => user?.role === "creator" || isAdmin 
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout, checkAuth, isAdmin, isCreator }}>

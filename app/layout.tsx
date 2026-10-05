@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
 import { ThemeProvider } from "@/lib/theme-context"
+import AcmLoader from "@/components/AcmLoader"
 
 import { Vazirmatn, Geist as V0_Font_Geist, Geist_Mono as V0_Font_Geist_Mono, Source_Serif_4 as V0_Font_Source_Serif_4 } from 'next/font/google'
 
@@ -44,6 +45,7 @@ export default function RootLayout({
       </head>
       <body className={`${vazirmatn.className} font-sans antialiased`}>
         <ThemeProvider>
+          <AcmLoader />
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
